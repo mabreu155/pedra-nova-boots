@@ -41,7 +41,7 @@ const Index = () => {
           >
             New Rock.
             <br />
-            <span className="italic font-bold">Só as originais.</span>
+            <span className="font-bold">Só as originais.</span>
           </motion.h1>
 
           <motion.div
@@ -86,15 +86,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* QUOTE STRIP */}
-      <section className="mt-32 md:mt-48 px-6 py-24 md:py-40" style={{ borderTop: "1px solid hsl(var(--border))", borderBottom: "1px solid hsl(var(--border))" }}>
-        <p
-          className="font-display italic text-center mx-auto max-w-5xl"
-          style={{ fontSize: "clamp(32px, 6vw, 88px)", lineHeight: 1.1 }}
-        >
-          “Não é uma bota. É uma declaração.”
-        </p>
-      </section>
     </Layout>
   );
 };

@@ -41,17 +41,18 @@
 
   html, body {
     @apply bg-background text-foreground;
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-weight: 300;
     -webkit-font-smoothing: antialiased;
   }
 
   h1, h2, h3, h4, h5, h6, .font-display {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Bebas Neue', 'Inter', sans-serif;
+    letter-spacing: 0.01em;
   }
 
   .label {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
     text-transform: uppercase;
     letter-spacing: 0.18em;
     font-size: 10px;
