@@ -53,7 +53,7 @@ const CartDrawer = () => {
                   {items.map((i) => (
                     <li key={i.id} className="flex gap-4 p-6" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
                       <div style={{ width: 80, flexShrink: 0 }}>
-                        <ProductImage name={i.product.name} ratio="4/5" />
+                        <ProductImage src={i.product.image} name={i.product.name} ratio="4/5" />
                       </div>
                       <div className="flex-1 flex flex-col">
                         <p className="font-display text-lg leading-tight">{i.product.name}</p>

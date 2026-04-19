@@ -1,3 +1,10 @@
+import wall006 from "@/assets/wall006.jpg";
+import mili085 from "@/assets/mili085.jpg";
+import futur01 from "@/assets/futur01.jpg";
+import sylth001 from "@/assets/sylth001.jpg";
+import skull001 from "@/assets/skull001.jpg";
+import tower006 from "@/assets/tower006.jpg";
+
 export type Product = {
   slug: string;
   name: string;
@@ -8,6 +15,7 @@ export type Product = {
   description: string;
   details: string[];
   badge?: string;
+  image: string;
 };
 
 export const products: Product[] = [
@@ -27,6 +35,7 @@ export const products: Product[] = [
       "Fabricado na Espanha",
     ],
     badge: "Novo",
+    image: wall006,
   },
   {
     slug: "mili085",
@@ -43,6 +52,7 @@ export const products: Product[] = [
       "Sola antiderrapante",
       "Fabricado na Espanha",
     ],
+    image: mili085,
   },
   {
     slug: "futur01",
@@ -60,6 +70,7 @@ export const products: Product[] = [
       "Fabricado na Espanha",
     ],
     badge: "Novo",
+    image: futur01,
   },
   {
     slug: "sylth001",
@@ -76,6 +87,7 @@ export const products: Product[] = [
       "Sola borracha",
       "Fabricado na Espanha",
     ],
+    image: sylth001,
   },
   {
     slug: "skull001",
@@ -93,6 +105,7 @@ export const products: Product[] = [
       "Fabricado na Espanha",
     ],
     badge: "Novo",
+    image: skull001,
   },
   {
     slug: "tower006",
@@ -110,6 +123,7 @@ export const products: Product[] = [
       "Múltiplas fivelas",
       "Fabricado na Espanha",
     ],
+    image: tower006,
   },
 ];
 

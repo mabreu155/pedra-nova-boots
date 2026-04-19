@@ -41,7 +41,7 @@ const Lookbook = () => {
           >
             <div className={`mx-auto max-w-[1480px] grid grid-cols-1 lg:grid-cols-5 gap-10 lg:gap-20 items-center ${reverse ? "lg:[direction:rtl]" : ""}`}>
               <div className="lg:col-span-3" style={{ direction: "ltr" }}>
-                <ProductImage name={p.name} ratio="4/5" />
+                <ProductImage src={p.image} name={p.name} ratio="4/5" />
               </div>
               <div className="lg:col-span-2" style={{ direction: "ltr" }}>
                 <span className="label text-muted-foreground">{p.code}</span>
