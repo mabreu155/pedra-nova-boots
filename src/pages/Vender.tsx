@@ -46,7 +46,7 @@ const Vender = () => {
       <Layout>
         <section className="px-6 py-40 text-center">
           <p className="font-display italic mx-auto max-w-3xl" style={{ fontSize: "clamp(32px, 5vw, 56px)", lineHeight: 1.2 }}>
-            Mensagem enviada. O Kaique vai entrar em contacto em breve.
+            Mensagem enviada. O Kaique entra em contato em breve.
           </p>
           <button onClick={() => setSent(false)} className="underline-link label mt-12">
             Enviar outra
@@ -62,13 +62,13 @@ const Vender = () => {
         <div className="mx-auto max-w-[1480px]">
           <span className="label text-muted-foreground">Pedra Nova · Compramos sua New Rock</span>
           <h1 className="font-display font-black mt-6 leading-[0.95]" style={{ fontSize: "clamp(56px, 11vw, 180px)" }}>
-            Vender minha
+            Sua New Rock
             <br />
-            <span className="italic">New Rock.</span>
+            <span className="italic">merece nova rua.</span>
           </h1>
           <p className="mt-10 max-w-2xl text-muted-foreground" style={{ fontSize: 15, lineHeight: 1.7 }}>
-            Preencha o formulário abaixo. Ao enviar, o WhatsApp abre com sua mensagem pronta.
-            O Kaique avalia, faz uma oferta justa e fecha o negócio com você diretamente — sem intermediários, sem burocracia.
+            Couro legítimo não envelhece — só ganha história. Preencha abaixo e o WhatsApp abre com sua mensagem pronta.
+            O Kaique avalia, faz uma oferta justa e fecha direto com você. Sem intermediários. Sem burocracia.
           </p>
         </div>
       </section>
@@ -135,7 +135,7 @@ const Vender = () => {
           <div className="p-5" style={{ background: "hsl(var(--secondary))" }}>
             <p className="label mb-2">Dica</p>
             <p style={{ fontSize: 14 }}>
-              Fotos fazem toda a diferença. Após enviar, mande fotos pelo WhatsApp.
+              Foto vende. Após enviar, mande as imagens da bota pelo WhatsApp — luz natural, sola, fivelas e detalhes.
             </p>
           </div>
 
