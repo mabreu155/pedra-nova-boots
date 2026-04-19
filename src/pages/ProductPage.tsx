@@ -63,11 +63,11 @@ const ProductPage = () => {
               {product.badge && <span className="label text-muted-foreground">{product.badge} · {product.category}</span>}
               {!product.badge && <span className="label text-muted-foreground">{product.category}</span>}
 
-              <h1 className="font-display font-bold mt-3 leading-none" style={{ fontSize: "clamp(40px, 6vw, 72px)" }}>
+              <h1 className="font-bold mt-3 leading-none font-sans text-2xl">
                 {product.name}
               </h1>
               <p className="label text-muted-foreground mt-3">{product.code}</p>
-              <p className="font-display mt-6" style={{ fontSize: 28 }}>{formatPrice(product.price)}</p>
+              <p className="mt-6 font-sans font-normal">{formatPrice(product.price)}</p>
 
               <p className="text-muted-foreground mt-8 max-w-md" style={{ fontSize: 15, lineHeight: 1.7 }}>
                 {product.description}
