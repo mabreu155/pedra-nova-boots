@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { ShoppingBag, Heart, Bookmark, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
 import { getProduct, formatPrice, WHATSAPP_NUMBER } from "@/data/products";
@@ -10,7 +11,7 @@ const ProductPage = () => {
   const product = getProduct(slug);
   const { add } = useCart();
   const [size, setSize] = useState<number | null>(null);
-  const [activeThumb, setActiveThumb] = useState(0);
+  const [activeImg, setActiveImg] = useState(0);
 
   if (!product) {
     return (
@@ -33,50 +34,128 @@ const ProductPage = () => {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
+  const images = [0, 1, 2, 3];
+
   return (
     <Layout>
-      <div className="px-6 pt-10 md:pt-16">
-        <div className="mx-auto max-w-[1480px]">
-          <Link to="/" className="label text-muted-foreground hover:text-foreground">← Shop</Link>
+      <div className="px-4 md:px-6 pt-6 md:pt-10">
+        <div className="mx-auto max-w-[1200px]">
+          {/* Breadcrumb */}
+          <nav className="label text-muted-foreground flex items-center gap-2 flex-wrap" style={{ fontSize: 11 }}>
+            <Link to="/" className="hover:text-foreground">Home</Link>
+            <span>›</span>
+            <Link to="/" className="hover:text-foreground">{product.category}</Link>
+            <span>›</span>
+            <span className="text-foreground">{product.name}</span>
+          </nav>
 
-          <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-            {/* IMAGES */}
-            <div>
-              <ProductImage src={product.image} name={product.name} ratio="4/5" priority />
-              <div className="grid grid-cols-4 gap-3 mt-3">
-                {[0, 1, 2, 3].map((i) => (
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_400px] gap-8 md:gap-10">
+            {/* IMAGES (left, stacked like Depop) */}
+            <div className="space-y-3">
+              <div className="relative">
+                <ProductImage src={product.image} name={product.name} ratio="1/1" priority />
+                {/* Floating action buttons */}
+                <div className="absolute top-3 right-3 flex flex-col gap-2">
                   <button
-                    key={i}
-                    onClick={() => setActiveThumb(i)}
-                    className="block"
-                    style={{ outline: activeThumb === i ? "1px solid hsl(var(--foreground))" : "1px solid transparent" }}
-                    aria-label={`Imagem ${i + 1}`}
+                    aria-label="Favoritar"
+                    className="w-10 h-10 rounded-full bg-background flex items-center justify-center hover:bg-secondary transition-colors"
+                    style={{ border: "1px solid hsl(var(--border))" }}
                   >
-                    <ProductImage src={product.image} name={product.name} ratio="1/1" />
+                    <Heart size={18} />
                   </button>
-                ))}
+                  <button
+                    aria-label="Salvar"
+                    className="w-10 h-10 rounded-full bg-background flex items-center justify-center hover:bg-secondary transition-colors"
+                    style={{ border: "1px solid hsl(var(--border))" }}
+                  >
+                    <Bookmark size={18} />
+                  </button>
+                </div>
+                {/* Prev/next nav */}
+                <button
+                  onClick={() => setActiveImg((p) => Math.max(0, p - 1))}
+                  aria-label="Imagem anterior"
+                  className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background items-center justify-center hover:bg-secondary transition-colors"
+                  style={{ border: "1px solid hsl(var(--border))" }}
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                <button
+                  onClick={() => setActiveImg((p) => Math.min(images.length - 1, p + 1))}
+                  aria-label="Próxima imagem"
+                  className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background items-center justify-center hover:bg-secondary transition-colors"
+                  style={{ border: "1px solid hsl(var(--border))" }}
+                >
+                  <ChevronRight size={18} />
+                </button>
+                {/* Dots */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                  {images.map((i) => (
+                    <span
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full transition-opacity"
+                      style={{
+                        background: "hsl(var(--background))",
+                        opacity: activeImg === i ? 1 : 0.5,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Secondary image (Depop-style stacked) */}
+              <div>
+                <ProductImage src={product.image} name={product.name} ratio="1/1" />
               </div>
             </div>
 
-            {/* INFO */}
-            <div className="lg:pt-4">
-              {product.badge && <span className="label text-muted-foreground">{product.badge} · {product.category}</span>}
-              {!product.badge && <span className="label text-muted-foreground">{product.category}</span>}
+            {/* INFO (right column, sticky like Depop) */}
+            <div className="md:sticky md:top-6 md:self-start space-y-4">
+              {/* Status chips */}
+              <div className="flex gap-2 flex-wrap">
+                <span
+                  className="inline-flex items-center gap-1.5 label"
+                  style={{
+                    padding: "6px 10px",
+                    background: "hsl(var(--secondary))",
+                    borderRadius: 999,
+                    fontSize: 11,
+                  }}
+                >
+                  <ShoppingBag size={12} /> Em alta
+                </span>
+                {product.badge && (
+                  <span
+                    className="inline-flex items-center gap-1.5 label"
+                    style={{
+                      padding: "6px 10px",
+                      background: "hsl(var(--secondary))",
+                      borderRadius: 999,
+                      fontSize: 11,
+                    }}
+                  >
+                    {product.badge}
+                  </span>
+                )}
+              </div>
 
-              <h1 className="font-bold mt-3 leading-none font-sans text-2xl">
+              {/* Title */}
+              <h1 className="font-bold leading-tight font-sans text-2xl">
                 {product.name}
               </h1>
-              <p className="label text-muted-foreground mt-3">{product.code}</p>
-              <p className="mt-6 font-sans font-normal">{formatPrice(product.price)}</p>
 
-              <p className="text-muted-foreground mt-8 max-w-md" style={{ fontSize: 15, lineHeight: 1.7 }}>
-                {product.description}
+              {/* Price */}
+              <p className="font-sans font-bold text-2xl">{formatPrice(product.price)}</p>
+
+              {/* Meta line */}
+              <p className="font-sans text-sm text-muted-foreground">
+                {size ? `Tamanho EU ${size}` : "Selecione um tamanho"} · Novo · <span className="underline">{product.category}</span>
               </p>
 
               {/* SIZE SELECTOR */}
-              <div className="mt-10">
-                <p className="label mb-4">Tamanho EU</p>
-                <div className="grid grid-cols-6 gap-2 max-w-md">
+              <div>
+                <p className="label mb-2" style={{ fontSize: 11 }}>Tamanho EU</p>
+                <div className="grid grid-cols-6 gap-2">
                   {Array.from({ length: 11 }, (_, i) => 36 + i).map((n) => {
                     const available = product.sizes.includes(n);
                     const selected = size === n;
@@ -85,10 +164,11 @@ const ProductPage = () => {
                         key={n}
                         disabled={!available}
                         onClick={() => setSize(n)}
-                        className="font-display text-lg transition-colors"
+                        className="font-sans text-sm transition-colors"
                         style={{
-                          padding: "12px 0",
+                          padding: "10px 0",
                           border: "1px solid hsl(var(--border))",
+                          borderRadius: 6,
                           background: selected ? "hsl(var(--foreground))" : "transparent",
                           color: !available ? "hsl(var(--muted-foreground))" : selected ? "hsl(var(--background))" : "hsl(var(--foreground))",
                           opacity: available ? 1 : 0.35,
@@ -103,42 +183,109 @@ const ProductPage = () => {
                 </div>
               </div>
 
-              {/* CTAS */}
-              <div className="mt-10 flex flex-col sm:flex-row gap-3 max-w-md">
+              {/* CTAs (Depop-style stacked) */}
+              <div className="space-y-2 pt-2">
                 <button
                   onClick={handleAdd}
                   disabled={!size}
-                  className="flex-1 bg-foreground text-background label py-4 disabled:opacity-40 hover:opacity-90 transition-opacity"
+                  className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 disabled:opacity-40 hover:opacity-90 transition-opacity"
+                  style={{ borderRadius: 8 }}
                 >
-                  Add to Bag
+                  Comprar agora
                 </button>
-                <button
-                  onClick={handleWhats}
-                  className="flex-1 label py-4 transition-colors hover:bg-foreground hover:text-background"
-                  style={{ border: "1px solid hsl(var(--foreground))" }}
-                >
-                  Falar no WhatsApp
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleWhats}
+                    className="font-sans font-semibold text-sm py-3.5 transition-colors hover:bg-secondary"
+                    style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 8 }}
+                  >
+                    Fazer oferta
+                  </button>
+                  <button
+                    onClick={handleAdd}
+                    disabled={!size}
+                    className="font-sans font-semibold text-sm py-3.5 transition-colors hover:bg-secondary disabled:opacity-40"
+                    style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 8 }}
+                  >
+                    Adicionar à sacola
+                  </button>
+                </div>
               </div>
 
-              {/* DETAILS */}
-              <ul className="mt-12 max-w-md">
+              {/* Buyer protection */}
+              <div
+                className="flex gap-3 p-3"
+                style={{ border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+              >
+                <ShieldCheck size={18} className="shrink-0 mt-0.5" />
+                <p className="font-sans text-xs leading-relaxed">
+                  Todas as compras na Pedra Nova têm <span className="font-semibold">Proteção ao Comprador</span>.{" "}
+                  <a className="underline" href="#">Saiba mais</a>
+                </p>
+              </div>
+
+              {/* Description */}
+              <div className="pt-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
+                <p className="font-sans text-sm leading-relaxed whitespace-pre-line">
+                  {product.description}
+                </p>
+                <p className="font-sans text-sm leading-relaxed mt-3">
+                  Código: <span className="font-semibold">{product.code}</span>
+                </p>
+              </div>
+
+              {/* Details */}
+              <ul>
                 {product.details.map((d, i) => (
                   <li
                     key={i}
-                    className="flex justify-between py-4"
-                    style={{ borderBottom: "1px solid hsl(var(--border))", borderTop: i === 0 ? "1px solid hsl(var(--border))" : "none", fontSize: 14 }}
+                    className="font-sans text-sm py-3 flex items-start gap-2"
+                    style={{ borderBottom: "1px solid hsl(var(--border))", borderTop: i === 0 ? "1px solid hsl(var(--border))" : "none" }}
                   >
-                    <span className="label text-muted-foreground">Detalhe {String(i + 1).padStart(2, "0")}</span>
-                    <span style={{ textAlign: "right" }}>{d}</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-foreground mt-2 shrink-0" />
+                    <span>{d}</span>
                   </li>
                 ))}
               </ul>
 
-              {/* PAYMENT */}
-              <div className="mt-10 max-w-md p-5" style={{ background: "hsl(var(--secondary))" }}>
-                <p className="label mb-2">Pagamento</p>
-                <p style={{ fontSize: 14 }}>Pix · Mercado Pago · Crypto. Envio para todo o Brasil.</p>
+              {/* Seller card */}
+              <div
+                className="flex items-center justify-between gap-3 p-3"
+                style={{ border: "1px solid hsl(var(--border))", borderRadius: 8 }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center font-sans font-semibold text-sm"
+                    style={{ background: "hsl(var(--secondary))" }}
+                  >
+                    PN
+                  </div>
+                  <div>
+                    <p className="font-sans font-semibold text-sm leading-tight">pedra_nova</p>
+                    <p className="font-sans text-xs text-muted-foreground">Loja oficial · Brasil</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
+                    style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
+                  >
+                    Visitar
+                  </button>
+                  <button
+                    onClick={handleWhats}
+                    className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
+                    style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
+                  >
+                    Perguntar
+                  </button>
+                </div>
+              </div>
+
+              {/* Payment */}
+              <div className="p-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
+                <p className="label mb-1" style={{ fontSize: 11 }}>Pagamento</p>
+                <p className="font-sans text-xs">Pix · Mercado Pago · Crypto. Envio para todo o Brasil.</p>
               </div>
             </div>
           </div>
