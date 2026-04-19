@@ -66,7 +66,7 @@ const Lookbook = () => {
         <div className="mx-auto max-w-[1480px]">
           <span className="label text-muted-foreground">Lookbook · 2025</span>
           <h1
-            className="font-display font-black mt-6 leading-[0.95]"
+            className="font-display font-black mt-6 leading-[0.95] text-7xl text-center"
             style={{ fontSize: "clamp(64px, 13vw, 220px)" }}
           >
             Wear the
@@ -93,7 +93,7 @@ const Lookbook = () => {
                     decoding="async"
                     width={1080}
                     height={1600}
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover text-center"
                   />
                 </div>
               </div>
