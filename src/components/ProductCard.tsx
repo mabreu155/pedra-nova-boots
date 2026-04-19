@@ -20,7 +20,7 @@ const ProductCard = ({ product }: { product: Product }) => (
     </div>
     <div className="pt-3 md:pt-4 flex items-start justify-between gap-3">
       <div className="min-w-0">
-        <h3 className="font-display leading-none truncate" style={{ fontSize: "clamp(16px, 1.6vw, 20px)" }}>
+        <h3 className="leading-none truncate font-sans font-semibold" style={{ fontSize: "clamp(16px, 1.6vw, 20px)" }}>
           {product.name}
         </h3>
         <p className="label text-muted-foreground mt-1.5 truncate" style={{ fontSize: 9 }}>
