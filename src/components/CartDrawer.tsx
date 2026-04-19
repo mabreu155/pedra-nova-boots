@@ -1,0 +1,98 @@
+import { AnimatePresence, motion } from "framer-motion";
+import { X } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import { formatPrice, WHATSAPP_NUMBER } from "@/data/products";
+import ProductImage from "./ProductImage";
+
+const CartDrawer = () => {
+  const { isOpen, close, items, total, remove } = useCart();
+
+  const handleCheckout = () => {
+    const lines = items.map(
+      (i) => `• *${i.product.name}* (${i.product.code}) — Tam ${i.size} — ${formatPrice(i.product.price)}`
+    );
+    const msg = `Olá Kaique! Quero finalizar essa sacola na Pedra Nova:\n\n${lines.join("\n")}\n\n*Total:* ${formatPrice(total)}\n\nPode confirmar disponibilidade e formas de pagamento?`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            onClick={close}
+            className="fixed inset-0 z-50"
+            style={{ background: "rgba(13,13,13,0.35)", backdropFilter: "blur(6px)" }}
+          />
+          <motion.aside
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed right-0 top-0 z-50 h-full bg-background flex flex-col"
+            style={{ width: "min(420px, 100vw)", borderLeft: "1px solid hsl(var(--border))" }}
+            aria-label="Sacola de compras"
+          >
+            <div className="flex items-center justify-between px-6" style={{ height: 64, borderBottom: "1px solid hsl(var(--border))" }}>
+              <span className="label">Sacola ({items.length})</span>
+              <button onClick={close} aria-label="Fechar"><X size={20} strokeWidth={1.25} /></button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {items.length === 0 ? (
+                <div className="p-10 text-center">
+                  <p className="font-display italic text-2xl mb-2">Sacola vazia.</p>
+                  <p className="text-muted-foreground" style={{ fontSize: 13 }}>Escolha sua próxima New Rock.</p>
+                </div>
+              ) : (
+                <ul>
+                  {items.map((i) => (
+                    <li key={i.id} className="flex gap-4 p-6" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
+                      <div style={{ width: 80, flexShrink: 0 }}>
+                        <ProductImage name={i.product.name} ratio="4/5" />
+                      </div>
+                      <div className="flex-1 flex flex-col">
+                        <p className="font-display text-lg leading-tight">{i.product.name}</p>
+                        <p className="label text-muted-foreground mt-1">{i.product.code}</p>
+                        <p className="label text-muted-foreground mt-1">Tam {i.size}</p>
+                        <div className="mt-auto flex items-center justify-between pt-3">
+                          <span className="font-display">{formatPrice(i.product.price)}</span>
+                          <button onClick={() => remove(i.id)} className="label text-muted-foreground hover:text-foreground">
+                            Remover
+                          </button>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="px-6 py-6" style={{ borderTop: "1px solid hsl(var(--border))" }}>
+              <div className="flex items-baseline justify-between mb-4">
+                <span className="label">Total</span>
+                <span className="font-display text-2xl">{formatPrice(total)}</span>
+              </div>
+              <button
+                disabled={items.length === 0}
+                onClick={handleCheckout}
+                className="w-full bg-foreground text-background label py-4 disabled:opacity-40 hover:opacity-90 transition-opacity"
+              >
+                Finalizar via WhatsApp
+              </button>
+              <p className="label text-muted-foreground mt-4 text-center">
+                Pix · Mercado Pago · Cripto
+              </p>
+            </div>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default CartDrawer;
