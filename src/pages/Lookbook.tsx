@@ -93,7 +93,7 @@ const Lookbook = () => {
                     decoding="async"
                     width={1080}
                     height={1600}
-                    className="absolute inset-0 w-full h-full object-cover text-center"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
               </div>
