@@ -36,6 +36,9 @@ export const products: Product[] = [
     ],
     badge: "Novo",
     image: wall006,
+  },
+  {
+    slug: "mili085",
     name: "Mili085",
     code: "M.MILI085-S1",
     price: 1670,
@@ -50,6 +53,9 @@ export const products: Product[] = [
       "Fabricado na Espanha",
     ],
     image: mili085,
+  },
+  {
+    slug: "futur01",
     name: "Futur01",
     code: "M.FUTUR01-S1",
     price: 2100,
@@ -65,6 +71,9 @@ export const products: Product[] = [
     ],
     badge: "Novo",
     image: futur01,
+  },
+  {
+    slug: "sylth001",
     name: "Sylth001",
     code: "M.SYLTH001-S1",
     price: 1450,
@@ -79,6 +88,9 @@ export const products: Product[] = [
       "Fabricado na Espanha",
     ],
     image: sylth001,
+  },
+  {
+    slug: "skull001",
     name: "Skull001",
     code: "M.SKULL001-S1",
     price: 1980,
@@ -94,6 +106,9 @@ export const products: Product[] = [
     ],
     badge: "Novo",
     image: skull001,
+  },
+  {
+    slug: "tower006",
     name: "Tower006",
     code: "M.TOWER006-C1",
     price: 2250,
