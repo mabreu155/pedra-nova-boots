@@ -27,14 +27,14 @@ export const products: Product[] = [
     category: "Platform",
     sizes: [36, 37, 38, 39, 40, 41, 42, 43, 44, 45],
     description:
-      "A bota que define o rock alternativo. Plataforma maciça, couro legítimo, construção que dura décadas.",
+      "Construída para durar mais que tendências. Plataforma maciça, couro legítimo, metal que pesa. Wall006 não pede licença — ocupa o chão.",
     details: [
       "Couro legítimo bovino",
       "Sola borracha vulcanizada",
       "Plataforma 6cm",
-      "Fabricado na Espanha",
+      "Made in Spain",
     ],
-    badge: "Novo",
+    badge: "Iconic",
     image: wall006,
   },
   {
@@ -45,12 +45,12 @@ export const products: Product[] = [
     category: "Military",
     sizes: [37, 38, 39, 40, 41, 42, 43, 44],
     description:
-      "Estética militar encontra o underground. Coturno robusto com detalhes metálicos que não pedem licença.",
+      "Estética militar. Atitude underground. Coturno robusto com fivelas em aço — uma armadura para a rotina urbana.",
     details: [
       "Couro legítimo",
       "Fivelas aço inox",
       "Sola antiderrapante",
-      "Fabricado na Espanha",
+      "Made in Spain",
     ],
     image: mili085,
   },
@@ -62,14 +62,14 @@ export const products: Product[] = [
     category: "Platform",
     sizes: [36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46],
     description:
-      "Futuro distópico nos seus pés. Design arrojado que atravessa décadas sem envelhecer.",
+      "Distopia aos seus pés. Linhas escultóricas, plataforma extrema, design que recusa envelhecer. Futuro forjado em couro.",
     details: [
       "Couro e materiais sintéticos premium",
       "Plataforma escultural 8cm",
       "Zíper lateral YKK",
-      "Fabricado na Espanha",
+      "Made in Spain",
     ],
-    badge: "Novo",
+    badge: "New",
     image: futur01,
   },
   {
@@ -80,12 +80,12 @@ export const products: Product[] = [
     category: "Classic",
     sizes: [37, 38, 39, 40, 41, 42, 43],
     description:
-      "A escolha dos que preferem falar baixo e pisar alto. Perfil slim, impacto máximo.",
+      "Slim por fora. Pesada por dentro. Para quem fala baixo e pisa alto — perfil enxuto, impacto máximo.",
     details: [
       "Couro legítimo preto",
       "Bico quadrado",
       "Sola borracha",
-      "Fabricado na Espanha",
+      "Made in Spain",
     ],
     image: sylth001,
   },
@@ -97,14 +97,14 @@ export const products: Product[] = [
     category: "Iconic",
     sizes: [36, 37, 38, 39, 40, 41, 42, 43, 44],
     description:
-      "Ícone absoluto. O modelo que colocou a New Rock no mapa do rock mundial.",
+      "O ícone que recusou virar nostalgia. Caveiras fundidas, couro legítimo, presença que entra antes de você. Skull001 é assinatura.",
     details: [
       "Couro legítimo",
       "Detalhes caveira fundidos",
       "Plataforma 5cm",
-      "Fabricado na Espanha",
+      "Made in Spain",
     ],
-    badge: "Novo",
+    badge: "Iconic",
     image: skull001,
   },
   {
@@ -115,13 +115,13 @@ export const products: Product[] = [
     category: "High Boot",
     sizes: [37, 38, 39, 40, 41, 42, 43, 44, 45],
     description:
-      "Para quem quer dominar qualquer ambiente. Cano alto, atitude máxima.",
+      "Cano alto. Última palavra. Múltiplas fivelas, plataforma forjada — Tower006 não entra na sala, domina ela.",
     details: [
       "Couro legítimo",
       "Cano alto 30cm",
       "Plataforma 7cm",
       "Múltiplas fivelas",
-      "Fabricado na Espanha",
+      "Made in Spain",
     ],
     image: tower006,
   },
