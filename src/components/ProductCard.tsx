@@ -7,7 +7,7 @@ const ProductCard = ({ product }: { product: Product }) => (
   <Link to={`/produto/${product.slug}`} className="group block">
     <div className="relative overflow-hidden">
       <motion.div whileHover={{ scale: 1.04 }} transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}>
-        <ProductImage name={product.name} ratio="3/4" />
+        <ProductImage src={product.image} name={product.name} ratio="3/4" />
       </motion.div>
       {product.badge && (
         <span

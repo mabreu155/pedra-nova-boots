@@ -35,9 +35,7 @@ export const products: Product[] = [
       "Fabricado na Espanha",
     ],
     badge: "Novo",
-  },
-  {
-    slug: "mili085",
+    image: wall006,
     name: "Mili085",
     code: "M.MILI085-S1",
     price: 1670,
@@ -51,9 +49,7 @@ export const products: Product[] = [
       "Sola antiderrapante",
       "Fabricado na Espanha",
     ],
-  },
-  {
-    slug: "futur01",
+    image: mili085,
     name: "Futur01",
     code: "M.FUTUR01-S1",
     price: 2100,
@@ -68,9 +64,7 @@ export const products: Product[] = [
       "Fabricado na Espanha",
     ],
     badge: "Novo",
-  },
-  {
-    slug: "sylth001",
+    image: futur01,
     name: "Sylth001",
     code: "M.SYLTH001-S1",
     price: 1450,
@@ -84,9 +78,7 @@ export const products: Product[] = [
       "Sola borracha",
       "Fabricado na Espanha",
     ],
-  },
-  {
-    slug: "skull001",
+    image: sylth001,
     name: "Skull001",
     code: "M.SKULL001-S1",
     price: 1980,
@@ -101,9 +93,7 @@ export const products: Product[] = [
       "Fabricado na Espanha",
     ],
     badge: "Novo",
-  },
-  {
-    slug: "tower006",
+    image: skull001,
     name: "Tower006",
     code: "M.TOWER006-C1",
     price: 2250,
@@ -118,6 +108,7 @@ export const products: Product[] = [
       "Múltiplas fivelas",
       "Fabricado na Espanha",
     ],
+    image: tower006,
   },
 ];
 
