@@ -42,7 +42,7 @@ const ProductPage = () => {
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
             {/* IMAGES */}
             <div>
-              <ProductImage name={product.name} ratio="4/5" />
+              <ProductImage src={product.image} name={product.name} ratio="4/5" priority />
               <div className="grid grid-cols-4 gap-3 mt-3">
                 {[0, 1, 2, 3].map((i) => (
                   <button
@@ -52,7 +52,7 @@ const ProductPage = () => {
                     style={{ outline: activeThumb === i ? "1px solid hsl(var(--foreground))" : "1px solid transparent" }}
                     aria-label={`Imagem ${i + 1}`}
                   >
-                    <ProductImage name={product.name} ratio="1/1" />
+                    <ProductImage src={product.image} name={product.name} ratio="1/1" />
                   </button>
                 ))}
               </div>
