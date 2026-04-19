@@ -41,7 +41,7 @@ const Index = () => {
           >
             New Rock.
             <br />
-            <span className="italic font-bold">Só as originais.</span>
+            <span className="font-bold">Só as originais.</span>
           </motion.h1>
 
           <motion.div
