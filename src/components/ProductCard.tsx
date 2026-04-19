@@ -11,19 +11,28 @@ const ProductCard = ({ product }: { product: Product }) => (
       </motion.div>
       {product.badge && (
         <span
-          className="absolute top-4 left-4 label bg-background text-foreground"
-          style={{ padding: "6px 10px" }}
+          className="absolute top-3 left-3 label bg-background text-foreground"
+          style={{ padding: "5px 8px", fontSize: 9 }}
         >
           {product.badge}
         </span>
       )}
     </div>
-    <div className="pt-5 flex items-start justify-between gap-4">
-      <div>
-        <h3 className="font-display text-2xl leading-none">{product.name}</h3>
-        <p className="label text-muted-foreground mt-2">{product.code}</p>
+    <div className="pt-3 md:pt-4 flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <h3 className="font-display leading-none truncate" style={{ fontSize: "clamp(16px, 1.6vw, 20px)" }}>
+          {product.name}
+        </h3>
+        <p className="label text-muted-foreground mt-1.5 truncate" style={{ fontSize: 9 }}>
+          {product.code}
+        </p>
       </div>
-      <span className="font-display text-lg whitespace-nowrap">{formatPrice(product.price)}</span>
+      <span
+        className="font-display whitespace-nowrap"
+        style={{ fontSize: "clamp(13px, 1.2vw, 16px)" }}
+      >
+        {formatPrice(product.price)}
+      </span>
     </div>
   </Link>
 );
