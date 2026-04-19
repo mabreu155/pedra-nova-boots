@@ -8,8 +8,8 @@ import look3 from "@/assets/lookbook-3.jpg";
 
 const productQuotes = [
   "Construída para durar mais que tendências.",
-  "O som dos seus passos vira assinatura.",
-  "Cada fivela é uma decisão. Cada metal, uma postura.",
+  "Estética militar. Atitude underground.",
+  "Distopia forjada em couro.",
   "Slim por fora. Pesada por dentro.",
   "O ícone que recusou virar nostalgia.",
   "Cano alto. Última palavra.",
@@ -31,7 +31,7 @@ const editorials: Editorial[] = [
     index: "01",
     title: "Underground.",
     italic: "Concreto. Couro. Plataforma.",
-    body: "Estilo construído de baixo para cima. A bota define a silhueta — o resto do look apenas obedece.",
+    body: "Estilo construído de baixo para cima. A bota define a silhueta — o resto do look obedece. Engenharia metálica, DNA rebelde.",
     productSlug: "wall006",
     productLabel: "Wall006",
   },
@@ -40,7 +40,7 @@ const editorials: Editorial[] = [
     index: "02",
     title: "Postura.",
     italic: "Sentar não é descansar. É dominar o espaço.",
-    body: "Cano alto, fivelas em sequência, jaqueta de couro. Brutalismo encontra sob medida.",
+    body: "Cano alto, fivelas em sequência, jaqueta de couro. Brutalismo encontra alfaiataria — sem pedir licença.",
     productSlug: "tower006",
     productLabel: "Tower006",
   },
@@ -49,7 +49,7 @@ const editorials: Editorial[] = [
     index: "03",
     title: "Madrugada.",
     italic: "A cidade dorme. A caveira não.",
-    body: "Asfalto molhado, neon distante, passos pesados. O ícone Skull em movimento.",
+    body: "Asfalto molhado, neon distante, passos pesados. O Skull em movimento — ícone que recusou virar nostalgia.",
     productSlug: "skull001",
     productLabel: "Skull001",
   },
@@ -123,7 +123,7 @@ const Lookbook = () => {
                   to={`/produto/${ed.productSlug}`}
                   className="underline-link label inline-block mt-10 self-start"
                 >
-                  Ver {ed.productLabel}
+                  Shop {ed.productLabel}
                 </Link>
               </div>
             </div>
@@ -170,7 +170,7 @@ const Lookbook = () => {
                   to={`/produto/${p.slug}`}
                   className="underline-link label inline-block mt-8"
                 >
-                  Ver Produto
+                  Shop {p.name}
                 </Link>
               </div>
             </div>

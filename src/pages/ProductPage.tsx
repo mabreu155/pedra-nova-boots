@@ -16,7 +16,7 @@ const ProductPage = () => {
     return (
       <Layout>
         <div className="px-6 py-32 text-center">
-          <h1 className="font-display text-5xl mb-4">Produto não encontrado.</h1>
+          <h1 className="font-display text-5xl mb-4">Modelo fora de coleção.</h1>
           <Link to="/" className="underline-link label">Voltar à loja</Link>
         </div>
       </Layout>
@@ -37,7 +37,7 @@ const ProductPage = () => {
     <Layout>
       <div className="px-6 pt-10 md:pt-16">
         <div className="mx-auto max-w-[1480px]">
-          <Link to="/" className="label text-muted-foreground hover:text-foreground">← Loja</Link>
+          <Link to="/" className="label text-muted-foreground hover:text-foreground">← Shop</Link>
 
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
             {/* IMAGES */}
@@ -110,7 +110,7 @@ const ProductPage = () => {
                   disabled={!size}
                   className="flex-1 bg-foreground text-background label py-4 disabled:opacity-40 hover:opacity-90 transition-opacity"
                 >
-                  Adicionar à Sacola
+                  Add to Bag
                 </button>
                 <button
                   onClick={handleWhats}
@@ -138,7 +138,7 @@ const ProductPage = () => {
               {/* PAYMENT */}
               <div className="mt-10 max-w-md p-5" style={{ background: "hsl(var(--secondary))" }}>
                 <p className="label mb-2">Pagamento</p>
-                <p style={{ fontSize: 14 }}>Aceitamos Pix, Mercado Pago e criptomoedas.</p>
+                <p style={{ fontSize: 14 }}>Pix · Mercado Pago · Crypto. Envio para todo o Brasil.</p>
               </div>
             </div>
           </div>

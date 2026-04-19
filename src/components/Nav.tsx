@@ -5,7 +5,7 @@ import Logo from "./Logo";
 import { useCart } from "@/context/CartContext";
 
 const links = [
-  { to: "/", label: "Loja" },
+  { to: "/", label: "Shop" },
   { to: "/lookbook", label: "Lookbook" },
   { to: "/vender", label: "Vender" },
 ];

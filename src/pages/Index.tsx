@@ -15,7 +15,7 @@ const Index = () => {
       >
         <img
           src={heroFlatlay}
-          alt="Botas New Rock dispostas em cimento escuro"
+          alt="Botas New Rock originais — couro e metal sobre concreto"
           width={1920}
           height={1280}
           fetchPriority="high"
@@ -37,7 +37,7 @@ const Index = () => {
             className="label inline-block"
             style={{ color: "rgba(247,245,242,0.7)" }}
           >
-            Nova Coleção · Outono 2025
+            Iconic Drop · Outono 2025
           </motion.span>
 
           <motion.h1
@@ -47,9 +47,9 @@ const Index = () => {
             className="font-display leading-[0.92] tracking-tight mt-5"
             style={{ fontSize: "clamp(44px, 7.5vw, 112px)", color: "#f7f5f2" }}
           >
-            Botas New Rock
+            Couro legítimo.
             <br />
-            originais no Brasil.
+            Metal forjado.
           </motion.h1>
 
           <motion.p
@@ -59,7 +59,7 @@ const Index = () => {
             className="mt-6 max-w-xl"
             style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(247,245,242,0.8)" }}
           >
-            6 modelos selecionados · envio para todo o país · atendimento direto via WhatsApp.
+            Engenharia metálica, couro legítimo e DNA rebelde. Cada New Rock é feita à mão na Espanha — para quem não tem medo de ocupar espaço.
           </motion.p>
 
           <motion.div
@@ -82,7 +82,7 @@ const Index = () => {
                 padding: "16px 28px",
               }}
             >
-              Comprar Agora
+              Shop Now
             </button>
             <Link
               to="/lookbook"
@@ -94,7 +94,7 @@ const Index = () => {
                 textDecoration: "none",
               }}
             >
-              Ver Lookbook
+              Shop the Look
             </Link>
           </motion.div>
         </div>
@@ -104,8 +104,8 @@ const Index = () => {
       <section id="colecao" className="px-6">
         <div className="mx-auto max-w-[1480px]">
           <div className="flex items-end justify-between mb-10" style={{ borderBottom: "1px solid hsl(var(--border))", paddingBottom: 16 }}>
-            <span className="label">Coleção · {products.length} modelos</span>
-            <span className="label text-muted-foreground hidden md:inline">Brasil → Espanha</span>
+            <span className="label">Top Selling · {products.length} ícones</span>
+            <span className="label text-muted-foreground hidden md:inline">Made in Spain · Brasil</span>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-10 md:gap-y-14">
