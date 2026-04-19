@@ -28,7 +28,7 @@ const ProductCard = ({ product }: { product: Product }) => (
         </p>
       </div>
       <span
-        className="font-display whitespace-nowrap"
+        className="whitespace-nowrap font-sans font-normal"
         style={{ fontSize: "clamp(13px, 1.2vw, 16px)" }}
       >
         {formatPrice(product.price)}
