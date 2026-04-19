@@ -56,13 +56,16 @@ const Index = () => {
             >
               A maior seleção de botas New Rock do Brasil. Curadoria, autenticidade e atendimento direto.
             </p>
-            <Link
-              to="#colecao"
+            <button
+              type="button"
+              onClick={() => {
+                document.getElementById("colecao")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
               className="underline-link label self-start md:self-end"
-              style={{ color: "#f7f5f2" }}
+              style={{ color: "#f7f5f2", background: "transparent", border: "none", cursor: "pointer", padding: 0 }}
             >
               Ver Coleção
-            </Link>
+            </button>
           </motion.div>
         </div>
       </section>
@@ -75,7 +78,7 @@ const Index = () => {
             <span className="label text-muted-foreground hidden md:inline">Brasil → Espanha</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-10 md:gap-y-14">
             {products.map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
