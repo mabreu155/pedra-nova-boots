@@ -275,6 +275,7 @@ const ProductPage = () => {
           </div>
         </div>
       </div>
+      <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} product={product} size={size} />
     </Layout>
   );
 };
