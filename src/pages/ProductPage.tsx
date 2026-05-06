@@ -188,30 +188,21 @@ const ProductPage = () => {
               {/* CTAs (Depop-style stacked) */}
               <div className="space-y-2 pt-2">
                 <button
-                  onClick={handleAdd}
+                  onClick={handleBuyNow}
                   disabled={!size}
                   className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 disabled:opacity-40 hover:opacity-90 transition-opacity"
                   style={{ borderRadius: 8 }}
                 >
                   Comprar agora
                 </button>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={handleWhats}
-                    className="font-sans font-semibold text-sm py-3.5 transition-colors hover:bg-secondary"
-                    style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 8 }}
-                  >
-                    Fazer oferta
-                  </button>
-                  <button
-                    onClick={handleAdd}
-                    disabled={!size}
-                    className="font-sans font-semibold text-sm py-3.5 transition-colors hover:bg-secondary disabled:opacity-40"
-                    style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 8 }}
-                  >
-                    Adicionar à sacola
-                  </button>
-                </div>
+                <button
+                  onClick={handleAdd}
+                  disabled={!size}
+                  className="w-full font-sans font-semibold text-sm py-3.5 transition-colors hover:bg-secondary disabled:opacity-40"
+                  style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 8 }}
+                >
+                  Adicionar à sacola
+                </button>
               </div>
 
               {/* Buyer protection */}
@@ -267,21 +258,12 @@ const ProductPage = () => {
                     <p className="font-sans text-xs text-muted-foreground">Loja oficial · Brasil</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
-                    style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
-                  >
-                    Visitar
-                  </button>
-                  <button
-                    onClick={handleWhats}
-                    className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
-                    style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
-                  >
-                    Perguntar
-                  </button>
-                </div>
+                <button
+                  className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
+                  style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
+                >
+                  Visitar
+                </button>
               </div>
 
               {/* Payment */}
