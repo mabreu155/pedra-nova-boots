@@ -13,6 +13,7 @@ const ProductPage = () => {
   const { add } = useCart();
   const [size, setSize] = useState<number | null>(null);
   const [activeImg, setActiveImg] = useState(0);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   if (!product) {
     return (
@@ -30,9 +31,9 @@ const ProductPage = () => {
     add(product, size);
   };
 
-  const handleWhats = () => {
-    const msg = `Olá Kaique! Vi no site da Pedra Nova e tenho interesse nessa bota:\n\n*${product.name}* (${product.code})\nTamanho: ${size ?? "(definir)"}\n\nPoderia me dar mais informações e disponibilidade?`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+  const handleBuyNow = () => {
+    if (!size) return;
+    setCheckoutOpen(true);
   };
 
   const images = [0, 1, 2, 3];
