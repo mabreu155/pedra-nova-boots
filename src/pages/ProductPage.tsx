@@ -3,7 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { ShoppingBag, Heart, Bookmark, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
-import { getProduct, formatPrice, WHATSAPP_NUMBER } from "@/data/products";
+import CheckoutModal from "@/components/CheckoutModal";
+import { getProduct, formatPrice } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
 const ProductPage = () => {
@@ -12,6 +13,7 @@ const ProductPage = () => {
   const { add } = useCart();
   const [size, setSize] = useState<number | null>(null);
   const [activeImg, setActiveImg] = useState(0);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   if (!product) {
     return (
@@ -29,9 +31,9 @@ const ProductPage = () => {
     add(product, size);
   };
 
-  const handleWhats = () => {
-    const msg = `Olá Kaique! Vi no site da Pedra Nova e tenho interesse nessa bota:\n\n*${product.name}* (${product.code})\nTamanho: ${size ?? "(definir)"}\n\nPoderia me dar mais informações e disponibilidade?`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+  const handleBuyNow = () => {
+    if (!size) return;
+    setCheckoutOpen(true);
   };
 
   const images = [0, 1, 2, 3];
@@ -186,30 +188,21 @@ const ProductPage = () => {
               {/* CTAs (Depop-style stacked) */}
               <div className="space-y-2 pt-2">
                 <button
-                  onClick={handleAdd}
+                  onClick={handleBuyNow}
                   disabled={!size}
                   className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 disabled:opacity-40 hover:opacity-90 transition-opacity"
                   style={{ borderRadius: 8 }}
                 >
                   Comprar agora
                 </button>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={handleWhats}
-                    className="font-sans font-semibold text-sm py-3.5 transition-colors hover:bg-secondary"
-                    style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 8 }}
-                  >
-                    Fazer oferta
-                  </button>
-                  <button
-                    onClick={handleAdd}
-                    disabled={!size}
-                    className="font-sans font-semibold text-sm py-3.5 transition-colors hover:bg-secondary disabled:opacity-40"
-                    style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 8 }}
-                  >
-                    Adicionar à sacola
-                  </button>
-                </div>
+                <button
+                  onClick={handleAdd}
+                  disabled={!size}
+                  className="w-full font-sans font-semibold text-sm py-3.5 transition-colors hover:bg-secondary disabled:opacity-40"
+                  style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 8 }}
+                >
+                  Adicionar à sacola
+                </button>
               </div>
 
               {/* Buyer protection */}
@@ -265,21 +258,12 @@ const ProductPage = () => {
                     <p className="font-sans text-xs text-muted-foreground">Loja oficial · Brasil</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
-                    style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
-                  >
-                    Visitar
-                  </button>
-                  <button
-                    onClick={handleWhats}
-                    className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
-                    style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
-                  >
-                    Perguntar
-                  </button>
-                </div>
+                <button
+                  className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
+                  style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
+                >
+                  Visitar
+                </button>
               </div>
 
               {/* Payment */}
@@ -291,6 +275,7 @@ const ProductPage = () => {
           </div>
         </div>
       </div>
+      <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} product={product} size={size} />
     </Layout>
   );
 };
