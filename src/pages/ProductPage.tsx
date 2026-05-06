@@ -3,7 +3,8 @@ import { useParams, Link } from "react-router-dom";
 import { ShoppingBag, Heart, Bookmark, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
-import { getProduct, formatPrice, WHATSAPP_NUMBER } from "@/data/products";
+import CheckoutModal from "@/components/CheckoutModal";
+import { getProduct, formatPrice } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 
 const ProductPage = () => {
