@@ -11,7 +11,7 @@ const Index = () => {
       {/* HERO — store style */}
       <section
         className="relative px-6 flex items-center overflow-hidden"
-        style={{ minHeight: "min(78vh, 760px)" }}
+        style={{ minHeight: "100vh", height: "100vh" }}
       >
         <img
           src={heroFlatlay}
