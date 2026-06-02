@@ -34,6 +34,7 @@ export const products: Product[] = [
       "Plataforma 6cm",
       "Made in Spain",
     ],
+    badge: "Iconic",
     image: wall006,
   },
   {
@@ -103,7 +104,7 @@ export const products: Product[] = [
       "Plataforma 5cm",
       "Made in Spain",
     ],
-    
+    badge: "Iconic",
     image: skull001,
   },
   {
