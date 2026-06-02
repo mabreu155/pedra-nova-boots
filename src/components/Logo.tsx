@@ -1,8 +1,17 @@
 import logoImg from "@/assets/logo.png";
+import logoWhite from "@/assets/logo-white.png";
 
-const Logo = ({ className = "", size = 44 }: { className?: string; size?: number }) => (
+const Logo = ({
+  className = "",
+  size = 44,
+  variant = "dark",
+}: {
+  className?: string;
+  size?: number;
+  variant?: "dark" | "light";
+}) => (
   <img
-    src={logoImg}
+    src={variant === "light" ? logoWhite : logoImg}
     alt="Pedra Nova Botas"
     width={size}
     height={size}
