@@ -30,21 +30,11 @@ const Index = () => {
         />
 
         <div className="relative mx-auto max-w-[1480px] w-full py-24 md:py-32">
-          <motion.span
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="label inline-block"
-            style={{ color: "rgba(247,245,242,0.7)" }}
-          >
-            Iconic Drop · Outono 2025
-          </motion.span>
-
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="font-display leading-[0.92] tracking-tight mt-5"
+            className="font-display leading-[0.92] tracking-tight"
             style={{ fontSize: "clamp(44px, 7.5vw, 112px)", color: "#f7f5f2" }}
           >
             Couro legítimo.
@@ -52,51 +42,6 @@ const Index = () => {
             Metal forjado.
           </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="mt-6 max-w-xl"
-            style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(247,245,242,0.8)" }}
-          >
-            Engenharia metálica, couro legítimo e DNA rebelde. Cada New Rock é feita à mão na Espanha — para quem não tem medo de ocupar espaço.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45, duration: 0.5 }}
-            className="mt-10 flex flex-wrap items-center gap-4"
-          >
-            <button
-              type="button"
-              onClick={() => {
-                document.getElementById("colecao")?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              className="label"
-              style={{
-                background: "#f7f5f2",
-                color: "#0d0d0d",
-                border: "none",
-                cursor: "pointer",
-                padding: "16px 28px",
-              }}
-            >
-              Shop Now
-            </button>
-            <Link
-              to="/lookbook"
-              className="label"
-              style={{
-                color: "#f7f5f2",
-                border: "1px solid rgba(247,245,242,0.5)",
-                padding: "16px 28px",
-                textDecoration: "none",
-              }}
-            >
-              Shop the Look
-            </Link>
-          </motion.div>
         </div>
       </section>
 
