@@ -48,10 +48,6 @@ const Index = () => {
       {/* PRODUCT GRID */}
       <section id="colecao" className="px-6">
         <div className="mx-auto max-w-[1480px]">
-          <div className="flex items-end justify-between mb-10" style={{ borderBottom: "1px solid hsl(var(--border))", paddingBottom: 16 }}>
-            <span className="label">Top Selling · {products.length} ícones</span>
-            <span className="label text-muted-foreground hidden md:inline">Made in Spain · Brasil</span>
-          </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-10 md:gap-y-14">
             {products.map((p) => (
