@@ -41,7 +41,7 @@ const Nav = () => {
         color: transparent ? "#f7f5f2" : undefined,
       }}
     >
-      <div className="mx-auto max-w-[1480px] px-6 flex items-center justify-between" style={{ height: 64 }}>
+      <div className="mx-auto max-w-[1480px] px-6 flex items-center justify-between" style={{ height: 58 }}>
         {/* Left links (desktop) */}
         <nav className="hidden md:flex items-center gap-8 flex-1">
           {links.map((l) => (
