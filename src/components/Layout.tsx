@@ -10,7 +10,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Nav />
-      <main className="flex-1" style={{ paddingTop: isHome ? 0 : 64 }}>
+      <main className="flex-1" style={{ paddingTop: isHome ? 0 : 58 }}>
         {children}
       </main>
       <Footer />
