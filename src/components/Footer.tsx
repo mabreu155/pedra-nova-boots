@@ -4,8 +4,8 @@ import Logo from "./Logo";
 const Footer = () => (
   <footer className="mt-32 pt-16 pb-10 px-6" style={{ borderTop: "1px solid hsl(var(--border))" }}>
     <div className="mx-auto max-w-[1480px] grid grid-cols-1 md:grid-cols-3 gap-10">
-      <div>
-        <Logo />
+      <div className="flex flex-col items-center text-center">
+        <Logo size={88} />
         <p className="mt-6 text-muted-foreground" style={{ fontSize: 13, maxWidth: 280 }}>
           Curadoria de New Rock originais. Couro legítimo, metal forjado, atendimento direto — sem intermediários.
         </p>
