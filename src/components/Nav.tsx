@@ -77,7 +77,7 @@ const Nav = () => {
 
         {/* Center logo */}
         <Link to="/" className="flex-1 flex justify-center">
-          <Logo variant={transparent ? "light" : "dark"} size={48} />
+          <Logo variant={transparent ? "light" : "dark"} size={53} />
         </Link>
 
         {/* Right cart */}
