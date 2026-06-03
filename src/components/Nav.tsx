@@ -77,7 +77,9 @@ const Nav = () => {
 
         {/* Center logo */}
         <Link to="/" className="flex-1 flex justify-center">
-          <Logo variant={transparent ? "light" : "dark"} size={65} />
+          <span style={{ display: "inline-block", transform: "scale(1.05)", transformOrigin: "center" }}>
+            <Logo variant={transparent ? "light" : "dark"} size={65} />
+          </span>
         </Link>
 
         {/* Right cart */}
