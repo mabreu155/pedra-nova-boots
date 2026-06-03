@@ -48,7 +48,7 @@ const Index = () => {
       {/* PRODUCT GRID */}
       <section id="colecao" className="px-6">
         <div className="mx-auto max-w-[1480px]">
-          <div className="mb-10 pt-16" />
+          <div className="mb-6 pt-10" />
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-10 md:gap-y-14">
             {products.map((p) => (
