@@ -65,18 +65,19 @@ const Nav = () => {
         </nav>
 
         {/* Mobile hamburger */}
-        <button
-          aria-label="Abrir menu"
-          className="md:hidden"
-          style={{ color: transparent ? "#f7f5f2" : "hsl(var(--foreground))" }}
-          onClick={() => setMobileOpen((v) => !v)}
-        >
-          {mobileOpen ? <X size={20} strokeWidth={1.25} /> : <Menu size={20} strokeWidth={1.25} />}
-        </button>
+        <div className="md:hidden flex-1 flex justify-start">
+          <button
+            aria-label="Abrir menu"
+            style={{ color: transparent ? "#f7f5f2" : "hsl(var(--foreground))" }}
+            onClick={() => setMobileOpen((v) => !v)}
+          >
+            {mobileOpen ? <X size={20} strokeWidth={1.25} /> : <Menu size={20} strokeWidth={1.25} />}
+          </button>
+        </div>
 
         {/* Center logo */}
         <Link to="/" className="flex-1 flex justify-center">
-          <Logo variant={transparent ? "light" : "dark"} />
+          <Logo variant={transparent ? "light" : "dark"} size={48} />
         </Link>
 
         {/* Right cart */}
