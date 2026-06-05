@@ -75,7 +75,7 @@ const CartDrawer = () => {
             <div className="px-6 py-6" style={{ borderTop: "1px solid hsl(var(--border))" }}>
               <div className="flex items-baseline justify-between mb-4">
                 <span className="label">Total</span>
-                <span className="font-display text-2xl">{formatPrice(total)}</span>
+                <span className="font-sans font-normal" style={{ fontSize: "clamp(13px, 1.2vw, 16px)" }}>{formatPrice(total)}</span>
               </div>
               <button
                 disabled={items.length === 0}
