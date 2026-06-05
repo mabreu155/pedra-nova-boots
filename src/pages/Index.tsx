@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
@@ -5,9 +6,45 @@ import ProductCard from "@/components/ProductCard";
 import { products } from "@/data/products";
 import heroFlatlay from "@/assets/hero-flatlay.jpg";
 
+const INITIAL_COUNT = 30;
+const STEP = 12;
+
+
 const Index = () => {
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if ("scrollRestoration" in window.history) {
+      const prev = window.history.scrollRestoration;
+      window.history.scrollRestoration = "manual";
+      window.scrollTo(0, 0);
+      return () => {
+        window.history.scrollRestoration = prev;
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (visibleCount >= products.length) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((c) => Math.min(c + STEP, products.length));
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [visibleCount]);
+
   return (
     <Layout>
+
       {/* HERO — store style */}
       <section
         className="relative px-6 flex items-center overflow-hidden"
@@ -51,12 +88,16 @@ const Index = () => {
           <div className="mb-6 pt-10" />
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-10 md:gap-y-14">
-            {products.map((p) => (
+            {products.slice(0, visibleCount).map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
           </div>
+          {visibleCount < products.length && (
+            <div ref={sentinelRef} aria-hidden className="h-10 w-full" />
+          )}
         </div>
       </section>
+
 
     </Layout>
   );
