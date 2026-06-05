@@ -11,8 +11,40 @@ const STEP = 12;
 
 
 const Index = () => {
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if ("scrollRestoration" in window.history) {
+      const prev = window.history.scrollRestoration;
+      window.history.scrollRestoration = "manual";
+      window.scrollTo(0, 0);
+      return () => {
+        window.history.scrollRestoration = prev;
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (visibleCount >= products.length) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount((c) => Math.min(c + STEP, products.length));
+        }
+      },
+      { rootMargin: "600px 0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [visibleCount]);
+
   return (
     <Layout>
+
       {/* HERO — store style */}
       <section
         className="relative px-6 flex items-center overflow-hidden"
