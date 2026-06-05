@@ -268,8 +268,8 @@ const ProductPage = () => {
 
               {/* Payment */}
               <div className="p-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
-                <p className="label mb-1" style={{ fontSize: 11 }}>Pagamento</p>
-                <p className="font-sans text-xs">Pix · Mercado Pago · Crypto. Envio para todo o Brasil.</p>
+                <p className="label mb-1" style={{ fontSize: 11 }}>Envio</p>
+                <p className="font-sans text-xs">Envio para todo o Brasil.</p>
               </div>
             </div>
           </div>

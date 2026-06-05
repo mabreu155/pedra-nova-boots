@@ -19,11 +19,7 @@ const Footer = () => (
         </ul>
       </div>
       <div>
-        <p className="label mb-4">Pagamento</p>
-        <p className="text-muted-foreground" style={{ fontSize: 13 }}>
-          Pix · Mercado Pago · Crypto
-        </p>
-        <p className="label mt-8">© Pedra Nova {new Date().getFullYear()} · Made in Spain. Worn worldwide.</p>
+        <p className="label">© Pedra Nova {new Date().getFullYear()} · Made in Spain. Worn worldwide.</p>
       </div>
     </div>
   </footer>
