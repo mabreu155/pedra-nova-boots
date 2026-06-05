@@ -88,12 +88,16 @@ const Index = () => {
           <div className="mb-6 pt-10" />
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-10 md:gap-y-14">
-            {products.map((p) => (
+            {products.slice(0, visibleCount).map((p) => (
               <ProductCard key={p.slug} product={p} />
             ))}
           </div>
+          {visibleCount < products.length && (
+            <div ref={sentinelRef} aria-hidden className="h-10 w-full" />
+          )}
         </div>
       </section>
+
 
     </Layout>
   );
