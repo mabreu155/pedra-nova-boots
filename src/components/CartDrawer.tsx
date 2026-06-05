@@ -60,7 +60,7 @@ const CartDrawer = () => {
                         <p className="label text-muted-foreground mt-1">{i.product.code}</p>
                         <p className="label text-muted-foreground mt-1">Tam {i.size}</p>
                         <div className="mt-auto flex items-center justify-between pt-3">
-                          <span className="font-display">{formatPrice(i.product.price)}</span>
+                          <span className="font-sans font-normal" style={{ fontSize: "clamp(13px, 1.2vw, 16px)" }}>{formatPrice(i.product.price)}</span>
                           <button onClick={() => remove(i.id)} className="label text-muted-foreground hover:text-foreground">
                             Remover
                           </button>
@@ -75,7 +75,7 @@ const CartDrawer = () => {
             <div className="px-6 py-6" style={{ borderTop: "1px solid hsl(var(--border))" }}>
               <div className="flex items-baseline justify-between mb-4">
                 <span className="label">Total</span>
-                <span className="font-display text-2xl">{formatPrice(total)}</span>
+                <span className="font-sans font-normal" style={{ fontSize: "clamp(13px, 1.2vw, 16px)" }}>{formatPrice(total)}</span>
               </div>
               <button
                 disabled={items.length === 0}
