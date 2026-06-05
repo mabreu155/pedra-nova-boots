@@ -56,7 +56,7 @@ const CartDrawer = () => {
                         <ProductImage src={i.product.image} name={i.product.name} ratio="4/5" />
                       </div>
                       <div className="flex-1 flex flex-col">
-                        <p className="font-display text-lg leading-tight">{i.product.name}</p>
+                        <p className="font-sans font-semibold leading-tight" style={{ fontSize: "clamp(16px, 1.6vw, 20px)" }}>{i.product.name}</p>
                         <p className="label text-muted-foreground mt-1">{i.product.code}</p>
                         <p className="label text-muted-foreground mt-1">Tam {i.size}</p>
                         <div className="mt-auto flex items-center justify-between pt-3">
@@ -84,9 +84,6 @@ const CartDrawer = () => {
               >
                 Finalizar via WhatsApp
               </button>
-              <p className="label text-muted-foreground mt-4 text-center">
-                Pix · Mercado Pago · Cripto
-              </p>
             </div>
           </motion.aside>
         </>

@@ -93,7 +93,7 @@ export const products: Product[] = [
     name: "Skull001",
     code: "M.SKULL001-S1",
     price: 1980,
-    category: "Iconic",
+    category: "Platform",
     sizes: [36, 37, 38, 39, 40, 41, 42, 43, 44],
     description:
       "O ícone que recusou virar nostalgia. Caveiras fundidas, couro legítimo, presença que entra antes de você. Skull001 é assinatura.",
