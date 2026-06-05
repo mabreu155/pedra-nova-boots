@@ -1,9 +1,14 @@
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
 import { products } from "@/data/products";
 import heroFlatlay from "@/assets/hero-flatlay.jpg";
+
+const INITIAL_COUNT = 30;
+const STEP = 12;
+
 
 const Index = () => {
   return (
