@@ -243,12 +243,9 @@ const ProductPage = () => {
                 </p>
               </div>
 
-              {/* Description */}
+              {/* Code */}
               <div className="pt-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
-                <p className="font-sans text-sm leading-relaxed whitespace-pre-line">
-                  {product.description}
-                </p>
-                <p className="font-sans text-sm leading-relaxed mt-3">
+                <p className="font-sans text-sm leading-relaxed">
                   Código: <span className="font-semibold">{product.code}</span>
                 </p>
               </div>
