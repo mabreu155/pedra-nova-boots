@@ -14,6 +14,11 @@ const ProductPage = () => {
   const [size, setSize] = useState<number | null>(null);
   const [activeImg, setActiveImg] = useState(0);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const scrollerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [slug]);
 
   if (!product) {
     return (
