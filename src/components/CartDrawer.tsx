@@ -1,11 +1,35 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatPrice, WHATSAPP_NUMBER } from "@/data/products";
 import ProductImage from "./ProductImage";
 
 const CartDrawer = () => {
   const { isOpen, close, items, total, remove } = useCart();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const { body } = document;
+    const scrollY = window.scrollY;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      body.style.overflow = prev.overflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isOpen]);
 
   const handleCheckout = () => {
     const lines = items.map(
