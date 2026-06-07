@@ -57,12 +57,28 @@ const ProductPage = () => {
           </nav>
 
           <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_400px] gap-8 md:gap-10">
-            {/* IMAGES (left, stacked like Depop) */}
-            <div className="space-y-3">
+            {/* IMAGES — swipeable carousel */}
+            <div>
               <div className="relative">
-                <ProductImage src={product.image} name={product.name} ratio="1/1" priority />
+                <div
+                  ref={scrollerRef}
+                  onScroll={(e) => {
+                    const el = e.currentTarget;
+                    const idx = Math.round(el.scrollLeft / el.clientWidth);
+                    if (idx !== activeImg) setActiveImg(idx);
+                  }}
+                  className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none"
+                  style={{ scrollbarWidth: "none" }}
+                >
+                  {images.map((i) => (
+                    <div key={i} className="shrink-0 w-full snap-center">
+                      <ProductImage src={product.image} name={product.name} ratio="1/1" priority={i === 0} />
+                    </div>
+                  ))}
+                </div>
+
                 {/* Floating action buttons */}
-                <div className="absolute top-3 right-3 flex flex-col gap-2">
+                <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
                   <button
                     aria-label="Favoritar"
                     className="w-10 h-10 rounded-full bg-background flex items-center justify-center hover:bg-secondary transition-colors"
@@ -78,25 +94,35 @@ const ProductPage = () => {
                     <Bookmark size={18} />
                   </button>
                 </div>
-                {/* Prev/next nav */}
+
+                {/* Prev/next nav — desktop only */}
                 <button
-                  onClick={() => setActiveImg((p) => Math.max(0, p - 1))}
+                  onClick={() => {
+                    const el = scrollerRef.current;
+                    if (!el) return;
+                    el.scrollTo({ left: Math.max(0, (activeImg - 1) * el.clientWidth), behavior: "smooth" });
+                  }}
                   aria-label="Imagem anterior"
-                  className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background items-center justify-center hover:bg-secondary transition-colors"
+                  className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background items-center justify-center hover:bg-secondary transition-colors z-10"
                   style={{ border: "1px solid hsl(var(--border))" }}
                 >
                   <ChevronLeft size={18} />
                 </button>
                 <button
-                  onClick={() => setActiveImg((p) => Math.min(images.length - 1, p + 1))}
+                  onClick={() => {
+                    const el = scrollerRef.current;
+                    if (!el) return;
+                    el.scrollTo({ left: Math.min((images.length - 1) * el.clientWidth, (activeImg + 1) * el.clientWidth), behavior: "smooth" });
+                  }}
                   aria-label="Próxima imagem"
-                  className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background items-center justify-center hover:bg-secondary transition-colors"
+                  className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background items-center justify-center hover:bg-secondary transition-colors z-10"
                   style={{ border: "1px solid hsl(var(--border))" }}
                 >
                   <ChevronRight size={18} />
                 </button>
+
                 {/* Dots */}
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
                   {images.map((i) => (
                     <span
                       key={i}
@@ -108,11 +134,6 @@ const ProductPage = () => {
                     />
                   ))}
                 </div>
-              </div>
-
-              {/* Secondary image (Depop-style stacked) */}
-              <div>
-                <ProductImage src={product.image} name={product.name} ratio="1/1" />
               </div>
             </div>
 
