@@ -19,7 +19,12 @@ const Footer = () => (
         </ul>
       </div>
       <div>
-        <p className="label">© Pedra Nova {new Date().getFullYear()} · Made in Spain. Worn worldwide.</p>
+        <p className="label">
+          © <a href="https://instagram.com/pedranovabr" target="_blank" rel="noopener noreferrer" className="hover:underline">pedranovabr</a> {new Date().getFullYear()} · Made in Spain. Worn worldwide.
+        </p>
+        <p className="label mt-2">
+          Site by <a href="https://instagram.com/nul.solutions" target="_blank" rel="noopener noreferrer" className="hover:underline">Nul</a> — human made sw &amp; ecommerce solutions
+        </p>
       </div>
     </div>
   </footer>
