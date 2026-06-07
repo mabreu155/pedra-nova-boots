@@ -14,17 +14,6 @@ const Index = () => {
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if ("scrollRestoration" in window.history) {
-      const prev = window.history.scrollRestoration;
-      window.history.scrollRestoration = "manual";
-      window.scrollTo(0, 0);
-      return () => {
-        window.history.scrollRestoration = prev;
-      };
-    }
-  }, []);
 
   useEffect(() => {
     if (visibleCount >= products.length) return;
