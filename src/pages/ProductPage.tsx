@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ShoppingBag, Heart, Bookmark, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import Layout from "@/components/Layout";
