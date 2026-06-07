@@ -58,7 +58,7 @@ const Vender = () => {
 
   return (
     <Layout>
-      <section className="px-6 pt-20 md:pt-28 pb-20" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
+      <section className="px-6 pt-10 md:pt-14 pb-10" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
         <div className="mx-auto max-w-[1480px]">
           <span className="label text-muted-foreground">Pedra Nova · Compramos sua New Rock</span>
           <h1 className="font-display font-black mt-6 leading-[0.95]" style={{ fontSize: "clamp(56px, 11vw, 180px)" }}>
