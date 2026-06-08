@@ -91,13 +91,6 @@ const ProductPage = () => {
                   >
                     <Heart size={18} />
                   </button>
-                  <button
-                    aria-label="Salvar"
-                    className="w-10 h-10 rounded-full bg-background flex items-center justify-center hover:bg-secondary transition-colors"
-                    style={{ border: "1px solid hsl(var(--border))" }}
-                  >
-                    <Bookmark size={18} />
-                  </button>
                 </div>
 
                 {/* Prev/next nav — desktop only */}
