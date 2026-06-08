@@ -1,12 +1,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { formatPrice, WHATSAPP_NUMBER } from "@/data/products";
+import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
+import CheckoutModal from "./CheckoutModal";
 
 const CartDrawer = () => {
-  const { isOpen, close, items, total, remove } = useCart();
+  const { isOpen, close, items, total, remove, clear } = useCart();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -32,11 +34,8 @@ const CartDrawer = () => {
   }, [isOpen]);
 
   const handleCheckout = () => {
-    const lines = items.map(
-      (i) => `• *${i.product.name}* (${i.product.code}) — Tam ${i.size} — ${formatPrice(i.product.price)}`
-    );
-    const msg = `Olá Kaique! Quero finalizar essa sacola na Pedra Nova:\n\n${lines.join("\n")}\n\n*Total:* ${formatPrice(total)}\n\nPode confirmar disponibilidade e formas de pagamento?`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+    if (items.length === 0) return;
+    setCheckoutOpen(true);
   };
 
   return (
@@ -106,12 +105,21 @@ const CartDrawer = () => {
                 onClick={handleCheckout}
                 className="w-full bg-foreground text-background label py-4 disabled:opacity-40 hover:opacity-90 transition-opacity"
               >
-                Finalizar via WhatsApp
+                Finalizar compra
               </button>
             </div>
           </motion.aside>
         </>
       )}
+      <CheckoutModal
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        items={items.map((i) => ({ product: i.product, size: i.size, qty: i.qty }))}
+        onSuccess={() => {
+          clear();
+          close();
+        }}
+      />
     </AnimatePresence>
   );
 };

@@ -340,7 +340,7 @@ const ProductPage = () => {
           </div>
         </div>
       </div>
-      <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} product={product} size={size} />
+      <CheckoutModal open={checkoutOpen} onClose={() => setCheckoutOpen(false)} items={size ? [{ product, size, qty: 1 }] : []} />
     </Layout>
   );
 };

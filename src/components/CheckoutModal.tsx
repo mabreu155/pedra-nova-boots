@@ -4,7 +4,7 @@ import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload } 
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
-import { createShopifyCheckout } from "@/lib/shopify";
+import { createShopifyCheckoutMulti } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
   OWNER_EMAIL_PLACEHOLDER,
@@ -14,11 +14,13 @@ import {
 } from "@/lib/checkoutConfig";
 import { supabase } from "@/integrations/supabase/client";
 
+export type CheckoutItem = { product: Product; size: number; qty: number };
+
 type Props = {
   open: boolean;
   onClose: () => void;
-  product: Product;
-  size: number | null;
+  items: CheckoutItem[];
+  onSuccess?: () => void;
 };
 
 type Step = "delivery" | "payment" | "review" | "done";
@@ -51,7 +53,7 @@ const SHOPIFY_METHODS: PaymentMethod[] = [
   "crypto_nowpayments",
 ];
 
-const CheckoutModal = ({ open, onClose, product, size }: Props) => {
+const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [step, setStep] = useState<Step>("delivery");
   const [address, setAddress] = useState({
     name: "", street: "", number: "", complement: "",
@@ -75,9 +77,9 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [doneMessage, setDoneMessage] = useState<string>("");
 
-  const subtotal = product.price;
+  const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
   const protection = Math.round(subtotal * BUYER_PROTECTION_PCT);
-  const total = subtotal + SHIPPING + protection;
+  const total = subtotal + (items.length > 0 ? SHIPPING : 0) + protection;
 
   // Cota crypto (CoinGecko, sem chave)
   useEffect(() => {
@@ -145,24 +147,32 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
     try {
       // Métodos Shopify → cria cart e redireciona no mesmo tab
       if (SHOPIFY_METHODS.includes(method)) {
-        if (!size) throw new Error("Selecione um tamanho.");
-        const variantId = product.variantIdBySize?.[size];
-        if (!variantId) {
-          throw new Error(
-            "Esta variante ainda não está sincronizada com o Shopify. Use Pix Direto ou Crypto Direto, ou peça ao admin para mapear o produto."
-          );
+        if (items.length === 0) throw new Error("Carrinho vazio.");
+        const lines: Array<{ variantId: string; quantity: number }> = [];
+        for (const it of items) {
+          const variantId = it.product.variantIdBySize?.[it.size];
+          if (!variantId) {
+            throw new Error(
+              `"${it.product.name}" (tam ${it.size}) ainda não está sincronizado com o Shopify. Use Pix Direto ou Crypto Direto.`
+            );
+          }
+          lines.push({ variantId, quantity: it.qty });
         }
-        const checkoutUrl = await createShopifyCheckout(variantId, 1);
+        const checkoutUrl = await createShopifyCheckoutMulti(lines);
         if (!checkoutUrl) throw new Error("Falha ao criar checkout Shopify. Tente novamente.");
 
         setDoneMessage("Você será redirecionado para finalizar o pagamento em segurança.");
         setStep("done");
-        // pequeno delay para mostrar a confirmação antes de redirecionar
+        onSuccess?.();
         setTimeout(() => { window.location.href = checkoutUrl; }, 1200);
         return;
       }
 
       const fullAddress = `${address.street}, ${address.number}${address.complement ? " — " + address.complement : ""}, ${address.city}/${address.state} · ${address.zip} · ${address.phone}`;
+      const itemsSummary = items
+        .map((i) => `${i.product.name} (${i.product.code}) — Tam ${i.size} × ${i.qty}`)
+        .join(" | ");
+      const firstItem = items[0];
 
       if (method === "pix_direto") {
         const receiptBase64 = pixReceipt ? await fileToBase64(pixReceipt) : "";
@@ -173,9 +183,10 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
             customerEmail: pixEmail,
             customerName: address.name,
             address: fullAddress,
-            productName: product.name,
-            productCode: product.code,
-            size,
+            productName: firstItem?.product.name,
+            productCode: firstItem?.product.code,
+            size: firstItem?.size,
+            itemsSummary,
             totalBRL: total,
             receipt: pixReceipt
               ? { filename: pixReceipt.name, base64: receiptBase64, mime: pixReceipt.type }
@@ -185,6 +196,7 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
         if (error) throw new Error(error.message);
         setDoneMessage("Enviaremos a confirmação assim que identificarmos o pagamento. Prazo: até 2 horas úteis.");
         setStep("done");
+        onSuccess?.();
         return;
       }
 
@@ -196,9 +208,10 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
             customerEmail: cryptoEmail,
             customerName: address.name,
             address: fullAddress,
-            productName: product.name,
-            productCode: product.code,
-            size,
+            productName: firstItem?.product.name,
+            productCode: firstItem?.product.code,
+            size: firstItem?.size,
+            itemsSummary,
             totalBRL: total,
             cryptoSymbol,
             cryptoAmount: cryptoAmount ?? "—",
@@ -208,6 +221,7 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
         if (error) throw new Error(error.message);
         setDoneMessage("Verificaremos a transação on-chain e confirmaremos o envio em até 4 horas úteis.");
         setStep("done");
+        onSuccess?.();
         return;
       }
     } catch (e: any) {
@@ -549,17 +563,21 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
                 >
                   <p className="label mb-4" style={{ fontSize: 11 }}>Resumo</p>
 
-                  <div className="flex gap-3 mb-5">
-                    <div style={{ width: 72, flexShrink: 0 }}>
-                      <ProductImage src={product.image} name={product.name} ratio="1/1" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-sans font-semibold text-sm leading-tight truncate">{product.name}</p>
-                      <p className="font-sans text-xs text-muted-foreground mt-1">{product.code}</p>
-                      <p className="font-sans text-xs text-muted-foreground">Tam EU {size ?? "—"}</p>
-                      <p className="font-sans font-semibold text-sm mt-1">{formatPrice(subtotal)}</p>
-                    </div>
-                  </div>
+                  <ul className="space-y-3 mb-5">
+                    {items.map((it, idx) => (
+                      <li key={`${it.product.slug}-${it.size}-${idx}`} className="flex gap-3">
+                        <div style={{ width: 64, flexShrink: 0 }}>
+                          <ProductImage src={it.product.image} name={it.product.name} ratio="1/1" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-sans font-semibold text-sm leading-tight truncate">{it.product.name}</p>
+                          <p className="font-sans text-xs text-muted-foreground mt-1">{it.product.code}</p>
+                          <p className="font-sans text-xs text-muted-foreground">Tam EU {it.size}{it.qty > 1 ? ` · ${it.qty}×` : ""}</p>
+                          <p className="font-sans font-semibold text-sm mt-1">{formatPrice(it.product.price * it.qty)}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     <Row label="Subtotal" value={formatPrice(subtotal)} />
