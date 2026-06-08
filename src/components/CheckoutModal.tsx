@@ -13,6 +13,7 @@ import {
   type CryptoSymbol,
 } from "@/lib/checkoutConfig";
 import { supabase } from "@/integrations/supabase/client";
+import { useI18n } from "@/i18n/I18nContext";
 
 export type CheckoutItem = { product: Product; size: number; qty: number };
 
@@ -52,6 +53,7 @@ const SHOPIFY_METHODS: PaymentMethod[] = [
 ];
 
 const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
+  const { t } = useI18n();
   const [step, setStep] = useState<Step>("delivery");
   const [address, setAddress] = useState({
     name: "", street: "", number: "", complement: "",
@@ -144,21 +146,21 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     try {
       // Métodos Shopify → cria cart e redireciona no mesmo tab
       if (SHOPIFY_METHODS.includes(method)) {
-        if (items.length === 0) throw new Error("Carrinho vazio.");
+        if (items.length === 0) throw new Error(t("co.err.emptyCart"));
         const lines: Array<{ variantId: string; quantity: number }> = [];
         for (const it of items) {
           const variantId = it.product.variantIdBySize?.[it.size];
           if (!variantId) {
             throw new Error(
-              `"${it.product.name}" (tam ${it.size}) ainda não está sincronizado com o Shopify. Use Pix Direto ou Crypto Direto.`
+              `"${it.product.name}" (${t("co.tamEU")} ${it.size}) ${t("co.err.notSynced")}`
             );
           }
           lines.push({ variantId, quantity: it.qty });
         }
         const checkoutUrl = await createShopifyCheckoutMulti(lines);
-        if (!checkoutUrl) throw new Error("Falha ao criar checkout Shopify. Tente novamente.");
+        if (!checkoutUrl) throw new Error(t("co.err.createCheckout"));
 
-        setDoneMessage("Você será redirecionado para finalizar o pagamento em segurança.");
+        setDoneMessage(t("co.done.redirect"));
         setStep("done");
         onSuccess?.();
         setTimeout(() => { window.location.href = checkoutUrl; }, 1200);
@@ -191,7 +193,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
           },
         });
         if (error) throw new Error(error.message);
-        setDoneMessage("Enviaremos a confirmação assim que identificarmos o pagamento. Prazo: até 2 horas úteis.");
+        setDoneMessage(t("co.done.pix"));
         setStep("done");
         onSuccess?.();
         return;
@@ -216,22 +218,22 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
           },
         });
         if (error) throw new Error(error.message);
-        setDoneMessage("Verificaremos a transação on-chain e confirmaremos o envio em até 4 horas úteis.");
+        setDoneMessage(t("co.done.crypto"));
         setStep("done");
         onSuccess?.();
         return;
       }
     } catch (e: any) {
-      setSubmitError(e?.message ?? "Erro ao processar pedido.");
+      setSubmitError(e?.message ?? t("co.err.generic"));
     } finally {
       setSubmitting(false);
     }
   };
 
   const ctaLabel = (() => {
-    if (step === "delivery") return "Continuar para pagamento";
-    if (step === "payment") return "Revisar pedido";
-    if (step === "review") return submitting ? "Processando…" : `Pagar ${formatPrice(total)}`;
+    if (step === "delivery") return t("co.cta.delivery");
+    if (step === "payment") return t("co.cta.payment");
+    if (step === "review") return submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
     return "";
   })();
 
@@ -273,14 +275,14 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                 className="flex items-center justify-between px-4 md:hidden shrink-0"
                 style={{ height: 56, borderBottom: "1px solid hsl(var(--border))" }}
               >
-                <button onClick={step === "delivery" || step === "done" ? close : back} aria-label="Voltar">
+                <button onClick={step === "delivery" || step === "done" ? close : back} aria-label={t("co.back")}>
                   {step === "delivery" || step === "done" ? <X size={20} /> : <ChevronLeft size={20} />}
                 </button>
                 <span className="font-sans font-semibold text-sm">
-                  {step === "delivery" && "Entrega"}
-                  {step === "payment" && "Pagamento"}
-                  {step === "review" && "Revisar pedido"}
-                  {step === "done" && "Pedido confirmado"}
+                  {step === "delivery" && t("co.step.delivery")}
+                  {step === "payment" && t("co.step.payment")}
+                  {step === "review" && t("co.step.review")}
+                  {step === "done" && t("co.step.done")}
                 </span>
                 <span style={{ width: 20 }} />
               </div>
@@ -296,7 +298,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     className="flex items-center gap-1 font-sans text-sm hover:underline"
                   >
                     {step === "delivery" || step === "done" ? <X size={16} /> : <ChevronLeft size={16} />}
-                    {step === "delivery" || step === "done" ? "Fechar" : "Voltar"}
+                    {step === "delivery" || step === "done" ? t("co.close") : t("co.back")}
                   </button>
                   <div className="flex items-center gap-2">
                     {(["delivery", "payment", "review"] as Step[]).map((s, i) => (
@@ -324,59 +326,59 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
 
                 {step === "delivery" && (
                   <div className="space-y-4">
-                    <h2 className="font-sans font-bold text-xl">Endereço de entrega</h2>
-                    <Field label="Nome completo" value={address.name} onChange={(v) => setAddress({ ...address, name: v })} />
+                    <h2 className="font-sans font-bold text-xl">{t("co.deliveryTitle")}</h2>
+                    <Field label={t("co.f.name")} value={address.name} onChange={(v) => setAddress({ ...address, name: v })} />
                     <div className="grid grid-cols-[1fr_120px] gap-3">
-                      <Field label="Rua" value={address.street} onChange={(v) => setAddress({ ...address, street: v })} />
-                      <Field label="Número" value={address.number} onChange={(v) => setAddress({ ...address, number: v })} />
+                      <Field label={t("co.f.street")} value={address.street} onChange={(v) => setAddress({ ...address, street: v })} />
+                      <Field label={t("co.f.number")} value={address.number} onChange={(v) => setAddress({ ...address, number: v })} />
                     </div>
-                    <Field label="Complemento (opcional)" value={address.complement} onChange={(v) => setAddress({ ...address, complement: v })} />
+                    <Field label={t("co.f.complement")} value={address.complement} onChange={(v) => setAddress({ ...address, complement: v })} />
                     <div className="grid grid-cols-[1fr_120px_140px] gap-3">
-                      <Field label="Cidade" value={address.city} onChange={(v) => setAddress({ ...address, city: v })} />
-                      <Field label="UF" value={address.state} onChange={(v) => setAddress({ ...address, state: v })} />
-                      <Field label="CEP" value={address.zip} onChange={(v) => setAddress({ ...address, zip: v })} />
+                      <Field label={t("co.f.city")} value={address.city} onChange={(v) => setAddress({ ...address, city: v })} />
+                      <Field label={t("co.f.state")} value={address.state} onChange={(v) => setAddress({ ...address, state: v })} />
+                      <Field label={t("co.f.zip")} value={address.zip} onChange={(v) => setAddress({ ...address, zip: v })} />
                     </div>
-                    <Field label="Telefone" value={address.phone} onChange={(v) => setAddress({ ...address, phone: v })} />
+                    <Field label={t("co.f.phone")} value={address.phone} onChange={(v) => setAddress({ ...address, phone: v })} />
                   </div>
                 )}
 
                 {step === "payment" && (
                   <div className="space-y-4">
-                    <h2 className="font-sans font-bold text-xl">Pagamento</h2>
+                    <h2 className="font-sans font-bold text-xl">{t("co.paymentTitle")}</h2>
 
                     <div className="grid grid-cols-2 gap-2">
-                      <MethodTile active={method === "card"} onClick={() => setMethod("card")} icon={<CreditCard size={16} />} label="Cartão" />
-                      <MethodTile active={method === "pix_mp"} onClick={() => setMethod("pix_mp")} icon={<span className="font-bold text-xs">PIX</span>} label="Pix" />
-                      <MethodTile active={method === "mp_parcelado"} onClick={() => setMethod("mp_parcelado")} icon={<span className="font-bold text-xs">12x</span>} label="Parcelado" />
+                      <MethodTile active={method === "card"} onClick={() => setMethod("card")} icon={<CreditCard size={16} />} label={t("co.m.card")} />
+                      <MethodTile active={method === "pix_mp"} onClick={() => setMethod("pix_mp")} icon={<span className="font-bold text-xs">PIX</span>} label={t("co.m.pix")} />
+                      <MethodTile active={method === "mp_parcelado"} onClick={() => setMethod("mp_parcelado")} icon={<span className="font-bold text-xs">12x</span>} label={t("co.m.installments")} />
                       {isApplePayAvailable() && (
-                        <MethodTile active={method === "apple_pay"} onClick={() => setMethod("apple_pay")} icon={<span className="font-bold text-xs"></span>} label="Apple Pay" />
+                        <MethodTile active={method === "apple_pay"} onClick={() => setMethod("apple_pay")} icon={<span className="font-bold text-xs"></span>} label={t("co.m.applePay")} />
                       )}
-                      <MethodTile active={method === "paypal"} onClick={() => setMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label="PayPal" />
-                      <MethodTile active={method === "crypto_nowpayments"} onClick={() => setMethod("crypto_nowpayments")} icon={<span className="font-bold text-xs">₿</span>} label="Crypto" />
-                      <MethodTile active={method === "pix_direto"} onClick={() => setMethod("pix_direto")} icon={<span className="font-bold text-xs">⚡</span>} label="Pix Direto" />
-                      <MethodTile active={method === "crypto_direto"} onClick={() => setMethod("crypto_direto")} icon={<span className="font-bold text-xs">🔗</span>} label="Crypto Direto" />
+                      <MethodTile active={method === "paypal"} onClick={() => setMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
+                      <MethodTile active={method === "crypto_nowpayments"} onClick={() => setMethod("crypto_nowpayments")} icon={<span className="font-bold text-xs">₿</span>} label={t("co.m.crypto")} />
+                      <MethodTile active={method === "pix_direto"} onClick={() => setMethod("pix_direto")} icon={<span className="font-bold text-xs">⚡</span>} label={t("co.m.pixDirect")} />
+                      <MethodTile active={method === "crypto_direto"} onClick={() => setMethod("crypto_direto")} icon={<span className="font-bold text-xs">🔗</span>} label={t("co.m.cryptoDirect")} />
                     </div>
 
                     {method === "card" && (
                       <div className="space-y-4 pt-2">
-                        <Field label="Número do cartão" value={card.number} onChange={(v) => setCard({ ...card, number: v })} placeholder="0000 0000 0000 0000" />
-                        <Field label="Nome no cartão" value={card.name} onChange={(v) => setCard({ ...card, name: v })} />
+                        <Field label={t("co.f.cardNumber")} value={card.number} onChange={(v) => setCard({ ...card, number: v })} placeholder="0000 0000 0000 0000" />
+                        <Field label={t("co.f.cardName")} value={card.name} onChange={(v) => setCard({ ...card, name: v })} />
                         <div className="grid grid-cols-2 gap-3">
-                          <Field label="Validade" value={card.exp} onChange={(v) => setCard({ ...card, exp: v })} placeholder="MM/AA" />
-                          <Field label="CVV" value={card.cvv} onChange={(v) => setCard({ ...card, cvv: v })} placeholder="123" />
+                          <Field label={t("co.f.cardExp")} value={card.exp} onChange={(v) => setCard({ ...card, exp: v })} placeholder="MM/AA" />
+                          <Field label={t("co.f.cardCvv")} value={card.cvv} onChange={(v) => setCard({ ...card, cvv: v })} placeholder="123" />
                         </div>
-                        <InfoBox>O pagamento com cartão é processado de forma segura via Shopify Checkout.</InfoBox>
+                        <InfoBox>{t("co.info.card")}</InfoBox>
                       </div>
                     )}
 
                     {method === "pix_mp" && (
-                      <InfoBox>QR Code Pix gerado via Mercado Pago no checkout Shopify. Confirmação automática após pagamento.</InfoBox>
+                      <InfoBox>{t("co.info.pix")}</InfoBox>
                     )}
 
                     {method === "mp_parcelado" && (
                       <div className="space-y-3 pt-2">
                         <label className="block">
-                          <span className="label block mb-1.5" style={{ fontSize: 11 }}>Parcelas</span>
+                          <span className="label block mb-1.5" style={{ fontSize: 11 }}>{t("co.f.installments")}</span>
                           <select
                             value={installments}
                             onChange={(e) => setInstallments(Number(e.target.value))}
@@ -390,28 +392,28 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             ))}
                           </select>
                         </label>
-                        <InfoBox>Parcelamento finalizado no checkout Mercado Pago via Shopify.</InfoBox>
+                        <InfoBox>{t("co.info.installments")}</InfoBox>
                       </div>
                     )}
 
                     {method === "apple_pay" && (
-                      <InfoBox>Apple Pay processado no checkout Shopify usando seu Wallet do dispositivo.</InfoBox>
+                      <InfoBox>{t("co.info.applePay")}</InfoBox>
                     )}
 
                     {method === "paypal" && (
-                      <InfoBox>Você será direcionado para o PayPal via checkout Shopify.</InfoBox>
+                      <InfoBox>{t("co.info.paypal")}</InfoBox>
                     )}
 
                     {method === "crypto_nowpayments" && (
-                      <InfoBox>Aceita BTC, ETH, USDT, SOL, LTC. Pagamento confirmado on-chain via NOWPayments no checkout Shopify.</InfoBox>
+                      <InfoBox>{t("co.info.cryptoMp")}</InfoBox>
                     )}
 
                     {method === "pix_direto" && (
                       <div className="space-y-3 pt-2">
                         <div className="p-4 font-sans text-sm space-y-2" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
-                          <p className="font-semibold">⚡ Pix Direto — sem taxas</p>
+                          <p className="font-semibold">{t("co.pix.title")}</p>
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-muted-foreground text-xs">Chave Pix</span>
+                            <span className="text-muted-foreground text-xs">{t("co.pix.key")}</span>
                             <button
                               onClick={() => navigator.clipboard.writeText(PIX_KEY_PLACEHOLDER)}
                               className="font-mono text-xs flex items-center gap-1 hover:underline"
@@ -420,20 +422,20 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             </button>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground text-xs">Valor</span>
+                            <span className="text-muted-foreground text-xs">{t("co.pix.amount")}</span>
                             <span className="font-semibold">{formatPrice(total)}</span>
                           </div>
-                          <p className="text-xs text-muted-foreground pt-2">Faça o Pix e envie o comprovativo abaixo.</p>
+                          <p className="text-xs text-muted-foreground pt-2">{t("co.pix.note")}</p>
                         </div>
-                        <Field label="Seu e-mail" value={pixEmail} onChange={setPixEmail} placeholder="voce@email.com" />
-                        <FileField label="Comprovativo do Pix" file={pixReceipt} onChange={setPixReceipt} />
+                        <Field label={t("co.f.email")} value={pixEmail} onChange={setPixEmail} placeholder="voce@email.com" />
+                        <FileField label={t("co.pix.receipt")} file={pixReceipt} onChange={setPixReceipt} />
                       </div>
                     )}
 
                     {method === "crypto_direto" && (
                       <div className="space-y-3 pt-2">
                         <div className="p-4 font-sans text-sm space-y-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
-                          <p className="font-semibold">🔗 Crypto Direto — sem taxas de plataforma</p>
+                          <p className="font-semibold">{t("co.crypto.title")}</p>
                           <div className="grid grid-cols-5 gap-1.5">
                             {(["BTC", "ETH", "USDT", "SOL", "LTC"] as CryptoSymbol[]).map((s) => (
                               <button
@@ -452,7 +454,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             ))}
                           </div>
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-muted-foreground text-xs">Endereço</span>
+                            <span className="text-muted-foreground text-xs">{t("co.crypto.address")}</span>
                             <button
                               onClick={() => navigator.clipboard.writeText(CRYPTO_WALLETS[cryptoSymbol])}
                               className="font-mono text-[10px] flex items-center gap-1 hover:underline truncate max-w-[220px]"
@@ -469,33 +471,33 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             />
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground text-xs">Valor aproximado</span>
+                            <span className="text-muted-foreground text-xs">{t("co.crypto.approx")}</span>
                             <span className="font-mono text-xs font-semibold">
-                              {cryptoAmount ? `${cryptoAmount} ${cryptoSymbol}` : "calculando…"}
+                              {cryptoAmount ? `${cryptoAmount} ${cryptoSymbol}` : t("co.crypto.calc")}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-muted-foreground text-xs">Total BRL</span>
+                            <span className="text-muted-foreground text-xs">{t("co.crypto.totalBrl")}</span>
                             <span className="font-semibold">{formatPrice(total)}</span>
                           </div>
                         </div>
-                        <Field label="Seu e-mail" value={cryptoEmail} onChange={setCryptoEmail} placeholder="voce@email.com" />
-                        <Field label="TXID (hash da transação)" value={cryptoTxid} onChange={setCryptoTxid} placeholder="0x… / tx hash" />
+                        <Field label={t("co.f.email")} value={cryptoEmail} onChange={setCryptoEmail} placeholder="voce@email.com" />
+                        <Field label={t("co.crypto.txid")} value={cryptoTxid} onChange={setCryptoTxid} placeholder="0x… / tx hash" />
                       </div>
                     )}
 
                     <div className="flex items-start gap-2 font-sans text-xs text-muted-foreground pt-2">
                       <Lock size={14} className="shrink-0 mt-0.5" />
-                      <span>Pagamento processado com criptografia. Seus dados ficam seguros.</span>
+                      <span>{t("co.secure")}</span>
                     </div>
                   </div>
                 )}
 
                 {step === "review" && (
                   <div className="space-y-5">
-                    <h2 className="font-sans font-bold text-xl">Revisar pedido</h2>
+                    <h2 className="font-sans font-bold text-xl">{t("co.step.review")}</h2>
 
-                    <ReviewBlock title="Entregar para" onEdit={() => setStep("delivery")}>
+                    <ReviewBlock title={t("co.review.deliverTo")} editLabel={t("co.review.edit")} onEdit={() => setStep("delivery")}>
                       <p className="font-sans text-sm">{address.name}</p>
                       <p className="font-sans text-sm text-muted-foreground">
                         {address.street}, {address.number}
@@ -507,7 +509,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       <p className="font-sans text-sm text-muted-foreground">{address.phone}</p>
                     </ReviewBlock>
 
-                    <ReviewBlock title="Pagamento" onEdit={() => setStep("payment")}>
+                    <ReviewBlock title={t("co.review.payment")} editLabel={t("co.review.edit")} onEdit={() => setStep("payment")}>
                       <p className="font-sans text-sm">{paymentLabel(method, card, installments, cryptoSymbol)}</p>
                     </ReviewBlock>
 
@@ -528,7 +530,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     >
                       <ShieldCheck size={28} />
                     </div>
-                    <h2 className="font-sans font-bold text-xl mb-2">Pedido confirmado.</h2>
+                    <h2 className="font-sans font-bold text-xl mb-2">{t("co.done.title")}</h2>
                     <p className="font-sans text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
                       {doneMessage}
                     </p>
@@ -537,7 +539,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       className="bg-foreground text-background font-sans font-semibold text-sm px-6 py-3"
                       style={{ borderRadius: 8 }}
                     >
-                      Continuar comprando
+                      {t("co.done.continue")}
                     </button>
                   </div>
                 )}
@@ -549,7 +551,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   className="w-full md:w-[340px] md:overflow-y-auto p-5 md:p-6 flex flex-col"
                   style={{ background: "hsl(var(--secondary))", borderTop: "1px solid hsl(var(--border))" }}
                 >
-                  <p className="label mb-4" style={{ fontSize: 11 }}>Resumo</p>
+                  <p className="label mb-4" style={{ fontSize: 11 }}>{t("co.summary")}</p>
 
                   <ul className="space-y-3 mb-5">
                     {items.map((it, idx) => (
@@ -560,7 +562,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                         <div className="flex-1 min-w-0">
                           <p className="font-sans font-semibold text-sm leading-tight truncate">{it.product.name}</p>
                           <p className="font-sans text-xs text-muted-foreground mt-1">{it.product.code}</p>
-                          <p className="font-sans text-xs text-muted-foreground">Tam EU {it.size}{it.qty > 1 ? ` · ${it.qty}×` : ""}</p>
+                          <p className="font-sans text-xs text-muted-foreground">{t("co.tamEU")} {it.size}{it.qty > 1 ? ` · ${it.qty}×` : ""}</p>
                           <p className="font-sans font-semibold text-sm mt-1">{formatPrice(it.product.price * it.qty)}</p>
                         </div>
                       </li>
@@ -568,15 +570,15 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   </ul>
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
-                    <Row label="Subtotal" value={formatPrice(subtotal)} />
-                    <Row label="Frete" value={<span className="text-muted-foreground">Calculado no checkout</span>} />
+                    <Row label={t("co.subtotal")} value={formatPrice(subtotal)} />
+                    <Row label={t("co.shipping")} value={<span className="text-muted-foreground">{t("co.shippingCalc")}</span>} />
                   </div>
 
                   <div
                     className="flex items-baseline justify-between font-sans font-bold pt-4"
                     style={{ borderTop: "1px solid hsl(var(--border))" }}
                   >
-                    <span>Total</span>
+                    <span>{t("co.total")}</span>
                     <span className="text-lg">{formatPrice(total)}</span>
                   </div>
 
@@ -595,7 +597,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   </button>
 
                   <p className="font-sans text-xs text-muted-foreground text-center mt-3">
-                    Ao finalizar, você aceita os Termos da Pedra Nova.
+                    {t("co.terms")}
                   </p>
                 </aside>
               )}
@@ -647,7 +649,7 @@ const FileField = ({ label, file, onChange }: { label: string; file: File | null
       style={{ padding: "10px 12px", border: "1px solid hsl(var(--border))", borderRadius: 6 }}
     >
       <Upload size={14} />
-      <span className="truncate">{file ? file.name : "Anexar imagem ou PDF"}</span>
+      <span className="truncate">{file ? file.name : "—"}</span>
       <input
         type="file"
         accept="image/*,application/pdf"
@@ -679,11 +681,11 @@ const MethodTile = ({ active, onClick, icon, label }: { active: boolean; onClick
   </button>
 );
 
-const ReviewBlock = ({ title, onEdit, children }: { title: string; onEdit: () => void; children: React.ReactNode }) => (
+const ReviewBlock = ({ title, onEdit, editLabel, children }: { title: string; onEdit: () => void; editLabel: string; children: React.ReactNode }) => (
   <div className="p-4" style={{ border: "1px solid hsl(var(--border))", borderRadius: 8 }}>
     <div className="flex items-center justify-between mb-2">
       <p className="label" style={{ fontSize: 11 }}>{title}</p>
-      <button onClick={onEdit} className="font-sans text-xs underline">Editar</button>
+      <button onClick={onEdit} className="font-sans text-xs underline">{editLabel}</button>
     </div>
     {children}
   </div>
