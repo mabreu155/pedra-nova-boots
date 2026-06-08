@@ -183,7 +183,16 @@ function mapShopifyProduct(node: ShopifyProductNode): Product {
   const firstSku =
     variants.find((v) => v.sku)?.sku ?? node.handle.toUpperCase();
 
-  const isNew = node.tags?.some((t) => /^new$/i.test(t));
+  // Condition badge controlled via Shopify tags: Nova, Como Nova, Bom, Regular
+  const CONDITION_BADGES: Array<{ label: string; match: RegExp }> = [
+    { label: "Nova", match: /^(nova|new)$/i },
+    { label: "Como Nova", match: /^como[\s-]?nova$/i },
+    { label: "Bom", match: /^(bom|good)$/i },
+    { label: "Regular", match: /^(regular|fair)$/i },
+  ];
+  const badgeLabel = CONDITION_BADGES.find((b) =>
+    node.tags?.some((t) => b.match.test(t.trim()))
+  )?.label;
 
   return {
     slug: node.handle,
