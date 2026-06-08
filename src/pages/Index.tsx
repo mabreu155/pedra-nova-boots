@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useShopifyProducts";
+import { useI18n } from "@/i18n/I18nContext";
 import heroFlatlay from "@/assets/hero-flatlay.jpg";
 
 const INITIAL_COUNT = 30;
