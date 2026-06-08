@@ -60,7 +60,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         items, count, total, isOpen,
         open: () => setOpen(true),
         close: () => setOpen(false),
-        add, remove, clear,
+        add, remove, decrement, clear,
       }}
     >
       {children}
