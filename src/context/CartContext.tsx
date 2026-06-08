@@ -41,6 +41,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
+  const decrement = useCallback((id: string) => {
+    setItems((prev) =>
+      prev.flatMap((i) =>
+        i.id === id ? (i.qty > 1 ? [{ ...i, qty: i.qty - 1 }] : []) : [i]
+      )
+    );
+  }, []);
+
   const clear = useCallback(() => setItems([]), []);
 
   const count = items.reduce((s, i) => s + i.qty, 0);
