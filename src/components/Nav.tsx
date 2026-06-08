@@ -4,14 +4,15 @@ import { ShoppingBag, Menu, X, Heart } from "lucide-react";
 import Logo from "./Logo";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-
-const links = [
-  { to: "/", label: "Shop" },
-  { to: "/lookbook", label: "Lookbook" },
-  { to: "/vender", label: "Vender" },
-];
+import { useI18n } from "@/i18n/I18nContext";
 
 const Nav = () => {
+  const { t } = useI18n();
+  const links = [
+    { to: "/", label: t("nav.shop") },
+    { to: "/lookbook", label: t("nav.lookbook") },
+    { to: "/vender", label: t("nav.vender") },
+  ];
   const { count, open } = useCart();
   const { count: wishCount, open: openWish } = useWishlist();
   const [mobileOpen, setMobileOpen] = useState(false);
