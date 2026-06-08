@@ -82,7 +82,7 @@ const PRODUCTS_QUERY = `
           priceRange {
             minVariantPrice { amount currencyCode }
           }
-          images(first: 6) {
+          images(first: 20) {
             edges { node { url altText } }
           }
           variants(first: 50) {
