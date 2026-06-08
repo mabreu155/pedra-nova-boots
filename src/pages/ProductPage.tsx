@@ -4,12 +4,13 @@ import { ShoppingBag, Heart, Bookmark, ShieldCheck, ChevronLeft, ChevronRight } 
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
 import CheckoutModal from "@/components/CheckoutModal";
-import { getProduct, formatPrice } from "@/data/products";
+import { formatPrice } from "@/data/products";
+import { useProduct } from "@/hooks/useShopifyProducts";
 import { useCart } from "@/context/CartContext";
 
 const ProductPage = () => {
   const { slug = "" } = useParams();
-  const product = getProduct(slug);
+  const { product, isLoading } = useProduct(slug);
   const { add } = useCart();
   const [size, setSize] = useState<number | null>(null);
   const [activeImg, setActiveImg] = useState(0);
@@ -24,8 +25,12 @@ const ProductPage = () => {
     return (
       <Layout>
         <div className="px-6 py-32 text-center">
-          <h1 className="font-display text-5xl mb-4">Modelo fora de coleção.</h1>
-          <Link to="/" className="underline-link label">Voltar à loja</Link>
+          <h1 className="font-display text-5xl mb-4">
+            {isLoading ? "Carregando…" : "Modelo fora de coleção."}
+          </h1>
+          {!isLoading && (
+            <Link to="/" className="underline-link label">Voltar à loja</Link>
+          )}
         </div>
       </Layout>
     );

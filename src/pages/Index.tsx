@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/data/products";
+import { useProducts } from "@/hooks/useShopifyProducts";
 import heroFlatlay from "@/assets/hero-flatlay.jpg";
 
 const INITIAL_COUNT = 30;
@@ -11,6 +11,7 @@ const STEP = 12;
 
 
 const Index = () => {
+  const { data: products = [], isLoading, error } = useProducts();
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -29,7 +30,7 @@ const Index = () => {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [visibleCount]);
+  }, [visibleCount, products.length]);
 
   return (
     <Layout>
@@ -76,6 +77,15 @@ const Index = () => {
         <div className="mx-auto max-w-[1480px]">
           <div className="mb-6 pt-10" />
 
+          {isLoading && (
+            <p className="label text-muted-foreground py-10">Carregando coleção…</p>
+          )}
+          {error && !isLoading && (
+            <p className="label text-muted-foreground py-10">Não foi possível carregar a coleção.</p>
+          )}
+          {!isLoading && !error && products.length === 0 && (
+            <p className="label text-muted-foreground py-10">Nenhum produto disponível no momento.</p>
+          )}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-10 md:gap-y-14">
             {products.slice(0, visibleCount).map((p) => (
               <ProductCard key={p.slug} product={p} />

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
-import { products } from "@/data/products";
+import { useProducts } from "@/hooks/useShopifyProducts";
 import look1 from "@/assets/lookbook-1.jpg";
 import look2 from "@/assets/lookbook-2.jpg";
 import look3 from "@/assets/lookbook-3.jpg";
@@ -56,6 +56,7 @@ const editorials: Editorial[] = [
 ];
 
 const Lookbook = () => {
+  const { data: products = [] } = useProducts();
   return (
     <Layout>
       {/* HERO */}

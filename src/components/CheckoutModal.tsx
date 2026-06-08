@@ -5,7 +5,6 @@ import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
 import { createShopifyCheckout } from "@/lib/shopify";
-import { getShopifyVariantId } from "@/lib/checkoutConfig";
 import {
   PIX_KEY_PLACEHOLDER,
   OWNER_EMAIL_PLACEHOLDER,
@@ -147,7 +146,7 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
       // Métodos Shopify → cria cart e redireciona no mesmo tab
       if (SHOPIFY_METHODS.includes(method)) {
         if (!size) throw new Error("Selecione um tamanho.");
-        const variantId = getShopifyVariantId(product.slug, size);
+        const variantId = product.variantIdBySize?.[size];
         if (!variantId) {
           throw new Error(
             "Esta variante ainda não está sincronizada com o Shopify. Use Pix Direto ou Crypto Direto, ou peça ao admin para mapear o produto."
