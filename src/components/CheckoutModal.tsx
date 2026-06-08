@@ -544,7 +544,7 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
               {/* RIGHT — order summary */}
               {step !== "done" && (
                 <aside
-                  className="w-full md:w-[340px] p-5 md:p-6 flex flex-col"
+                  className="w-full md:w-[340px] md:overflow-y-auto p-5 md:p-6 flex flex-col"
                   style={{ background: "hsl(var(--secondary))", borderTop: "1px solid hsl(var(--border))" }}
                 >
                   <p className="label mb-4" style={{ fontSize: 11 }}>Resumo</p>
