@@ -17,6 +17,7 @@ type CartCtx = {
   close: () => void;
   add: (product: Product, size: number) => void;
   remove: (id: string) => void;
+  decrement: (id: string) => void;
   clear: () => void;
 };
 
@@ -40,6 +41,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItems((prev) => prev.filter((i) => i.id !== id));
   }, []);
 
+  const decrement = useCallback((id: string) => {
+    setItems((prev) =>
+      prev.flatMap((i) =>
+        i.id === id ? (i.qty > 1 ? [{ ...i, qty: i.qty - 1 }] : []) : [i]
+      )
+    );
+  }, []);
+
   const clear = useCallback(() => setItems([]), []);
 
   const count = items.reduce((s, i) => s + i.qty, 0);
@@ -51,7 +60,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         items, count, total, isOpen,
         open: () => setOpen(true),
         close: () => setOpen(false),
-        add, remove, clear,
+        add, remove, decrement, clear,
       }}
     >
       {children}
