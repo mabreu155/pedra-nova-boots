@@ -147,24 +147,32 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     try {
       // Métodos Shopify → cria cart e redireciona no mesmo tab
       if (SHOPIFY_METHODS.includes(method)) {
-        if (!size) throw new Error("Selecione um tamanho.");
-        const variantId = product.variantIdBySize?.[size];
-        if (!variantId) {
-          throw new Error(
-            "Esta variante ainda não está sincronizada com o Shopify. Use Pix Direto ou Crypto Direto, ou peça ao admin para mapear o produto."
-          );
+        if (items.length === 0) throw new Error("Carrinho vazio.");
+        const lines: Array<{ variantId: string; quantity: number }> = [];
+        for (const it of items) {
+          const variantId = it.product.variantIdBySize?.[it.size];
+          if (!variantId) {
+            throw new Error(
+              `"${it.product.name}" (tam ${it.size}) ainda não está sincronizado com o Shopify. Use Pix Direto ou Crypto Direto.`
+            );
+          }
+          lines.push({ variantId, quantity: it.qty });
         }
-        const checkoutUrl = await createShopifyCheckout(variantId, 1);
+        const checkoutUrl = await createShopifyCheckoutMulti(lines);
         if (!checkoutUrl) throw new Error("Falha ao criar checkout Shopify. Tente novamente.");
 
         setDoneMessage("Você será redirecionado para finalizar o pagamento em segurança.");
         setStep("done");
-        // pequeno delay para mostrar a confirmação antes de redirecionar
+        onSuccess?.();
         setTimeout(() => { window.location.href = checkoutUrl; }, 1200);
         return;
       }
 
       const fullAddress = `${address.street}, ${address.number}${address.complement ? " — " + address.complement : ""}, ${address.city}/${address.state} · ${address.zip} · ${address.phone}`;
+      const itemsSummary = items
+        .map((i) => `${i.product.name} (${i.product.code}) — Tam ${i.size} × ${i.qty}`)
+        .join(" | ");
+      const firstItem = items[0];
 
       if (method === "pix_direto") {
         const receiptBase64 = pixReceipt ? await fileToBase64(pixReceipt) : "";
@@ -175,9 +183,10 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             customerEmail: pixEmail,
             customerName: address.name,
             address: fullAddress,
-            productName: product.name,
-            productCode: product.code,
-            size,
+            productName: firstItem?.product.name,
+            productCode: firstItem?.product.code,
+            size: firstItem?.size,
+            itemsSummary,
             totalBRL: total,
             receipt: pixReceipt
               ? { filename: pixReceipt.name, base64: receiptBase64, mime: pixReceipt.type }
@@ -187,6 +196,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         if (error) throw new Error(error.message);
         setDoneMessage("Enviaremos a confirmação assim que identificarmos o pagamento. Prazo: até 2 horas úteis.");
         setStep("done");
+        onSuccess?.();
         return;
       }
 
@@ -198,9 +208,10 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             customerEmail: cryptoEmail,
             customerName: address.name,
             address: fullAddress,
-            productName: product.name,
-            productCode: product.code,
-            size,
+            productName: firstItem?.product.name,
+            productCode: firstItem?.product.code,
+            size: firstItem?.size,
+            itemsSummary,
             totalBRL: total,
             cryptoSymbol,
             cryptoAmount: cryptoAmount ?? "—",
@@ -210,6 +221,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         if (error) throw new Error(error.message);
         setDoneMessage("Verificaremos a transação on-chain e confirmaremos o envio em até 4 horas úteis.");
         setStep("done");
+        onSuccess?.();
         return;
       }
     } catch (e: any) {
