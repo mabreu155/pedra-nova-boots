@@ -17,6 +17,7 @@ type CartCtx = {
   close: () => void;
   add: (product: Product, size: number) => void;
   remove: (id: string) => void;
+  decrement: (id: string) => void;
   clear: () => void;
 };
 
