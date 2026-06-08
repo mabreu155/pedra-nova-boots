@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
 import { useProducts } from "@/hooks/useShopifyProducts";
+import { useI18n } from "@/i18n/I18nContext";
 import look1 from "@/assets/lookbook-1.jpg";
 import look2 from "@/assets/lookbook-2.jpg";
 import look3 from "@/assets/lookbook-3.jpg";
@@ -56,6 +57,7 @@ const editorials: Editorial[] = [
 ];
 
 const Lookbook = () => {
+  const { t } = useI18n();
   const { data: products = [] } = useProducts();
   return (
     <Layout>
@@ -65,14 +67,14 @@ const Lookbook = () => {
         style={{ borderBottom: "1px solid hsl(var(--border))" }}
       >
         <div className="mx-auto max-w-[1480px]">
-          <span className="label text-muted-foreground">Lookbook · 2025</span>
+          <span className="label text-muted-foreground">{t("lookbook.tag")}</span>
           <h1
             className="font-display font-black mt-6 leading-[0.95] text-7xl text-center"
             style={{ fontSize: "clamp(64px, 13vw, 220px)" }}
           >
-            Wear the
+            {t("lookbook.headline1")}
             <br />
-            <span className="italic">Statement.</span>
+            <span className="italic">{t("lookbook.headline2")}</span>
           </h1>
         </div>
       </section>
@@ -83,7 +85,6 @@ const Lookbook = () => {
         return (
           <section key={ed.index} style={{ borderBottom: "1px solid hsl(var(--border))" }}>
             <div className={`grid grid-cols-1 lg:grid-cols-12 ${reverse ? "lg:[direction:rtl]" : ""}`}>
-              {/* IMAGE — full bleed, no padding */}
               <div className="lg:col-span-7" style={{ direction: "ltr" }}>
                 <div className="relative w-full" style={{ background: "#0d0d0d" }}>
                   <div style={{ paddingTop: "125%" }} />
@@ -99,12 +100,11 @@ const Lookbook = () => {
                 </div>
               </div>
 
-              {/* TEXT */}
               <div
                 className="lg:col-span-5 px-6 md:px-12 py-16 md:py-24 flex flex-col justify-center"
                 style={{ direction: "ltr" }}
               >
-                <span className="label text-muted-foreground">Editorial · {ed.index}</span>
+                <span className="label text-muted-foreground">{t("lookbook.editorial")} · {ed.index}</span>
                 <h2
                   className="font-display font-bold mt-4 leading-none"
                   style={{ fontSize: "clamp(48px, 6vw, 96px)" }}
@@ -124,7 +124,7 @@ const Lookbook = () => {
                   to={`/produto/${ed.productSlug}`}
                   className="underline-link label inline-block mt-10 self-start"
                 >
-                  Shop {ed.productLabel}
+                  {t("lookbook.shop")} {ed.productLabel}
                 </Link>
               </div>
             </div>
@@ -132,10 +132,9 @@ const Lookbook = () => {
         );
       })}
 
-      {/* PRODUCT-FOCUSED ALTERNATING ROWS */}
       <section className="px-6 pt-20 pb-6">
         <div className="mx-auto max-w-[1480px]">
-          <span className="label text-muted-foreground">A coleção · em detalhe</span>
+          <span className="label text-muted-foreground">{t("lookbook.collection")}</span>
         </div>
       </section>
 
@@ -171,7 +170,7 @@ const Lookbook = () => {
                   to={`/produto/${p.slug}`}
                   className="underline-link label inline-block mt-8"
                 >
-                  Shop {p.name}
+                  {t("lookbook.shop")} {p.name}
                 </Link>
               </div>
             </div>
