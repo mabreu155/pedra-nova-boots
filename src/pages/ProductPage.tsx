@@ -46,7 +46,7 @@ const ProductPage = () => {
     setCheckoutOpen(true);
   };
 
-  const images = [0, 1, 2, 3];
+  const images = product.images.length > 0 ? product.images : (product.image ? [product.image] : []);
 
   return (
     <Layout>
@@ -75,9 +75,9 @@ const ProductPage = () => {
                   className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none"
                   style={{ scrollbarWidth: "none" }}
                 >
-                  {images.map((i) => (
+                  {images.map((src, i) => (
                     <div key={i} className="shrink-0 w-full snap-center">
-                      <ProductImage src={product.image} name={product.name} ratio="1/1" priority={i === 0} />
+                      <ProductImage src={src} name={product.name} ratio="1/1" priority={i === 0} />
                     </div>
                   ))}
                 </div>
@@ -128,7 +128,7 @@ const ProductPage = () => {
 
                 {/* Dots */}
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                  {images.map((i) => (
+                  {images.map((_, i) => (
                     <span
                       key={i}
                       className="w-1.5 h-1.5 rounded-full transition-opacity"
