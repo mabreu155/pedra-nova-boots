@@ -53,8 +53,16 @@ export async function createShopifyCheckout(
   variantId: string,
   quantity: number = 1
 ): Promise<string | null> {
+  return createShopifyCheckoutMulti([{ variantId, quantity }]);
+}
+
+export async function createShopifyCheckoutMulti(
+  lines: Array<{ variantId: string; quantity: number }>
+): Promise<string | null> {
   const data = await storefrontApiRequest(CART_CREATE_MUTATION, {
-    input: { lines: [{ quantity, merchandiseId: variantId }] },
+    input: {
+      lines: lines.map((l) => ({ quantity: l.quantity, merchandiseId: l.variantId })),
+    },
   });
   const result = data?.data?.cartCreate;
   if (!result) return null;
