@@ -7,7 +7,7 @@ import ProductImage from "./ProductImage";
 import CheckoutModal from "./CheckoutModal";
 
 const CartDrawer = () => {
-  const { isOpen, close, items, total, remove, clear } = useCart();
+  const { isOpen, close, items, total, remove, decrement, clear } = useCart();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   useEffect(() => {
