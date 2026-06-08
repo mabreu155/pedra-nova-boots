@@ -18,7 +18,8 @@ const ProductPage = () => {
   const [size, setSize] = useState<number | null>(null);
   const [activeImg, setActiveImg] = useState(0);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [rockBurst, setRockBurst] = useState(false);
+  const [burstId, setBurstId] = useState(0);
+  const burstTimerRef = useRef<number | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -93,50 +94,43 @@ const ProductPage = () => {
                     onClick={() => {
                       const added = wishToggle(product);
                       if (added) {
-                        setRockBurst(false);
-                        window.requestAnimationFrame(() => setRockBurst(true));
-                        window.setTimeout(() => setRockBurst(false), 700);
+                        if (burstTimerRef.current) window.clearTimeout(burstTimerRef.current);
+                        setBurstId((n) => n + 1);
+                        burstTimerRef.current = window.setTimeout(() => setBurstId(0), 700);
                       }
                     }}
                     className="relative w-10 h-10 rounded-full bg-background flex items-center justify-center hover:bg-secondary transition-colors overflow-visible"
                     style={{ border: "1px solid hsl(var(--border))" }}
                   >
-                    <AnimatePresence mode="wait" initial={false}>
-                      {rockBurst ? (
+                    <span className="absolute inset-0 flex items-center justify-center">
+                      <Heart
+                        size={18}
+                        strokeWidth={1.5}
+                        fill={wishHas(product.slug) ? "currentColor" : "none"}
+                      />
+                    </span>
+                    <AnimatePresence>
+                      {burstId > 0 && (
                         <motion.span
-                          key="rock"
+                          key={burstId}
                           initial={{ scale: 0.4, rotate: -30, opacity: 0 }}
                           animate={{ scale: 1.25, rotate: 0, opacity: 1 }}
                           exit={{ scale: 1.6, opacity: 0 }}
                           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                          className="absolute inset-0 flex items-center justify-center"
+                          className="absolute inset-0 flex items-center justify-center bg-background rounded-full"
                         >
                           <HandMetal size={20} strokeWidth={1.75} />
                         </motion.span>
-                      ) : (
-                        <motion.span
-                          key="heart"
-                          initial={{ scale: 0.6, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          exit={{ scale: 0.6, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="absolute inset-0 flex items-center justify-center"
-                        >
-                          <Heart
-                            size={18}
-                            strokeWidth={1.5}
-                            fill={wishHas(product.slug) ? "currentColor" : "none"}
-                          />
-                        </motion.span>
                       )}
                     </AnimatePresence>
-                    {rockBurst && (
+                    {burstId > 0 && (
                       <motion.span
+                        key={`ring-${burstId}`}
                         aria-hidden
                         initial={{ scale: 0.5, opacity: 0.6 }}
                         animate={{ scale: 2.2, opacity: 0 }}
                         transition={{ duration: 0.6, ease: "easeOut" }}
-                        className="absolute inset-0 rounded-full"
+                        className="absolute inset-0 rounded-full pointer-events-none"
                         style={{ border: "2px solid hsl(var(--foreground))" }}
                       />
                     )}
