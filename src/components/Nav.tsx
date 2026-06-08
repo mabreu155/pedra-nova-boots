@@ -4,14 +4,15 @@ import { ShoppingBag, Menu, X, Heart } from "lucide-react";
 import Logo from "./Logo";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-
-const links = [
-  { to: "/", label: "Shop" },
-  { to: "/lookbook", label: "Lookbook" },
-  { to: "/vender", label: "Vender" },
-];
+import { useI18n } from "@/i18n/I18nContext";
 
 const Nav = () => {
+  const { t } = useI18n();
+  const links = [
+    { to: "/", label: t("nav.shop") },
+    { to: "/lookbook", label: t("nav.lookbook") },
+    { to: "/vender", label: t("nav.vender") },
+  ];
   const { count, open } = useCart();
   const { count: wishCount, open: openWish } = useWishlist();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -69,7 +70,7 @@ const Nav = () => {
         {/* Mobile hamburger */}
         <div className="md:hidden flex-1 flex justify-start">
           <button
-            aria-label="Abrir menu"
+            aria-label={t("nav.openMenu")}
             style={{ color: transparent ? "#f7f5f2" : "hsl(var(--foreground))" }}
             onClick={() => setMobileOpen((v) => !v)}
           >
@@ -87,7 +88,7 @@ const Nav = () => {
         {/* Right actions */}
         <div className="flex-1 flex justify-end items-center gap-4">
           <button
-            aria-label="Abrir lista de desejos"
+            aria-label={t("nav.openWishlist")}
             onClick={openWish}
             className="relative inline-flex items-center"
             style={{ color: transparent ? "#f7f5f2" : "hsl(var(--foreground))" }}
@@ -111,7 +112,7 @@ const Nav = () => {
             )}
           </button>
           <button
-            aria-label="Abrir sacola"
+            aria-label={t("nav.openCart")}
             onClick={open}
             className="relative inline-flex items-center"
             style={{ color: transparent ? "#f7f5f2" : "hsl(var(--foreground))" }}

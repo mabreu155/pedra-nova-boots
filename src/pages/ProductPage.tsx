@@ -9,8 +9,10 @@ import { formatPrice } from "@/data/products";
 import { useProduct } from "@/hooks/useShopifyProducts";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useI18n } from "@/i18n/I18nContext";
 
 const ProductPage = () => {
+  const { t } = useI18n();
   const { slug = "" } = useParams();
   const { product, isLoading } = useProduct(slug);
   const { add } = useCart();
@@ -31,10 +33,10 @@ const ProductPage = () => {
       <Layout>
         <div className="px-6 py-32 text-center">
           <h1 className="font-display text-5xl mb-4">
-            {isLoading ? "Carregando…" : "Modelo fora de coleção."}
+            {isLoading ? t("product.loading") : t("product.notFound")}
           </h1>
           {!isLoading && (
-            <Link to="/" className="underline-link label">Voltar à loja</Link>
+            <Link to="/" className="underline-link label">{t("product.back")}</Link>
           )}
         </div>
       </Layout>
@@ -90,7 +92,7 @@ const ProductPage = () => {
                 {/* Floating action buttons */}
                 <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
                   <button
-                    aria-label={wishHas(product.slug) ? "Remover da lista de desejos" : "Adicionar à lista de desejos"}
+                    aria-label={wishHas(product.slug) ? t("product.removeWish") : t("product.addWish")}
                     onClick={() => {
                       const added = wishToggle(product);
                       if (added) {
@@ -144,7 +146,7 @@ const ProductPage = () => {
                     if (!el) return;
                     el.scrollTo({ left: Math.max(0, (activeImg - 1) * el.clientWidth), behavior: "smooth" });
                   }}
-                  aria-label="Imagem anterior"
+                  aria-label={t("product.prev")}
                   className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background items-center justify-center hover:bg-secondary transition-colors z-10"
                   style={{ border: "1px solid hsl(var(--border))" }}
                 >
@@ -156,7 +158,7 @@ const ProductPage = () => {
                     if (!el) return;
                     el.scrollTo({ left: Math.min((images.length - 1) * el.clientWidth, (activeImg + 1) * el.clientWidth), behavior: "smooth" });
                   }}
-                  aria-label="Próxima imagem"
+                  aria-label={t("product.next")}
                   className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background items-center justify-center hover:bg-secondary transition-colors z-10"
                   style={{ border: "1px solid hsl(var(--border))" }}
                 >
@@ -208,12 +210,12 @@ const ProductPage = () => {
 
               {/* Meta line */}
               <p className="font-sans text-sm text-muted-foreground">
-                {size ? `Tamanho EU ${size}` : "Selecione um tamanho"} · Novo · <span className="underline">{product.category}</span>
+                {size ? `${t("product.sizeEU")} ${size}` : t("product.selectSize")} · {t("product.condition")} · <span className="underline">{product.category}</span>
               </p>
 
               {/* SIZE SELECTOR */}
               <div>
-                <p className="label mb-2" style={{ fontSize: 11 }}>Tamanho EU</p>
+                <p className="label mb-2" style={{ fontSize: 11 }}>{t("product.sizeLabel")}</p>
                 <div className="grid grid-cols-6 gap-2">
                   {Array.from({ length: 11 }, (_, i) => 36 + i).map((n) => {
                     const available = product.sizes.includes(n);
@@ -250,7 +252,7 @@ const ProductPage = () => {
                   className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 disabled:opacity-40 hover:opacity-90 transition-opacity"
                   style={{ borderRadius: 8 }}
                 >
-                  Comprar agora
+                  {t("product.buyNow")}
                 </button>
                 <button
                   onClick={handleAdd}
@@ -258,7 +260,7 @@ const ProductPage = () => {
                   className="w-full font-sans font-semibold text-sm py-3.5 transition-colors hover:bg-secondary disabled:opacity-40"
                   style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 8 }}
                 >
-                  Adicionar à sacola
+                  {t("product.addToBag")}
                 </button>
               </div>
 
@@ -269,15 +271,15 @@ const ProductPage = () => {
               >
                 <ShieldCheck size={18} className="shrink-0 mt-0.5" />
                 <p className="font-sans text-xs leading-relaxed">
-                  Todas as compras na Pedra Nova têm <span className="font-semibold">Proteção ao Comprador</span>.{" "}
-                  <a className="underline" href="#">Saiba mais</a>
+                  {t("product.protection")} <span className="font-semibold">{t("product.protectionStrong")}</span>.{" "}
+                  <a className="underline" href="#">{t("product.learnMore")}</a>
                 </p>
               </div>
 
               {/* Code */}
               <div className="pt-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                 <p className="font-sans text-sm leading-relaxed">
-                  Código: <span className="font-semibold">{product.code}</span>
+                  {t("product.code")} <span className="font-semibold">{product.code}</span>
                 </p>
               </div>
 
@@ -309,21 +311,21 @@ const ProductPage = () => {
                   </div>
                   <div>
                     <p className="font-sans font-semibold text-sm leading-tight">pedra_nova</p>
-                    <p className="font-sans text-xs text-muted-foreground">Loja oficial · Brasil</p>
+                    <p className="font-sans text-xs text-muted-foreground">{t("product.sellerOfficial")}</p>
                   </div>
                 </div>
                 <button
                   className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
                   style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
                 >
-                  Visitar
+                  {t("product.sellerVisit")}
                 </button>
               </div>
 
               {/* Payment */}
               <div className="p-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
-                <p className="label mb-1" style={{ fontSize: 11 }}>Envio</p>
-                <p className="font-sans text-xs">Envio para todo o Brasil.</p>
+                <p className="label mb-1" style={{ fontSize: 11 }}>{t("product.shipping")}</p>
+                <p className="font-sans text-xs">{t("product.shippingBody")}</p>
               </div>
             </div>
           </div>

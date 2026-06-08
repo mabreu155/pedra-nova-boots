@@ -1,9 +1,10 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
 import { WHATSAPP_NUMBER } from "@/data/products";
+import { useI18n } from "@/i18n/I18nContext";
 
-const conditions = ["Como novo", "Muito bom", "Bom", "Regular"] as const;
-type Condition = typeof conditions[number];
+const conditionKeys = ["likeNew", "veryGood", "good", "fair"] as const;
+type CondKey = typeof conditionKeys[number];
 
 const underlineInput: React.CSSProperties = {
   background: "transparent",
@@ -19,10 +20,11 @@ const underlineInput: React.CSSProperties = {
 };
 
 const Vender = () => {
+  const { t } = useI18n();
   const [name, setName] = useState("");
   const [model, setModel] = useState("");
   const [size, setSize] = useState("");
-  const [condition, setCondition] = useState<Condition | "">("");
+  const [condition, setCondition] = useState<CondKey | "">("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [sent, setSent] = useState(false);
@@ -35,7 +37,8 @@ const Vender = () => {
       ? `*Valor pedido: R$ ${price.trim()}*`
       : `*Valor em aberto — aceito oferta*`;
 
-    const msg = `Olá Kaique! Quero vender minha New Rock pela Pedra Nova.\n\n*Nome:* ${name}\n*Modelo:* ${model}\n*Tamanho:* ${size}\n*Condição:* ${condition}\n${priceLine}\n\n${description || ""}\n\nPosso enviar fotos para avaliação!`;
+    const condLabel = t(`vender.cond.${condition}`);
+    const msg = `Olá Kaique! Quero vender minha New Rock pela Pedra Nova.\n\n*Nome:* ${name}\n*Modelo:* ${model}\n*Tamanho:* ${size}\n*Condição:* ${condLabel}\n${priceLine}\n\n${description || ""}\n\nPosso enviar fotos para avaliação!`;
 
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
     setSent(true);
@@ -46,10 +49,10 @@ const Vender = () => {
       <Layout>
         <section className="px-6 py-40 text-center">
           <p className="font-display italic mx-auto max-w-3xl" style={{ fontSize: "clamp(32px, 5vw, 56px)", lineHeight: 1.2 }}>
-            Mensagem enviada. O Kaique entra em contato em breve.
+            {t("vender.sent")}
           </p>
           <button onClick={() => setSent(false)} className="underline-link label mt-12">
-            Enviar outra
+            {t("vender.sendAnother")}
           </button>
         </section>
       </Layout>
@@ -60,15 +63,14 @@ const Vender = () => {
     <Layout>
       <section className="px-6 pt-10 md:pt-14 pb-10" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
         <div className="mx-auto max-w-[1480px]">
-          <span className="label text-muted-foreground">Pedra Nova · Compramos sua New Rock</span>
+          <span className="label text-muted-foreground">{t("vender.tag")}</span>
           <h1 className="font-display font-black mt-6 leading-[0.95]" style={{ fontSize: "clamp(56px, 11vw, 180px)" }}>
-            Sua New Rock
+            {t("vender.title1")}
             <br />
-            <span className="italic">merece nova rua.</span>
+            <span className="italic">{t("vender.title2")}</span>
           </h1>
           <p className="mt-10 max-w-2xl text-muted-foreground" style={{ fontSize: 15, lineHeight: 1.7 }}>
-            Couro legítimo não envelhece — só ganha história. Preencha abaixo e o WhatsApp abre com sua mensagem pronta.
-            O Kaique avalia, faz uma oferta justa e fecha direto com você. Sem intermediários. Sem burocracia.
+            {t("vender.intro")}
           </p>
         </div>
       </section>
@@ -76,24 +78,24 @@ const Vender = () => {
       <section className="px-6 py-20">
         <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-12">
           <div>
-            <label className="label block mb-2">Nome completo</label>
+            <label className="label block mb-2">{t("vender.fullName")}</label>
             <input style={underlineInput} value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
 
           <div>
-            <label className="label block mb-2">Modelo da New Rock</label>
+            <label className="label block mb-2">{t("vender.model")}</label>
             <input style={underlineInput} placeholder="Ex.: M.WALL006-S3" value={model} onChange={(e) => setModel(e.target.value)} required />
           </div>
 
           <div>
-            <label className="label block mb-2">Tamanho EU</label>
+            <label className="label block mb-2">{t("vender.sizeEU")}</label>
             <input style={underlineInput} type="number" min={30} max={50} value={size} onChange={(e) => setSize(e.target.value)} required />
           </div>
 
           <div>
-            <label className="label block mb-4">Condição</label>
+            <label className="label block mb-4">{t("vender.condition")}</label>
             <div className="flex flex-wrap gap-2">
-              {conditions.map((c) => {
+              {conditionKeys.map((c) => {
                 const sel = condition === c;
                 return (
                   <button
@@ -109,7 +111,7 @@ const Vender = () => {
                       color: sel ? "hsl(var(--background))" : "hsl(var(--foreground))",
                     }}
                   >
-                    {c}
+                    {t(`vender.cond.${c}`)}
                   </button>
                 );
               })}
@@ -117,25 +119,25 @@ const Vender = () => {
           </div>
 
           <div>
-            <label className="label block mb-2">Valor pedido (R$)</label>
-            <input style={underlineInput} placeholder="Deixe em branco se aceitar oferta" value={price} onChange={(e) => setPrice(e.target.value)} />
+            <label className="label block mb-2">{t("vender.price")}</label>
+            <input style={underlineInput} placeholder={t("vender.pricePlaceholder")} value={price} onChange={(e) => setPrice(e.target.value)} />
           </div>
 
           <div>
-            <label className="label block mb-2">Descrição</label>
+            <label className="label block mb-2">{t("vender.description")}</label>
             <textarea
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               style={{ ...underlineInput, resize: "vertical" }}
-              placeholder="Conte o histórico, uso, marcas..."
+              placeholder={t("vender.descriptionPlaceholder")}
             />
           </div>
 
           <div className="p-5" style={{ background: "hsl(var(--secondary))" }}>
-            <p className="label mb-2">Dica</p>
+            <p className="label mb-2">{t("vender.tip")}</p>
             <p style={{ fontSize: 14 }}>
-              Foto vende. Após enviar, mande as imagens da bota pelo WhatsApp — luz natural, sola, fivelas e detalhes.
+              {t("vender.tipBody")}
             </p>
           </div>
 
@@ -143,7 +145,7 @@ const Vender = () => {
             type="submit"
             className="w-full bg-foreground text-background label py-5 hover:opacity-90 transition-opacity"
           >
-            Enviar para WhatsApp
+            {t("vender.submit")}
           </button>
         </form>
       </section>

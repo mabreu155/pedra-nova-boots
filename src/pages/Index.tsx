@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useShopifyProducts";
+import { useI18n } from "@/i18n/I18nContext";
 import heroFlatlay from "@/assets/hero-flatlay.jpg";
 
 const INITIAL_COUNT = 30;
@@ -11,6 +12,7 @@ const STEP = 12;
 
 
 const Index = () => {
+  const { t } = useI18n();
   const { data: products = [], isLoading, error } = useProducts();
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -64,9 +66,9 @@ const Index = () => {
             className="font-display leading-[0.92] tracking-tight"
             style={{ fontSize: "clamp(44px, 7.5vw, 112px)", color: "#f7f5f2" }}
           >
-            Couro legítimo.
+            {t("index.heroLine1")}
             <br />
-            Metal forjado.
+            {t("index.heroLine2")}
           </motion.h1>
 
         </div>
@@ -78,13 +80,13 @@ const Index = () => {
           <div className="mb-6 pt-10" />
 
           {isLoading && (
-            <p className="label text-muted-foreground py-10">Carregando coleção…</p>
+            <p className="label text-muted-foreground py-10">{t("index.loading")}</p>
           )}
           {error && !isLoading && (
-            <p className="label text-muted-foreground py-10">Não foi possível carregar a coleção.</p>
+            <p className="label text-muted-foreground py-10">{t("index.error")}</p>
           )}
           {!isLoading && !error && products.length === 0 && (
-            <p className="label text-muted-foreground py-10">Nenhum produto disponível no momento.</p>
+            <p className="label text-muted-foreground py-10">{t("index.empty")}</p>
           )}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 md:gap-x-6 gap-y-10 md:gap-y-14">
             {products.slice(0, visibleCount).map((p) => (
