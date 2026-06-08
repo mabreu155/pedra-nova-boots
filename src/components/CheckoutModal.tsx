@@ -698,7 +698,7 @@ const ReviewBlock = ({ title, onEdit, children }: { title: string; onEdit: () =>
   </div>
 );
 
-const Row = ({ label, value }: { label: string; value: string }) => (
+const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex items-center justify-between">
     <span className="text-muted-foreground">{label}</span>
     <span>{value}</span>
