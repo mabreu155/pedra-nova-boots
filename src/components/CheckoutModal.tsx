@@ -35,8 +35,6 @@ type PaymentMethod =
   | "pix_direto"
   | "crypto_direto";
 
-const SHIPPING = 39;
-const BUYER_PROTECTION_PCT = 0.045;
 
 // Detecta Apple Pay sem disparar prompt (apenas verifica presença)
 const isApplePayAvailable = () => {
@@ -78,8 +76,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [doneMessage, setDoneMessage] = useState<string>("");
 
   const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
-  const protection = Math.round(subtotal * BUYER_PROTECTION_PCT);
-  const total = subtotal + (items.length > 0 ? SHIPPING : 0) + protection;
+  const total = subtotal;
 
   // Cota crypto (CoinGecko, sem chave)
   useEffect(() => {
@@ -520,15 +517,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       </div>
                     )}
 
-                    <div
-                      className="flex gap-3 p-3"
-                      style={{ border: "1px solid hsl(var(--border))", borderRadius: 8 }}
-                    >
-                      <ShieldCheck size={18} className="shrink-0 mt-0.5" />
-                      <p className="font-sans text-xs leading-relaxed">
-                        Sua compra está coberta pela <span className="font-semibold">Proteção ao Comprador</span> Pedra Nova.
-                      </p>
-                    </div>
                   </div>
                 )}
 
@@ -581,8 +569,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     <Row label="Subtotal" value={formatPrice(subtotal)} />
-                    <Row label="Frete" value={formatPrice(SHIPPING)} />
-                    <Row label="Proteção ao Comprador" value={formatPrice(protection)} />
+                    <Row label="Frete" value={<span className="text-muted-foreground">Calculado no checkout</span>} />
                   </div>
 
                   <div
@@ -702,7 +689,7 @@ const ReviewBlock = ({ title, onEdit, children }: { title: string; onEdit: () =>
   </div>
 );
 
-const Row = ({ label, value }: { label: string; value: string }) => (
+const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
   <div className="flex items-center justify-between">
     <span className="text-muted-foreground">{label}</span>
     <span>{value}</span>
