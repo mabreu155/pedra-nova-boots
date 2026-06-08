@@ -54,16 +54,16 @@ const WishlistDrawer = () => {
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             className="fixed right-0 top-0 z-50 h-full bg-background flex flex-col"
             style={{ width: "min(420px, 100vw)", borderLeft: "1px solid hsl(var(--border))" }}
-            aria-label="Lista de desejos"
+            aria-label={t("wish.title")}
           >
             <div
               className="flex items-center justify-between px-6"
               style={{ height: 64, borderBottom: "1px solid hsl(var(--border))" }}
             >
               <span className="label inline-flex items-center gap-2">
-                <Heart size={14} strokeWidth={1.5} /> Lista de desejos ({items.length})
+                <Heart size={14} strokeWidth={1.5} /> {t("wish.title")} ({items.length})
               </span>
-              <button onClick={close} aria-label="Fechar">
+              <button onClick={close} aria-label={t("cart.close")}>
                 <X size={20} strokeWidth={1.25} />
               </button>
             </div>
@@ -71,9 +71,9 @@ const WishlistDrawer = () => {
             <div className="flex-1 overflow-y-auto">
               {items.length === 0 ? (
                 <div className="p-10 text-center">
-                  <p className="font-display italic text-2xl mb-2">Nenhum desejo ainda.</p>
+                  <p className="font-display italic text-2xl mb-2">{t("wish.empty")}</p>
                   <p className="text-muted-foreground" style={{ fontSize: 13 }}>
-                    Toque no coração de uma bota para salvá-la aqui.
+                    {t("wish.emptyHint")}
                   </p>
                 </div>
               ) : (
@@ -108,7 +108,7 @@ const WishlistDrawer = () => {
                             onClick={() => remove(i.slug)}
                             className="label text-muted-foreground hover:text-foreground"
                           >
-                            Remover
+                            {t("cart.remove")}
                           </button>
                         </div>
                       </div>
