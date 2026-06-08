@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ShoppingBag, Heart, HandMetal, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, HandMetal, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
@@ -183,17 +183,6 @@ const ProductPage = () => {
             <div className="md:sticky md:top-6 md:self-start space-y-4">
               {/* Status chips */}
               <div className="flex gap-2 flex-wrap">
-                <span
-                  className="inline-flex items-center gap-1.5 label"
-                  style={{
-                    padding: "6px 10px",
-                    background: "hsl(var(--secondary))",
-                    borderRadius: 999,
-                    fontSize: 11,
-                  }}
-                >
-                  <ShoppingBag size={12} /> Em alta
-                </span>
                 {product.badge && (
                   <span
                     className="inline-flex items-center gap-1.5 label"
