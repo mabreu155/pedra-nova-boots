@@ -230,6 +230,14 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
     else if (step === "review") handlePay();
   };
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [open]);
+
   return (
     <AnimatePresence>
       {open && (
@@ -244,15 +252,14 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
           <motion.div
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-0 z-50 flex items-end md:items-center justify-center pointer-events-none p-0 md:p-6"
+            className="fixed inset-0 z-50 flex items-stretch md:items-center justify-center pointer-events-none p-0 md:p-6"
           >
             <div
-              className="bg-background w-full md:max-w-[920px] pointer-events-auto flex flex-col md:flex-row overflow-hidden"
-              style={{ maxHeight: "92vh", borderRadius: 12, border: "1px solid hsl(var(--border))" }}
+              className="bg-background w-full h-[100dvh] md:h-auto md:max-h-[92vh] md:max-w-[920px] pointer-events-auto flex flex-col md:flex-row overflow-hidden md:rounded-[12px] md:border md:border-border"
             >
               {/* HEADER mobile */}
               <div
-                className="flex items-center justify-between px-4 md:hidden"
+                className="flex items-center justify-between px-4 md:hidden shrink-0"
                 style={{ height: 56, borderBottom: "1px solid hsl(var(--border))" }}
               >
                 <button onClick={step === "delivery" || step === "done" ? close : back} aria-label="Voltar">
@@ -267,8 +274,10 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
                 <span style={{ width: 20 }} />
               </div>
 
+              {/* Single scroll on mobile; splits into two columns on desktop */}
+              <div className="flex-1 min-h-0 overflow-y-auto md:overflow-hidden md:flex md:flex-row">
               {/* LEFT — form */}
-              <div className="flex-1 overflow-y-auto p-5 md:p-8">
+              <div className="md:flex-1 md:overflow-y-auto p-5 md:p-8">
                 {/* Stepper desktop */}
                 <div className="hidden md:flex items-center justify-between mb-6">
                   <button
