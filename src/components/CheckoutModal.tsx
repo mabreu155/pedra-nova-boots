@@ -53,7 +53,7 @@ const SHOPIFY_METHODS: PaymentMethod[] = [
   "crypto_nowpayments",
 ];
 
-const CheckoutModal = ({ open, onClose, product, size }: Props) => {
+const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [step, setStep] = useState<Step>("delivery");
   const [address, setAddress] = useState({
     name: "", street: "", number: "", complement: "",
@@ -77,9 +77,9 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [doneMessage, setDoneMessage] = useState<string>("");
 
-  const subtotal = product.price;
+  const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
   const protection = Math.round(subtotal * BUYER_PROTECTION_PCT);
-  const total = subtotal + SHIPPING + protection;
+  const total = subtotal + (items.length > 0 ? SHIPPING : 0) + protection;
 
   // Cota crypto (CoinGecko, sem chave)
   useEffect(() => {
