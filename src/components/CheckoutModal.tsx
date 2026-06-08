@@ -4,7 +4,7 @@ import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload } 
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
-import { createShopifyCheckout } from "@/lib/shopify";
+import { createShopifyCheckoutMulti } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
   OWNER_EMAIL_PLACEHOLDER,
@@ -14,11 +14,13 @@ import {
 } from "@/lib/checkoutConfig";
 import { supabase } from "@/integrations/supabase/client";
 
+export type CheckoutItem = { product: Product; size: number; qty: number };
+
 type Props = {
   open: boolean;
   onClose: () => void;
-  product: Product;
-  size: number | null;
+  items: CheckoutItem[];
+  onSuccess?: () => void;
 };
 
 type Step = "delivery" | "payment" | "review" | "done";
