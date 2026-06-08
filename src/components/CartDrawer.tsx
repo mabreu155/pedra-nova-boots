@@ -34,11 +34,8 @@ const CartDrawer = () => {
   }, [isOpen]);
 
   const handleCheckout = () => {
-    const lines = items.map(
-      (i) => `• *${i.product.name}* (${i.product.code}) — Tam ${i.size} — ${formatPrice(i.product.price)}`
-    );
-    const msg = `Olá Kaique! Quero finalizar essa sacola na Pedra Nova:\n\n${lines.join("\n")}\n\n*Total:* ${formatPrice(total)}\n\nPode confirmar disponibilidade e formas de pagamento?`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+    if (items.length === 0) return;
+    setCheckoutOpen(true);
   };
 
   return (
