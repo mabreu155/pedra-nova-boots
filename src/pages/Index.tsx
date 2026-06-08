@@ -12,6 +12,7 @@ const STEP = 12;
 
 
 const Index = () => {
+  const { t } = useI18n();
   const { data: products = [], isLoading, error } = useProducts();
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
