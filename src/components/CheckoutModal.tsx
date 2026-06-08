@@ -578,8 +578,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     <Row label="Subtotal" value={formatPrice(subtotal)} />
-                    <Row label="Frete" value={formatPrice(SHIPPING)} />
-                    <Row label="Proteção ao Comprador" value={formatPrice(protection)} />
+                    <Row label="Frete" value={<span className="text-muted-foreground">Calculado no checkout</span>} />
                   </div>
 
                   <div
