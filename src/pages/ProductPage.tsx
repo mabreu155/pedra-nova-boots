@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ShoppingBag, Heart, HandMetal, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, HandMetal, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
