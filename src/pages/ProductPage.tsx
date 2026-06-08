@@ -33,10 +33,10 @@ const ProductPage = () => {
       <Layout>
         <div className="px-6 py-32 text-center">
           <h1 className="font-display text-5xl mb-4">
-            {isLoading ? "Carregando…" : "Modelo fora de coleção."}
+            {isLoading ? t("product.loading") : t("product.notFound")}
           </h1>
           {!isLoading && (
-            <Link to="/" className="underline-link label">Voltar à loja</Link>
+            <Link to="/" className="underline-link label">{t("product.back")}</Link>
           )}
         </div>
       </Layout>
