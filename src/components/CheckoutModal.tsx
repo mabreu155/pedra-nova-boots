@@ -594,6 +594,7 @@ const CheckoutModal = ({ open, onClose, product, size }: Props) => {
                   </p>
                 </aside>
               )}
+              </div>
             </div>
           </motion.div>
         </>
