@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ShoppingBag, Heart, Bookmark, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { ShoppingBag, Heart, HandMetal, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
 import CheckoutModal from "@/components/CheckoutModal";
 import { formatPrice } from "@/data/products";
 import { useProduct } from "@/hooks/useShopifyProducts";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 const ProductPage = () => {
   const { slug = "" } = useParams();
