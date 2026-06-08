@@ -76,8 +76,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [doneMessage, setDoneMessage] = useState<string>("");
 
   const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
-  const protection = Math.round(subtotal * BUYER_PROTECTION_PCT);
-  const total = subtotal + (items.length > 0 ? SHIPPING : 0) + protection;
+  const total = subtotal;
 
   // Cota crypto (CoinGecko, sem chave)
   useEffect(() => {
