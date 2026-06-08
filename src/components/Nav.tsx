@@ -1,8 +1,9 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ShoppingBag, Menu, X } from "lucide-react";
+import { ShoppingBag, Menu, X, Heart } from "lucide-react";
 import Logo from "./Logo";
 import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
 
 const links = [
   { to: "/", label: "Shop" },
@@ -12,6 +13,7 @@ const links = [
 
 const Nav = () => {
   const { count, open } = useCart();
+  const { count: wishCount, open: openWish } = useWishlist();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const loc = useLocation();
@@ -82,8 +84,32 @@ const Nav = () => {
           </span>
         </Link>
 
-        {/* Right cart */}
-        <div className="flex-1 flex justify-end">
+        {/* Right actions */}
+        <div className="flex-1 flex justify-end items-center gap-4">
+          <button
+            aria-label="Abrir lista de desejos"
+            onClick={openWish}
+            className="relative inline-flex items-center"
+            style={{ color: transparent ? "#f7f5f2" : "hsl(var(--foreground))" }}
+          >
+            <Heart size={20} strokeWidth={1.25} />
+            {wishCount > 0 && (
+              <span
+                className="absolute -top-2 -right-3 inline-flex items-center justify-center"
+                style={{
+                  fontSize: 10,
+                  minWidth: 16,
+                  height: 16,
+                  padding: "0 4px",
+                  letterSpacing: "0.05em",
+                  background: transparent ? "#f7f5f2" : "hsl(var(--foreground))",
+                  color: transparent ? "#0d0d0d" : "hsl(var(--background))",
+                }}
+              >
+                {wishCount}
+              </span>
+            )}
+          </button>
           <button
             aria-label="Abrir sacola"
             onClick={open}

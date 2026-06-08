@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
 import Index from "./pages/Index.tsx";
 import ProductPage from "./pages/ProductPage.tsx";
 import Lookbook from "./pages/Lookbook.tsx";
@@ -18,15 +19,17 @@ const App = () => (
       <Toaster />
       <Sonner />
       <CartProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/produto/:slug" element={<ProductPage />} />
-            <Route path="/lookbook" element={<Lookbook />} />
-            <Route path="/vender" element={<Vender />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+        <WishlistProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/produto/:slug" element={<ProductPage />} />
+              <Route path="/lookbook" element={<Lookbook />} />
+              <Route path="/vender" element={<Vender />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </WishlistProvider>
       </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>
