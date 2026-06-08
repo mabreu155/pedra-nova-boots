@@ -105,12 +105,21 @@ const CartDrawer = () => {
                 onClick={handleCheckout}
                 className="w-full bg-foreground text-background label py-4 disabled:opacity-40 hover:opacity-90 transition-opacity"
               >
-                Finalizar via WhatsApp
+                Finalizar compra
               </button>
             </div>
           </motion.aside>
         </>
       )}
+      <CheckoutModal
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        items={items.map((i) => ({ product: i.product, size: i.size, qty: i.qty }))}
+        onSuccess={() => {
+          clear();
+          close();
+        }}
+      />
     </AnimatePresence>
   );
 };
