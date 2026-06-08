@@ -517,15 +517,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       </div>
                     )}
 
-                    <div
-                      className="flex gap-3 p-3"
-                      style={{ border: "1px solid hsl(var(--border))", borderRadius: 8 }}
-                    >
-                      <ShieldCheck size={18} className="shrink-0 mt-0.5" />
-                      <p className="font-sans text-xs leading-relaxed">
-                        Sua compra está coberta pela <span className="font-semibold">Proteção ao Comprador</span> Pedra Nova.
-                      </p>
-                    </div>
                   </div>
                 )}
 
