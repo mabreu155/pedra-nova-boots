@@ -14,9 +14,11 @@ const ProductPage = () => {
   const { slug = "" } = useParams();
   const { product, isLoading } = useProduct(slug);
   const { add } = useCart();
+  const { has: wishHas, toggle: wishToggle } = useWishlist();
   const [size, setSize] = useState<number | null>(null);
   const [activeImg, setActiveImg] = useState(0);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [rockBurst, setRockBurst] = useState(false);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
