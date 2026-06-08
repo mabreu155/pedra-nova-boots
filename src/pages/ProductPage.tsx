@@ -9,8 +9,10 @@ import { formatPrice } from "@/data/products";
 import { useProduct } from "@/hooks/useShopifyProducts";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useI18n } from "@/i18n/I18nContext";
 
 const ProductPage = () => {
+  const { t } = useI18n();
   const { slug = "" } = useParams();
   const { product, isLoading } = useProduct(slug);
   const { add } = useCart();
