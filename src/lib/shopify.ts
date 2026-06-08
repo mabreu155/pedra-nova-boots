@@ -205,7 +205,7 @@ function mapShopifyProduct(node: ShopifyProductNode): Product {
     allSizes: Array.from(allSizesSet).sort((a, b) => a - b),
     description,
     details,
-    badge: isNew ? "New" : undefined,
+    badge: badgeLabel,
     image: images[0],
     images,
     inStock,
