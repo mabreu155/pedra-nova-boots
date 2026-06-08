@@ -4,9 +4,11 @@ import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useWishlist } from "@/context/WishlistContext";
 import { formatPrice } from "@/data/products";
+import { useI18n } from "@/i18n/I18nContext";
 import ProductImage from "./ProductImage";
 
 const WishlistDrawer = () => {
+  const { t } = useI18n();
   const { isOpen, close, items, remove } = useWishlist();
 
   useEffect(() => {

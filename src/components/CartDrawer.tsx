@@ -3,10 +3,12 @@ import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/data/products";
+import { useI18n } from "@/i18n/I18nContext";
 import ProductImage from "./ProductImage";
 import CheckoutModal from "./CheckoutModal";
 
 const CartDrawer = () => {
+  const { t } = useI18n();
   const { isOpen, close, items, total, remove, decrement, clear } = useCart();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
