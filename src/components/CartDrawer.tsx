@@ -1,12 +1,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
-import { formatPrice, WHATSAPP_NUMBER } from "@/data/products";
+import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
+import CheckoutModal from "./CheckoutModal";
 
 const CartDrawer = () => {
-  const { isOpen, close, items, total, remove } = useCart();
+  const { isOpen, close, items, total, remove, clear } = useCart();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
