@@ -563,17 +563,21 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                 >
                   <p className="label mb-4" style={{ fontSize: 11 }}>Resumo</p>
 
-                  <div className="flex gap-3 mb-5">
-                    <div style={{ width: 72, flexShrink: 0 }}>
-                      <ProductImage src={product.image} name={product.name} ratio="1/1" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-sans font-semibold text-sm leading-tight truncate">{product.name}</p>
-                      <p className="font-sans text-xs text-muted-foreground mt-1">{product.code}</p>
-                      <p className="font-sans text-xs text-muted-foreground">Tam EU {size ?? "—"}</p>
-                      <p className="font-sans font-semibold text-sm mt-1">{formatPrice(subtotal)}</p>
-                    </div>
-                  </div>
+                  <ul className="space-y-3 mb-5">
+                    {items.map((it, idx) => (
+                      <li key={`${it.product.slug}-${it.size}-${idx}`} className="flex gap-3">
+                        <div style={{ width: 64, flexShrink: 0 }}>
+                          <ProductImage src={it.product.image} name={it.product.name} ratio="1/1" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-sans font-semibold text-sm leading-tight truncate">{it.product.name}</p>
+                          <p className="font-sans text-xs text-muted-foreground mt-1">{it.product.code}</p>
+                          <p className="font-sans text-xs text-muted-foreground">Tam EU {it.size}{it.qty > 1 ? ` · ${it.qty}×` : ""}</p>
+                          <p className="font-sans font-semibold text-sm mt-1">{formatPrice(it.product.price * it.qty)}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     <Row label="Subtotal" value={formatPrice(subtotal)} />
