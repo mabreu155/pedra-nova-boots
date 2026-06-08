@@ -70,7 +70,7 @@ const Nav = () => {
         {/* Mobile hamburger */}
         <div className="md:hidden flex-1 flex justify-start">
           <button
-            aria-label="Abrir menu"
+            aria-label={t("nav.openMenu")}
             style={{ color: transparent ? "#f7f5f2" : "hsl(var(--foreground))" }}
             onClick={() => setMobileOpen((v) => !v)}
           >
@@ -88,7 +88,7 @@ const Nav = () => {
         {/* Right actions */}
         <div className="flex-1 flex justify-end items-center gap-4">
           <button
-            aria-label="Abrir lista de desejos"
+            aria-label={t("nav.openWishlist")}
             onClick={openWish}
             className="relative inline-flex items-center"
             style={{ color: transparent ? "#f7f5f2" : "hsl(var(--foreground))" }}
@@ -112,7 +112,7 @@ const Nav = () => {
             )}
           </button>
           <button
-            aria-label="Abrir sacola"
+            aria-label={t("nav.openCart")}
             onClick={open}
             className="relative inline-flex items-center"
             style={{ color: transparent ? "#f7f5f2" : "hsl(var(--foreground))" }}
