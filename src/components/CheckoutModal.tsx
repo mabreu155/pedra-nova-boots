@@ -35,8 +35,6 @@ type PaymentMethod =
   | "pix_direto"
   | "crypto_direto";
 
-const SHIPPING = 39;
-const BUYER_PROTECTION_PCT = 0.045;
 
 // Detecta Apple Pay sem disparar prompt (apenas verifica presença)
 const isApplePayAvailable = () => {
