@@ -75,8 +75,27 @@ const CartDrawer = () => {
                 <ul>
                   {items.map((i) => (
                     <li key={i.id} className="flex gap-4 p-6" style={{ borderBottom: "1px solid hsl(var(--border))" }}>
-                      <div style={{ width: 80, flexShrink: 0 }}>
+                      <div style={{ width: 80, flexShrink: 0, position: "relative" }}>
                         <ProductImage src={i.product.image} name={i.product.name} ratio="4/5" />
+                        {i.qty > 1 && (
+                          <span
+                            className="absolute label flex items-center justify-center"
+                            style={{
+                              top: -6,
+                              right: -6,
+                              minWidth: 22,
+                              height: 22,
+                              padding: "0 6px",
+                              borderRadius: 999,
+                              background: "hsl(var(--foreground))",
+                              color: "hsl(var(--background))",
+                              fontSize: 10,
+                              lineHeight: 1,
+                            }}
+                          >
+                            x{i.qty}
+                          </span>
+                        )}
                       </div>
                       <div className="flex-1 flex flex-col">
                         <p className="font-sans font-semibold leading-tight" style={{ fontSize: "clamp(16px, 1.6vw, 20px)" }}>{i.product.name}</p>
