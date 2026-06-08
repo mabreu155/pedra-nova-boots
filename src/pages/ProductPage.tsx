@@ -91,10 +91,12 @@ const ProductPage = () => {
                   <button
                     aria-label={wishHas(product.slug) ? "Remover da lista de desejos" : "Adicionar à lista de desejos"}
                     onClick={() => {
-                      wishToggle(product);
-                      setRockBurst(false);
-                      window.requestAnimationFrame(() => setRockBurst(true));
-                      window.setTimeout(() => setRockBurst(false), 700);
+                      const added = wishToggle(product);
+                      if (added) {
+                        setRockBurst(false);
+                        window.requestAnimationFrame(() => setRockBurst(true));
+                        window.setTimeout(() => setRockBurst(false), 700);
+                      }
                     }}
                     className="relative w-10 h-10 rounded-full bg-background flex items-center justify-center hover:bg-secondary transition-colors overflow-visible"
                     style={{ border: "1px solid hsl(var(--border))" }}
