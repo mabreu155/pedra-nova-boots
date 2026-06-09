@@ -19,7 +19,7 @@ export const messages: Record<Locale, Dict> = {
     "nav.openCart": "Abrir sacola",
 
     // Footer
-    "footer.tagline": "Curadoria de New Rock originais. Couro legítimo, metal forjado, atendimento direto — sem intermediários.",
+    "footer.tagline": "Curadoria de New Rock originais. Couro legítimo, metal maciço, atendimento direto — sem intermediários.",
     "footer.navigate": "Navegar",
     "footer.madeIn": "Made in Spain. Worn worldwide.",
     "footer.siteBy": "Site by",
@@ -67,7 +67,7 @@ export const messages: Record<Locale, Dict> = {
 
     // Index
     "index.heroLine1": "Couro legítimo.",
-    "index.heroLine2": "Metal forjado.",
+    "index.heroLine2": "Metal maciço.",
     "index.loading": "Carregando coleção…",
     "index.error": "Não foi possível carregar a coleção.",
     "index.empty": "Nenhum produto disponível no momento.",
@@ -83,7 +83,7 @@ export const messages: Record<Locale, Dict> = {
     // Vender
     "vender.tag": "Pedra Nova · Compramos sua New Rock",
     "vender.title1": "Sua New Rock",
-    "vender.title2": "merece nova rua.",
+    "vender.title2": "merece uma nova rua.",
     "vender.intro": "Couro legítimo não envelhece — só ganha história. Preencha abaixo e o WhatsApp abre com sua mensagem pronta. O Kaique avalia, faz uma oferta justa e fecha direto com você. Sem intermediários. Sem burocracia.",
     "vender.fullName": "Nome completo",
     "vender.model": "Modelo da New Rock",
@@ -191,7 +191,7 @@ export const messages: Record<Locale, Dict> = {
     "nav.openWishlist": "Open wishlist",
     "nav.openCart": "Open bag",
 
-    "footer.tagline": "Curated original New Rock boots. Genuine leather, forged metal, direct service — no middlemen.",
+    "footer.tagline": "Curated original New Rock boots. Genuine leather, solid metal, direct service — no middlemen.",
     "footer.navigate": "Navigate",
     "footer.madeIn": "Made in Spain. Worn worldwide.",
     "footer.siteBy": "Site by",
@@ -235,7 +235,7 @@ export const messages: Record<Locale, Dict> = {
     "product.shippingBody": "Ships across Brazil.",
 
     "index.heroLine1": "Genuine leather.",
-    "index.heroLine2": "Forged metal.",
+    "index.heroLine2": "Solid metal.",
     "index.loading": "Loading collection…",
     "index.error": "Could not load the collection.",
     "index.empty": "No products available right now.",
@@ -355,7 +355,7 @@ export const messages: Record<Locale, Dict> = {
     "nav.openWishlist": "Abrir lista de deseos",
     "nav.openCart": "Abrir bolsa",
 
-    "footer.tagline": "Curaduría de New Rock originales. Cuero auténtico, metal forjado, atención directa — sin intermediarios.",
+    "footer.tagline": "Curaduría de New Rock originales. Cuero auténtico, metal macizo, atención directa — sin intermediarios.",
     "footer.navigate": "Navegar",
     "footer.madeIn": "Made in Spain. Worn worldwide.",
     "footer.siteBy": "Sitio por",
@@ -399,7 +399,7 @@ export const messages: Record<Locale, Dict> = {
     "product.shippingBody": "Envío a todo Brasil.",
 
     "index.heroLine1": "Cuero auténtico.",
-    "index.heroLine2": "Metal forjado.",
+    "index.heroLine2": "Metal macizo.",
     "index.loading": "Cargando colección…",
     "index.error": "No se pudo cargar la colección.",
     "index.empty": "No hay productos disponibles ahora mismo.",
