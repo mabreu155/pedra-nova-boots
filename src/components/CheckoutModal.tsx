@@ -14,6 +14,7 @@ import {
 } from "@/lib/checkoutConfig";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/i18n/I18nContext";
+import { toast } from "sonner";
 
 export type CheckoutItem = { product: Product; size: number; qty: number };
 
