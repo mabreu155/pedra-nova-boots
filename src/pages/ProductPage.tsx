@@ -299,7 +299,7 @@ const ProductPage = () => {
 
               {/* Seller card */}
               <a
-                href="https://www.instagram.com/pedranovabr"
+                href="https://instagram.com/pedranovabr/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-between gap-3 p-3 hover:bg-secondary transition-colors"
