@@ -363,6 +363,7 @@ export const messages: Record<Locale, Dict> = {
     "footer.siteBy": "Sitio por",
     "footer.siteByTail": "— human made sw & ecommerce solutions",
     "footer.language": "Idioma",
+    "footer.support": "Soporte y Dudas:",
 
     "cart.title": "Bolsa",
     "cart.close": "Cerrar",
