@@ -14,6 +14,7 @@ import {
 } from "@/lib/checkoutConfig";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/i18n/I18nContext";
+import { toast } from "sonner";
 
 export type CheckoutItem = { product: Product; size: number; qty: number };
 
@@ -224,7 +225,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         return;
       }
     } catch (e: any) {
-      setSubmitError(e?.message ?? t("co.err.generic"));
+      const msg = e?.message ?? t("co.err.generic");
+      setSubmitError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
