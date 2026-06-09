@@ -6,7 +6,7 @@
 // ============================================================
 
 export const PIX_KEY_PLACEHOLDER = "PIX_KEY_PLACEHOLDER";
-export const OWNER_EMAIL_PLACEHOLDER = "OWNER_EMAIL_PLACEHOLDER";
+export const OWNER_EMAIL_PLACEHOLDER = "pedranovabr@gmail.com";
 
 export const CRYPTO_WALLETS = {
   BTC: "BTC_WALLET_PLACEHOLDER",
