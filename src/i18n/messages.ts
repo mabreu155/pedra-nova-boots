@@ -355,7 +355,7 @@ export const messages: Record<Locale, Dict> = {
     "nav.openWishlist": "Abrir lista de deseos",
     "nav.openCart": "Abrir bolsa",
 
-    "footer.tagline": "Curaduría de New Rock originales. Cuero auténtico, metal forjado, atención directa — sin intermediarios.",
+    "footer.tagline": "Curaduría de New Rock originales. Cuero auténtico, metal macizo, atención directa — sin intermediarios.",
     "footer.navigate": "Navegar",
     "footer.madeIn": "Made in Spain. Worn worldwide.",
     "footer.siteBy": "Sitio por",
