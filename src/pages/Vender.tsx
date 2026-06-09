@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Layout from "@/components/Layout";
-import { WHATSAPP_NUMBER } from "@/data/products";
 import { useI18n } from "@/i18n/I18nContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const conditionKeys = ["likeNew", "veryGood", "good", "fair"] as const;
 type CondKey = typeof conditionKeys[number];
@@ -28,20 +28,40 @@ const Vender = () => {
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const onSubmit = (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !model || !size || !condition) return;
+    if (!name || !model || !size || !condition || submitting) return;
+    setSubmitting(true);
+    setError(null);
 
-    const priceLine = price.trim()
-      ? `*Valor pedido: R$ ${price.trim()}*`
-      : `*Valor em aberto — aceito oferta*`;
+    try {
+      const { data, error: invokeError } = await supabase.functions.invoke(
+        "sell-request-email",
+        {
+          body: {
+            name,
+            model,
+            size,
+            condition: t(`vender.cond.${condition}`),
+            price,
+            description,
+          },
+        }
+      );
 
-    const condLabel = t(`vender.cond.${condition}`);
-    const msg = `Olá Kaique! Quero vender minha New Rock pela Pedra Nova.\n\n*Nome:* ${name}\n*Modelo:* ${model}\n*Tamanho:* ${size}\n*Condição:* ${condLabel}\n${priceLine}\n\n${description || ""}\n\nPosso enviar fotos para avaliação!`;
-
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
-    setSent(true);
+      if (invokeError || !data?.ok) {
+        throw new Error(invokeError?.message || "send_failed");
+      }
+      setSent(true);
+    } catch (err) {
+      console.error(err);
+      setError(t("vender.error"));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (sent) {
@@ -51,7 +71,7 @@ const Vender = () => {
           <p className="font-display italic mx-auto max-w-3xl" style={{ fontSize: "clamp(32px, 5vw, 56px)", lineHeight: 1.2 }}>
             {t("vender.sent")}
           </p>
-          <button onClick={() => setSent(false)} className="underline-link label mt-12">
+          <button onClick={() => { setSent(false); setName(""); setModel(""); setSize(""); setCondition(""); setPrice(""); setDescription(""); }} className="underline-link label mt-12">
             {t("vender.sendAnother")}
           </button>
         </section>
@@ -141,11 +161,16 @@ const Vender = () => {
             </p>
           </div>
 
+          {error && (
+            <p className="label" style={{ color: "hsl(var(--destructive))" }}>{error}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-foreground text-background label py-5 hover:opacity-90 transition-opacity"
+            disabled={submitting}
+            className="w-full bg-foreground text-background label py-5 hover:opacity-90 transition-opacity disabled:opacity-60"
           >
-            {t("vender.submit")}
+            {submitting ? t("vender.sending") : t("vender.submit")}
           </button>
         </form>
       </section>
