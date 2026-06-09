@@ -19,11 +19,11 @@ export const messages: Record<Locale, Dict> = {
     "nav.openCart": "Abrir sacola",
 
     // Footer
-    "footer.tagline": "Curadoria de New Rock originais. Couro legítimo, metal maciço, atendimento direto — sem intermediários.",
+    "footer.tagline": "Curadoria de New Rock originais. Couro legítimo, metal maciço, atendimento direto — a pronta entrega no Brasil.",
     "footer.navigate": "Navegar",
     "footer.madeIn": "Made in Spain. Worn worldwide.",
-    "footer.siteBy": "Site by",
-    "footer.siteByTail": "— human made sw & ecommerce solutions",
+    "footer.siteBy": "Um produto",
+    "footer.siteByTail": "- Human made SW & ecommerce solutions",
     "footer.language": "Idioma",
     "footer.support": "Suporte & Dúvidas:",
 
@@ -192,11 +192,11 @@ export const messages: Record<Locale, Dict> = {
     "nav.openWishlist": "Open wishlist",
     "nav.openCart": "Open bag",
 
-    "footer.tagline": "Curated original New Rock boots. Genuine leather, solid metal, direct service — no middlemen.",
+    "footer.tagline": "Curated original New Rock boots. Genuine leather, solid metal, direct service — ready to ship in Brazil.",
     "footer.navigate": "Navigate",
     "footer.madeIn": "Made in Spain. Worn worldwide.",
-    "footer.siteBy": "Site by",
-    "footer.siteByTail": "— human made sw & ecommerce solutions",
+    "footer.siteBy": "Built by",
+    "footer.siteByTail": "- Human made SW & ecommerce solutions",
     "footer.language": "Language",
     "footer.support": "Support & Questions:",
 
@@ -357,11 +357,11 @@ export const messages: Record<Locale, Dict> = {
     "nav.openWishlist": "Abrir lista de deseos",
     "nav.openCart": "Abrir bolsa",
 
-    "footer.tagline": "Curaduría de New Rock originales. Cuero auténtico, metal macizo, atención directa — sin intermediarios.",
+    "footer.tagline": "Curaduría de New Rock originales. Cuero auténtico, metal macizo, atención directa — entrega inmediata en Brasil.",
     "footer.navigate": "Navegar",
     "footer.madeIn": "Made in Spain. Worn worldwide.",
-    "footer.siteBy": "Sitio por",
-    "footer.siteByTail": "— human made sw & ecommerce solutions",
+    "footer.siteBy": "Un producto por",
+    "footer.siteByTail": "- Human made SW & ecommerce solutions",
     "footer.language": "Idioma",
     "footer.support": "Soporte y Dudas:",
 
