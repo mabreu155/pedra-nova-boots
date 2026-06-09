@@ -25,6 +25,7 @@ export const messages: Record<Locale, Dict> = {
     "footer.siteBy": "Site by",
     "footer.siteByTail": "— human made sw & ecommerce solutions",
     "footer.language": "Idioma",
+    "footer.support": "Suporte & Dúvidas:",
 
     // Cart
     "cart.title": "Sacola",
@@ -197,6 +198,7 @@ export const messages: Record<Locale, Dict> = {
     "footer.siteBy": "Site by",
     "footer.siteByTail": "— human made sw & ecommerce solutions",
     "footer.language": "Language",
+    "footer.support": "Support & Questions:",
 
     "cart.title": "Bag",
     "cart.close": "Close",
@@ -361,6 +363,7 @@ export const messages: Record<Locale, Dict> = {
     "footer.siteBy": "Sitio por",
     "footer.siteByTail": "— human made sw & ecommerce solutions",
     "footer.language": "Idioma",
+    "footer.support": "Soporte y Dudas:",
 
     "cart.title": "Bolsa",
     "cart.close": "Cerrar",
