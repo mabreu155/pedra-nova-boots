@@ -235,7 +235,7 @@ export const messages: Record<Locale, Dict> = {
     "product.shippingBody": "Ships across Brazil.",
 
     "index.heroLine1": "Genuine leather.",
-    "index.heroLine2": "Forged metal.",
+    "index.heroLine2": "Solid metal.",
     "index.loading": "Loading collection…",
     "index.error": "Could not load the collection.",
     "index.empty": "No products available right now.",
