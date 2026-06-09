@@ -19,7 +19,7 @@ export const messages: Record<Locale, Dict> = {
     "nav.openCart": "Abrir sacola",
 
     // Footer
-    "footer.tagline": "Curadoria de New Rock originais. Couro legítimo, metal forjado, atendimento direto — sem intermediários.",
+    "footer.tagline": "Curadoria de New Rock originais. Couro legítimo, metal maciço, atendimento direto — sem intermediários.",
     "footer.navigate": "Navegar",
     "footer.madeIn": "Made in Spain. Worn worldwide.",
     "footer.siteBy": "Site by",
