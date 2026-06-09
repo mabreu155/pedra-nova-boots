@@ -399,7 +399,7 @@ export const messages: Record<Locale, Dict> = {
     "product.shippingBody": "Envío a todo Brasil.",
 
     "index.heroLine1": "Cuero auténtico.",
-    "index.heroLine2": "Metal forjado.",
+    "index.heroLine2": "Metal macizo.",
     "index.loading": "Cargando colección…",
     "index.error": "No se pudo cargar la colección.",
     "index.empty": "No hay productos disponibles ahora mismo.",
