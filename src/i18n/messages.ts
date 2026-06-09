@@ -83,7 +83,7 @@ export const messages: Record<Locale, Dict> = {
     // Vender
     "vender.tag": "Pedra Nova · Compramos sua New Rock",
     "vender.title1": "Sua New Rock",
-    "vender.title2": "merece nova rua.",
+    "vender.title2": "merece uma nova rua.",
     "vender.intro": "Couro legítimo não envelhece — só ganha história. Preencha abaixo e o WhatsApp abre com sua mensagem pronta. O Kaique avalia, faz uma oferta justa e fecha direto com você. Sem intermediários. Sem burocracia.",
     "vender.fullName": "Nome completo",
     "vender.model": "Modelo da New Rock",
