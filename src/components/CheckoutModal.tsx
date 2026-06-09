@@ -225,7 +225,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         return;
       }
     } catch (e: any) {
-      setSubmitError(e?.message ?? t("co.err.generic"));
+      const msg = e?.message ?? t("co.err.generic");
+      setSubmitError(msg);
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
