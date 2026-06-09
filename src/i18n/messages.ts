@@ -84,8 +84,8 @@ export const messages: Record<Locale, Dict> = {
     // Vender
     "vender.tag": "Pedra Nova · Compramos sua New Rock",
     "vender.title1": "Sua New Rock",
-    "vender.title2": "merece uma nova rua.",
-    "vender.intro": "Couro legítimo não envelhece — só ganha história. Preencha abaixo e enviamos sua proposta direto para a Pedra Nova. O Kaique avalia, faz uma oferta justa e responde por email. Sem intermediários. Sem burocracia.",
+    "vender.title2": "merece nova rua.",
+    "vender.intro": "Couro legítimo não envelhece — só ganha história. Preencha abaixo e enviamos sua proposta direto para a Pedra Nova. Nós avaliamos, fazemos uma oferta justa e respondemos por email. Sem intermediários. Sem burocracia.",
     "vender.fullName": "Nome completo",
     "vender.model": "Modelo da New Rock",
     "vender.sizeEU": "Tamanho EU",
