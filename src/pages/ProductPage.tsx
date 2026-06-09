@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Heart, HandMetal, ShieldCheck, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, HandMetal, ShieldCheck, ChevronLeft, ChevronRight, Instagram } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
@@ -298,29 +298,32 @@ const ProductPage = () => {
               </ul>
 
               {/* Seller card */}
-              <div
-                className="flex items-center justify-between gap-3 p-3"
+              <a
+                href="https://www.instagram.com/pedranovabr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between gap-3 p-3 hover:bg-secondary transition-colors"
                 style={{ border: "1px solid hsl(var(--border))", borderRadius: 8 }}
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center font-sans font-semibold text-sm"
+                    className="w-10 h-10 rounded-full flex items-center justify-center"
                     style={{ background: "hsl(var(--secondary))" }}
                   >
-                    PN
+                    <Instagram size={18} strokeWidth={1.75} />
                   </div>
                   <div>
-                    <p className="font-sans font-semibold text-sm leading-tight">pedra_nova</p>
+                    <p className="font-sans font-semibold text-sm leading-tight">pedranovabr</p>
                     <p className="font-sans text-xs text-muted-foreground">{t("product.sellerOfficial")}</p>
                   </div>
                 </div>
-                <button
-                  className="font-sans font-semibold text-xs px-3 py-2 hover:bg-secondary transition-colors"
+                <span
+                  className="font-sans font-semibold text-xs px-3 py-2"
                   style={{ border: "1px solid hsl(var(--border))", borderRadius: 6 }}
                 >
                   {t("product.sellerVisit")}
-                </button>
-              </div>
+                </span>
+              </a>
 
               {/* Payment */}
               <div className="p-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
