@@ -396,7 +396,7 @@ export const messages: Record<Locale, Dict> = {
     "product.protectionStrong": "Protección al Comprador",
     "product.learnMore": "Saber más",
     "product.code": "Código:",
-    "product.sellerOfficial": "Tienda oficial · Brasil",
+    "product.sellerOfficial": "Perfil oficial · Brasil",
     "product.sellerVisit": "Visitar",
     "product.shipping": "Envío",
     "product.shippingBody": "Envío a todo Brasil.",
