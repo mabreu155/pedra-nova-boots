@@ -27,10 +27,10 @@ const Footer = () => {
         </div>
         <div>
           <p className="label">
-            © <a href="https://instagram.com/pedranovabr" target="_blank" rel="noopener noreferrer" className="hover:underline">pedranovabr</a> {new Date().getFullYear()} · {t("footer.madeIn")}
+            © 2026 Pedra Nova BR. New Rock is a registered trademark of New Rock Boots S.L.
           </p>
           <p className="label mt-2">
-            {t("footer.siteBy")} <a href="https://instagram.com/nul.solutions" target="_blank" rel="noopener noreferrer" className="hover:underline">Nul</a> {t("footer.siteByTail")}
+            {t("footer.siteBy")} <a href="https://instagram.com/nul.solutions" target="_blank" rel="noopener noreferrer" className="hover:underline">NUL</a> {t("footer.siteByTail")}
           </p>
         </div>
       </div>
