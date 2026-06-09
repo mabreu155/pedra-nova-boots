@@ -67,7 +67,7 @@ export const messages: Record<Locale, Dict> = {
 
     // Index
     "index.heroLine1": "Couro legítimo.",
-    "index.heroLine2": "Metal forjado.",
+    "index.heroLine2": "Metal maciço.",
     "index.loading": "Carregando coleção…",
     "index.error": "Não foi possível carregar a coleção.",
     "index.empty": "Nenhum produto disponível no momento.",
