@@ -191,7 +191,7 @@ export const messages: Record<Locale, Dict> = {
     "nav.openWishlist": "Open wishlist",
     "nav.openCart": "Open bag",
 
-    "footer.tagline": "Curated original New Rock boots. Genuine leather, forged metal, direct service — no middlemen.",
+    "footer.tagline": "Curated original New Rock boots. Genuine leather, solid metal, direct service — no middlemen.",
     "footer.navigate": "Navigate",
     "footer.madeIn": "Made in Spain. Worn worldwide.",
     "footer.siteBy": "Site by",
