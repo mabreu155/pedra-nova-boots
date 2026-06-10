@@ -96,7 +96,7 @@ const Nav = () => {
             <Heart size={20} strokeWidth={1.25} />
             {wishCount > 0 && (
               <span
-                className="absolute -top-2 -right-3 inline-flex items-center justify-center rounded-full"
+                className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full"
                 style={{
                   fontSize: 9,
                   width: 14,
@@ -119,7 +119,7 @@ const Nav = () => {
             <ShoppingBag size={20} strokeWidth={1.25} />
             {count > 0 && (
               <span
-                className="absolute -top-2 -right-3 inline-flex items-center justify-center rounded-full"
+                className="absolute -top-1 -right-1 inline-flex items-center justify-center rounded-full"
                 style={{
                   fontSize: 9,
                   width: 14,
