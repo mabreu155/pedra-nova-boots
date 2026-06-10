@@ -96,12 +96,11 @@ const Nav = () => {
             <Heart size={20} strokeWidth={1.25} />
             {wishCount > 0 && (
               <span
-                className="absolute -top-2 -right-3 inline-flex items-center justify-center"
+                className="absolute -top-2 -right-3 inline-flex items-center justify-center rounded-full"
                 style={{
-                  fontSize: 10,
-                  minWidth: 16,
-                  height: 16,
-                  padding: "0 4px",
+                  fontSize: 9,
+                  width: 14,
+                  height: 14,
                   letterSpacing: "0.05em",
                   background: transparent ? "#f7f5f2" : "hsl(var(--foreground))",
                   color: transparent ? "#0d0d0d" : "hsl(var(--background))",
@@ -120,12 +119,11 @@ const Nav = () => {
             <ShoppingBag size={20} strokeWidth={1.25} />
             {count > 0 && (
               <span
-                className="absolute -top-2 -right-3 inline-flex items-center justify-center"
+                className="absolute -top-2 -right-3 inline-flex items-center justify-center rounded-full"
                 style={{
-                  fontSize: 10,
-                  minWidth: 16,
-                  height: 16,
-                  padding: "0 4px",
+                  fontSize: 9,
+                  width: 14,
+                  height: 14,
                   letterSpacing: "0.05em",
                   background: transparent ? "#f7f5f2" : "hsl(var(--foreground))",
                   color: transparent ? "#0d0d0d" : "hsl(var(--background))",
