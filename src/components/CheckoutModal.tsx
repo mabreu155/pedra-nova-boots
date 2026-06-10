@@ -105,17 +105,17 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     const lines = buildLines();
     const res = await validateShopifyDiscount(lines, code);
     setCouponLoading(false);
-    if (res.ok) {
+    if (res.ok === true) {
       setCoupon({ code: res.code, discount: res.discount });
       toast.success(`Cupom "${res.code}" aplicado`);
-    } else {
-      setCoupon(null);
-      const msg =
-        res.reason === "not_applicable"
-          ? "Cupom inválido ou não aplicável a este carrinho"
-          : res.message || "Erro ao validar cupom";
-      setCouponError(msg);
+      return;
     }
+    setCoupon(null);
+    const msg =
+      res.reason === "not_applicable"
+        ? "Cupom inválido ou não aplicável a este carrinho"
+        : res.message || "Erro ao validar cupom";
+    setCouponError(msg);
   };
 
   const removeCoupon = () => {
