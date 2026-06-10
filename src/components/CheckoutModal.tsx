@@ -78,8 +78,63 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [doneMessage, setDoneMessage] = useState<string>("");
 
+  // Cupom de desconto (validado pela Shopify Storefront API)
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
   const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
-  const total = subtotal;
+  const discountAmount = coupon ? Math.min(coupon.discount, subtotal) : 0;
+  const total = Math.max(0, subtotal - discountAmount);
+
+  const buildLines = () => {
+    const lines: Array<{ variantId: string; quantity: number }> = [];
+    for (const it of items) {
+      const variantId = it.product.variantIdBySize?.[it.size];
+      if (variantId) lines.push({ variantId, quantity: it.qty });
+    }
+    return lines;
+  };
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    const lines = buildLines();
+    const res = await validateShopifyDiscount(lines, code);
+    setCouponLoading(false);
+    if (res.ok) {
+      setCoupon({ code: res.code, discount: res.discount });
+      toast.success(`Cupom "${res.code}" aplicado`);
+    } else {
+      setCoupon(null);
+      const msg =
+        res.reason === "not_applicable"
+          ? "Cupom inválido ou não aplicável a este carrinho"
+          : res.message || "Erro ao validar cupom";
+      setCouponError(msg);
+    }
+  };
+
+  const removeCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+  };
+
+  // Re-valida quando items mudam (preço/tamanho diferente pode invalidar mínimos)
+  useEffect(() => {
+    if (!coupon) return;
+    const lines = buildLines();
+    if (lines.length === 0) return;
+    validateShopifyDiscount(lines, coupon.code).then((res) => {
+      if (res.ok) setCoupon({ code: res.code, discount: res.discount });
+      else setCoupon(null);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   // Cota crypto (CoinGecko, sem chave)
   useEffect(() => {
