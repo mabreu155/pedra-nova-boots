@@ -243,6 +243,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             size: firstItem?.size,
             itemsSummary,
             totalBRL: total,
+            couponCode: coupon?.code,
+            couponDiscountBRL: discountAmount || undefined,
+            subtotalBRL: subtotal,
             receipt: pixReceipt
               ? { filename: pixReceipt.name, base64: receiptBase64, mime: pixReceipt.type }
               : undefined,
