@@ -633,8 +633,59 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     ))}
                   </ul>
 
+                  {/* Coupon */}
+                  <div className="py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
+                    {coupon ? (
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="font-sans text-sm">
+                          <span className="font-semibold">Cupom:</span>{" "}
+                          <span className="font-mono text-xs px-2 py-1" style={{ background: "hsl(var(--background))", borderRadius: 4 }}>
+                            {coupon.code}
+                          </span>
+                        </div>
+                        <button
+                          onClick={removeCoupon}
+                          className="font-sans text-xs underline text-muted-foreground hover:text-foreground"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <div className="flex gap-2">
+                          <input
+                            value={couponInput}
+                            onChange={(e) => { setCouponInput(e.target.value); setCouponError(null); }}
+                            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
+                            placeholder="Código de desconto"
+                            className="flex-1 font-sans text-sm bg-background uppercase"
+                            style={{ padding: "8px 10px", border: "1px solid hsl(var(--border))", borderRadius: 6, outline: "none" }}
+                          />
+                          <button
+                            onClick={applyCoupon}
+                            disabled={!couponInput.trim() || couponLoading}
+                            className="font-sans font-semibold text-xs px-3 disabled:opacity-40 flex items-center gap-1.5"
+                            style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 6 }}
+                          >
+                            {couponLoading && <Loader2 size={12} className="animate-spin" />}
+                            Aplicar
+                          </button>
+                        </div>
+                        {couponError && (
+                          <p className="font-sans text-xs" style={{ color: "hsl(var(--destructive))" }}>{couponError}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     <Row label={t("co.subtotal")} value={formatPrice(subtotal)} />
+                    {coupon && discountAmount > 0 && (
+                      <Row
+                        label={`Desconto (${coupon.code})`}
+                        value={<span style={{ color: "hsl(var(--destructive))" }}>−{formatPrice(discountAmount)}</span>}
+                      />
+                    )}
                     <Row label={t("co.shipping")} value={<span className="text-muted-foreground">{t("co.shippingCalc")}</span>} />
                   </div>
 
