@@ -33,7 +33,15 @@ export async function storefrontApiRequest<T = any>(
 const CART_CREATE_MUTATION = `
   mutation cartCreate($input: CartInput!) {
     cartCreate(input: $input) {
-      cart { id checkoutUrl }
+      cart {
+        id
+        checkoutUrl
+        cost {
+          subtotalAmount { amount currencyCode }
+          totalAmount { amount currencyCode }
+        }
+        discountCodes { code applicable }
+      }
       userErrors { field message }
     }
   }
@@ -51,19 +59,21 @@ function formatCheckoutUrl(url: string): string {
 
 export async function createShopifyCheckout(
   variantId: string,
-  quantity: number = 1
+  quantity: number = 1,
+  discountCode?: string,
 ): Promise<string | null> {
-  return createShopifyCheckoutMulti([{ variantId, quantity }]);
+  return createShopifyCheckoutMulti([{ variantId, quantity }], discountCode);
 }
 
 export async function createShopifyCheckoutMulti(
-  lines: Array<{ variantId: string; quantity: number }>
+  lines: Array<{ variantId: string; quantity: number }>,
+  discountCode?: string,
 ): Promise<string | null> {
-  const data = await storefrontApiRequest(CART_CREATE_MUTATION, {
-    input: {
-      lines: lines.map((l) => ({ quantity: l.quantity, merchandiseId: l.variantId })),
-    },
-  });
+  const input: Record<string, unknown> = {
+    lines: lines.map((l) => ({ quantity: l.quantity, merchandiseId: l.variantId })),
+  };
+  if (discountCode) input.discountCodes = [discountCode];
+  const data = await storefrontApiRequest(CART_CREATE_MUTATION, { input });
   const result = data?.data?.cartCreate;
   if (!result) return null;
   if (result.userErrors?.length) {
@@ -72,6 +82,61 @@ export async function createShopifyCheckoutMulti(
   }
   const checkoutUrl = result.cart?.checkoutUrl;
   return checkoutUrl ? formatCheckoutUrl(checkoutUrl) : null;
+}
+
+// ---------------- Discount validation ----------------
+
+export type DiscountValidation =
+  | {
+      ok: true;
+      code: string;
+      subtotal: number;
+      total: number;
+      discount: number;
+      currencyCode: string;
+    }
+  | { ok: false; reason: "not_applicable" | "error"; message?: string };
+
+/**
+ * Validates a discount code against a throwaway Shopify cart with the given lines.
+ * Returns Shopify-calculated subtotal/total so we know the exact discount amount
+ * (handles both percentage and fixed-amount codes correctly).
+ */
+export async function validateShopifyDiscount(
+  lines: Array<{ variantId: string; quantity: number }>,
+  code: string,
+): Promise<DiscountValidation> {
+  const trimmed = code.trim();
+  if (!trimmed) return { ok: false, reason: "error", message: "Código vazio" };
+  if (lines.length === 0) return { ok: false, reason: "error", message: "Carrinho vazio" };
+  try {
+    const data = await storefrontApiRequest(CART_CREATE_MUTATION, {
+      input: {
+        lines: lines.map((l) => ({ quantity: l.quantity, merchandiseId: l.variantId })),
+        discountCodes: [trimmed],
+      },
+    });
+    const result = data?.data?.cartCreate;
+    if (!result || result.userErrors?.length) {
+      return { ok: false, reason: "error", message: result?.userErrors?.[0]?.message };
+    }
+    const cart = result.cart;
+    const applied = cart?.discountCodes?.find((d: any) => d.applicable);
+    if (!applied) return { ok: false, reason: "not_applicable" };
+    const subtotal = parseFloat(cart.cost.subtotalAmount.amount);
+    const total = parseFloat(cart.cost.totalAmount.amount);
+    const discount = Math.max(0, subtotal - total);
+    return {
+      ok: true,
+      code: applied.code,
+      subtotal,
+      total,
+      discount,
+      currencyCode: cart.cost.totalAmount.currencyCode,
+    };
+  } catch (e: any) {
+    return { ok: false, reason: "error", message: e?.message };
+  }
 }
 
 // ---------------- Products ----------------

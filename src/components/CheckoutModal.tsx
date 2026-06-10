@@ -4,7 +4,7 @@ import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload } 
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
-import { createShopifyCheckoutMulti } from "@/lib/shopify";
+import { createShopifyCheckoutMulti, validateShopifyDiscount } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
   OWNER_EMAIL_PLACEHOLDER,
@@ -78,8 +78,63 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [doneMessage, setDoneMessage] = useState<string>("");
 
+  // Cupom de desconto (validado pela Shopify Storefront API)
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
   const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
-  const total = subtotal;
+  const discountAmount = coupon ? Math.min(coupon.discount, subtotal) : 0;
+  const total = Math.max(0, subtotal - discountAmount);
+
+  const buildLines = () => {
+    const lines: Array<{ variantId: string; quantity: number }> = [];
+    for (const it of items) {
+      const variantId = it.product.variantIdBySize?.[it.size];
+      if (variantId) lines.push({ variantId, quantity: it.qty });
+    }
+    return lines;
+  };
+
+  const applyCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    const lines = buildLines();
+    const res = await validateShopifyDiscount(lines, code);
+    setCouponLoading(false);
+    if (res.ok === true) {
+      setCoupon({ code: res.code, discount: res.discount });
+      toast.success(`Cupom "${res.code}" aplicado`);
+      return;
+    }
+    setCoupon(null);
+    const msg =
+      res.reason === "not_applicable"
+        ? "Cupom inválido ou não aplicável a este carrinho"
+        : res.message || "Erro ao validar cupom";
+    setCouponError(msg);
+  };
+
+  const removeCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+  };
+
+  // Re-valida quando items mudam (preço/tamanho diferente pode invalidar mínimos)
+  useEffect(() => {
+    if (!coupon) return;
+    const lines = buildLines();
+    if (lines.length === 0) return;
+    validateShopifyDiscount(lines, coupon.code).then((res) => {
+      if (res.ok) setCoupon({ code: res.code, discount: res.discount });
+      else setCoupon(null);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   // Cota crypto (CoinGecko, sem chave)
   useEffect(() => {
@@ -158,7 +213,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
           }
           lines.push({ variantId, quantity: it.qty });
         }
-        const checkoutUrl = await createShopifyCheckoutMulti(lines);
+        const checkoutUrl = await createShopifyCheckoutMulti(lines, coupon?.code);
         if (!checkoutUrl) throw new Error(t("co.err.createCheckout"));
 
         setDoneMessage(t("co.done.redirect"));
@@ -188,6 +243,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             size: firstItem?.size,
             itemsSummary,
             totalBRL: total,
+            couponCode: coupon?.code,
+            couponDiscountBRL: discountAmount || undefined,
+            subtotalBRL: subtotal,
             receipt: pixReceipt
               ? { filename: pixReceipt.name, base64: receiptBase64, mime: pixReceipt.type }
               : undefined,
@@ -213,6 +271,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             size: firstItem?.size,
             itemsSummary,
             totalBRL: total,
+            couponCode: coupon?.code,
+            couponDiscountBRL: discountAmount || undefined,
+            subtotalBRL: subtotal,
             cryptoSymbol,
             cryptoAmount: cryptoAmount ?? "—",
             txid: cryptoTxid,
@@ -572,8 +633,59 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     ))}
                   </ul>
 
+                  {/* Coupon */}
+                  <div className="py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
+                    {coupon ? (
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="font-sans text-sm">
+                          <span className="font-semibold">Cupom:</span>{" "}
+                          <span className="font-mono text-xs px-2 py-1" style={{ background: "hsl(var(--background))", borderRadius: 4 }}>
+                            {coupon.code}
+                          </span>
+                        </div>
+                        <button
+                          onClick={removeCoupon}
+                          className="font-sans text-xs underline text-muted-foreground hover:text-foreground"
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <div className="flex gap-2">
+                          <input
+                            value={couponInput}
+                            onChange={(e) => { setCouponInput(e.target.value); setCouponError(null); }}
+                            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
+                            placeholder="Código de desconto"
+                            className="flex-1 font-sans text-sm bg-background uppercase"
+                            style={{ padding: "8px 10px", border: "1px solid hsl(var(--border))", borderRadius: 6, outline: "none" }}
+                          />
+                          <button
+                            onClick={applyCoupon}
+                            disabled={!couponInput.trim() || couponLoading}
+                            className="font-sans font-semibold text-xs px-3 disabled:opacity-40 flex items-center gap-1.5"
+                            style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 6 }}
+                          >
+                            {couponLoading && <Loader2 size={12} className="animate-spin" />}
+                            Aplicar
+                          </button>
+                        </div>
+                        {couponError && (
+                          <p className="font-sans text-xs" style={{ color: "hsl(var(--destructive))" }}>{couponError}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     <Row label={t("co.subtotal")} value={formatPrice(subtotal)} />
+                    {coupon && discountAmount > 0 && (
+                      <Row
+                        label={`Desconto (${coupon.code})`}
+                        value={<span style={{ color: "hsl(var(--destructive))" }}>−{formatPrice(discountAmount)}</span>}
+                      />
+                    )}
                     <Row label={t("co.shipping")} value={<span className="text-muted-foreground">{t("co.shippingCalc")}</span>} />
                   </div>
 

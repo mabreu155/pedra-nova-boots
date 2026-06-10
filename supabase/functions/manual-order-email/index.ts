@@ -14,12 +14,19 @@ interface ManualOrderPayload {
   productCode: string;
   size: number | null;
   totalBRL: number;
+  subtotalBRL?: number;
+  couponCode?: string;
+  couponDiscountBRL?: number;
   // pix
   receipt?: { filename: string; base64: string; mime: string };
   // crypto
   cryptoSymbol?: string;
   cryptoAmount?: string;
   txid?: string;
+}
+
+function brl(n: number): string {
+  return `R$ ${n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function html(payload: ManualOrderPayload): string {
@@ -29,8 +36,12 @@ function html(payload: ManualOrderPayload): string {
     ["Endereço", payload.address],
     ["Produto", `${payload.productName} (${payload.productCode})`],
     ["Tamanho EU", String(payload.size ?? "—")],
-    ["Total", `R$ ${payload.totalBRL.toLocaleString("pt-BR")}`],
   ];
+  if (payload.couponCode && payload.couponDiscountBRL && payload.subtotalBRL != null) {
+    rows.push(["Subtotal", brl(payload.subtotalBRL)]);
+    rows.push([`Cupom (${payload.couponCode})`, `− ${brl(payload.couponDiscountBRL)}`]);
+  }
+  rows.push(["Total", brl(payload.totalBRL)]);
   if (payload.type === "crypto") {
     rows.push(["Moeda", payload.cryptoSymbol || "—"]);
     rows.push(["Quantia crypto", payload.cryptoAmount || "—"]);
