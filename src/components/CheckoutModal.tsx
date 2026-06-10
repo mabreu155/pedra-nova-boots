@@ -213,7 +213,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
           }
           lines.push({ variantId, quantity: it.qty });
         }
-        const checkoutUrl = await createShopifyCheckoutMulti(lines);
+        const checkoutUrl = await createShopifyCheckoutMulti(lines, coupon?.code);
         if (!checkoutUrl) throw new Error(t("co.err.createCheckout"));
 
         setDoneMessage(t("co.done.redirect"));
