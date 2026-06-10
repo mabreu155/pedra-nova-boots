@@ -4,7 +4,7 @@ import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload } 
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
-import { createShopifyCheckoutMulti } from "@/lib/shopify";
+import { createShopifyCheckoutMulti, validateShopifyDiscount } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
   OWNER_EMAIL_PLACEHOLDER,
