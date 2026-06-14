@@ -797,4 +797,33 @@ const Row = ({ label, value }: { label: string; value: React.ReactNode }) => (
   </div>
 );
 
+type AddressState = {
+  name: string; street: string; number: string; complement: string;
+  city: string; state: string; zip: string; phone: string;
+};
+
+const AddressFields = ({
+  t, address, setAddress,
+}: {
+  t: (k: string) => string;
+  address: AddressState;
+  setAddress: (a: AddressState) => void;
+}) => (
+  <div className="space-y-3 pt-2" style={{ borderTop: "1px solid hsl(var(--border))" }}>
+    <p className="label pt-2" style={{ fontSize: 11 }}>{t("co.deliveryTitle")}</p>
+    <Field label={t("co.f.name")} value={address.name} onChange={(v) => setAddress({ ...address, name: v })} />
+    <div className="grid grid-cols-[1fr_120px] gap-3">
+      <Field label={t("co.f.street")} value={address.street} onChange={(v) => setAddress({ ...address, street: v })} />
+      <Field label={t("co.f.number")} value={address.number} onChange={(v) => setAddress({ ...address, number: v })} />
+    </div>
+    <Field label={t("co.f.complement")} value={address.complement} onChange={(v) => setAddress({ ...address, complement: v })} />
+    <div className="grid grid-cols-[1fr_120px_140px] gap-3">
+      <Field label={t("co.f.city")} value={address.city} onChange={(v) => setAddress({ ...address, city: v })} />
+      <Field label={t("co.f.state")} value={address.state} onChange={(v) => setAddress({ ...address, state: v })} />
+      <Field label={t("co.f.zip")} value={address.zip} onChange={(v) => setAddress({ ...address, zip: v })} />
+    </div>
+    <Field label={t("co.f.phone")} value={address.phone} onChange={(v) => setAddress({ ...address, phone: v })} />
+  </div>
+);
+
 export default CheckoutModal;
