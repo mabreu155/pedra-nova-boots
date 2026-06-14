@@ -685,7 +685,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   <button
                     onClick={onPrimary}
                     disabled={
-                      (step === "delivery" && !deliveryValid) ||
                       (step === "payment" && !paymentValid) ||
                       (step === "review" && submitting)
                     }
