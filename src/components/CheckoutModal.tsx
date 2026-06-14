@@ -55,7 +55,7 @@ const SHOPIFY_METHODS: PaymentMethod[] = [
 
 const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const { t } = useI18n();
-  const [step, setStep] = useState<Step>("delivery");
+  const [step, setStep] = useState<Step>("payment");
   const [address, setAddress] = useState({
     name: "", street: "", number: "", complement: "",
     city: "", state: "", zip: "", phone: "",
@@ -161,25 +161,26 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const close = () => {
     onClose();
     setTimeout(() => {
-      setStep("delivery");
+      setStep("payment");
       setSubmitError(null);
       setSubmitting(false);
     }, 300);
   };
 
   const back = () => {
-    if (step === "payment") setStep("delivery");
-    else if (step === "review") setStep("payment");
+    if (step === "review") setStep("payment");
   };
 
-  const deliveryValid =
+  const addressValid =
     address.name && address.street && address.number && address.city && address.state && address.zip && address.phone;
+
+  const deliveryValid = addressValid;
 
   const paymentValid = (() => {
     switch (method) {
       case "card": return !!(card.number && card.name && card.exp && card.cvv);
-      case "pix_direto": return !!(pixEmail && pixReceipt);
-      case "crypto_direto": return !!(cryptoEmail && cryptoTxid);
+      case "pix_direto": return !!(pixEmail && pixReceipt && addressValid);
+      case "crypto_direto": return !!(cryptoEmail && cryptoTxid && addressValid);
       default: return true;
     }
   })();
@@ -295,15 +296,13 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   };
 
   const ctaLabel = (() => {
-    if (step === "delivery") return t("co.cta.delivery");
     if (step === "payment") return t("co.cta.payment");
     if (step === "review") return submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
     return "";
   })();
 
   const onPrimary = () => {
-    if (step === "delivery") setStep("payment");
-    else if (step === "payment") setStep("review");
+    if (step === "payment") setStep("review");
     else if (step === "review") handlePay();
   };
 
@@ -339,11 +338,10 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                 className="flex items-center justify-between px-4 md:hidden shrink-0"
                 style={{ height: 56, borderBottom: "1px solid hsl(var(--border))" }}
               >
-                <button onClick={step === "delivery" || step === "done" ? close : back} aria-label={t("co.back")}>
-                  {step === "delivery" || step === "done" ? <X size={20} /> : <ChevronLeft size={20} />}
+                <button onClick={step === "payment" || step === "done" ? close : back} aria-label={t("co.back")}>
+                  {step === "payment" || step === "done" ? <X size={20} /> : <ChevronLeft size={20} />}
                 </button>
                 <span className="font-sans font-semibold text-sm">
-                  {step === "delivery" && t("co.step.delivery")}
                   {step === "payment" && t("co.step.payment")}
                   {step === "review" && t("co.step.review")}
                   {step === "done" && t("co.step.done")}
@@ -358,53 +356,36 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                 {/* Stepper desktop */}
                 <div className="hidden md:flex items-center justify-between mb-6">
                   <button
-                    onClick={step === "delivery" || step === "done" ? close : back}
+                    onClick={step === "payment" || step === "done" ? close : back}
                     className="flex items-center gap-1 font-sans text-sm hover:underline"
                   >
-                    {step === "delivery" || step === "done" ? <X size={16} /> : <ChevronLeft size={16} />}
-                    {step === "delivery" || step === "done" ? t("co.close") : t("co.back")}
+                    {step === "payment" || step === "done" ? <X size={16} /> : <ChevronLeft size={16} />}
+                    {step === "payment" || step === "done" ? t("co.close") : t("co.back")}
                   </button>
                   <div className="flex items-center gap-2">
-                    {(["delivery", "payment", "review"] as Step[]).map((s, i) => (
+                    {(["payment", "review"] as Step[]).map((s, i) => (
                       <div key={s} className="flex items-center gap-2">
                         <div
                           className="w-6 h-6 rounded-full flex items-center justify-center font-sans text-xs font-semibold"
                           style={{
                             background:
-                              step === s || (step === "review" && s !== "review") || step === "done"
+                              step === s || (step === "review" && s === "payment") || step === "done"
                                 ? "hsl(var(--foreground))"
                                 : "hsl(var(--secondary))",
                             color:
-                              step === s || (step === "review" && s !== "review") || step === "done"
+                              step === s || (step === "review" && s === "payment") || step === "done"
                                 ? "hsl(var(--background))"
                                 : "hsl(var(--foreground))",
                           }}
                         >
                           {i + 1}
                         </div>
-                        {i < 2 && <div className="w-8 h-px bg-border" />}
+                        {i < 1 && <div className="w-8 h-px bg-border" />}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {step === "delivery" && (
-                  <div className="space-y-4">
-                    <h2 className="font-sans font-bold text-xl">{t("co.deliveryTitle")}</h2>
-                    <Field label={t("co.f.name")} value={address.name} onChange={(v) => setAddress({ ...address, name: v })} />
-                    <div className="grid grid-cols-[1fr_120px] gap-3">
-                      <Field label={t("co.f.street")} value={address.street} onChange={(v) => setAddress({ ...address, street: v })} />
-                      <Field label={t("co.f.number")} value={address.number} onChange={(v) => setAddress({ ...address, number: v })} />
-                    </div>
-                    <Field label={t("co.f.complement")} value={address.complement} onChange={(v) => setAddress({ ...address, complement: v })} />
-                    <div className="grid grid-cols-[1fr_120px_140px] gap-3">
-                      <Field label={t("co.f.city")} value={address.city} onChange={(v) => setAddress({ ...address, city: v })} />
-                      <Field label={t("co.f.state")} value={address.state} onChange={(v) => setAddress({ ...address, state: v })} />
-                      <Field label={t("co.f.zip")} value={address.zip} onChange={(v) => setAddress({ ...address, zip: v })} />
-                    </div>
-                    <Field label={t("co.f.phone")} value={address.phone} onChange={(v) => setAddress({ ...address, phone: v })} />
-                  </div>
-                )}
 
                 {step === "payment" && (
                   <div className="space-y-4">
