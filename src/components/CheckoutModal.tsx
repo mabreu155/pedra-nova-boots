@@ -474,6 +474,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                         </div>
                         <Field label={t("co.f.email")} value={pixEmail} onChange={setPixEmail} placeholder="voce@email.com" />
                         <FileField label={t("co.pix.receipt")} file={pixReceipt} onChange={setPixReceipt} />
+                        <AddressFields t={t} address={address} setAddress={setAddress} />
                       </div>
                     )}
 
@@ -528,6 +529,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                         </div>
                         <Field label={t("co.f.email")} value={cryptoEmail} onChange={setCryptoEmail} placeholder="voce@email.com" />
                         <Field label={t("co.crypto.txid")} value={cryptoTxid} onChange={setCryptoTxid} placeholder="0x… / tx hash" />
+                        <AddressFields t={t} address={address} setAddress={setAddress} />
                       </div>
                     )}
 
@@ -542,17 +544,19 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   <div className="space-y-5">
                     <h2 className="font-sans font-bold text-xl">{t("co.step.review")}</h2>
 
-                    <ReviewBlock title={t("co.review.deliverTo")} editLabel={t("co.review.edit")} onEdit={() => setStep("delivery")}>
-                      <p className="font-sans text-sm">{address.name}</p>
-                      <p className="font-sans text-sm text-muted-foreground">
-                        {address.street}, {address.number}
-                        {address.complement ? ` — ${address.complement}` : ""}
-                      </p>
-                      <p className="font-sans text-sm text-muted-foreground">
-                        {address.city} / {address.state} · {address.zip}
-                      </p>
-                      <p className="font-sans text-sm text-muted-foreground">{address.phone}</p>
-                    </ReviewBlock>
+                    {(method === "pix_direto" || method === "crypto_direto") && (
+                      <ReviewBlock title={t("co.review.deliverTo")} editLabel={t("co.review.edit")} onEdit={() => setStep("payment")}>
+                        <p className="font-sans text-sm">{address.name}</p>
+                        <p className="font-sans text-sm text-muted-foreground">
+                          {address.street}, {address.number}
+                          {address.complement ? ` — ${address.complement}` : ""}
+                        </p>
+                        <p className="font-sans text-sm text-muted-foreground">
+                          {address.city} / {address.state} · {address.zip}
+                        </p>
+                        <p className="font-sans text-sm text-muted-foreground">{address.phone}</p>
+                      </ReviewBlock>
+                    )}
 
                     <ReviewBlock title={t("co.review.payment")} editLabel={t("co.review.edit")} onEdit={() => setStep("payment")}>
                       <p className="font-sans text-sm">{paymentLabel(method, card, installments, cryptoSymbol)}</p>
