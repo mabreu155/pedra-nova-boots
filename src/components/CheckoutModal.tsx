@@ -25,7 +25,7 @@ type Props = {
   onSuccess?: () => void;
 };
 
-type Step = "delivery" | "payment" | "review" | "done";
+type Step = "payment" | "review" | "done";
 
 type PaymentMethod =
   | "card"
