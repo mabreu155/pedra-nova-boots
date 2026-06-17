@@ -36,7 +36,6 @@ type Step = "payment" | "review" | "done";
 
 type PaymentMethod =
   | "card"
-  | "pix_mp"
   | "mp_parcelado"
   | "apple_pay"
   | "paypal"
@@ -53,7 +52,6 @@ const isApplePayAvailable = () => {
 
 const SHOPIFY_METHODS: PaymentMethod[] = [
   "card",
-  "pix_mp",
   "mp_parcelado",
   "apple_pay",
   "paypal",
