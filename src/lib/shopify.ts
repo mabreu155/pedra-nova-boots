@@ -277,6 +277,7 @@ function mapShopifyProduct(node: ShopifyProductNode): Product {
     images,
     inStock,
     variantIdBySize,
+    createdAt: node.createdAt,
   };
 }
 
