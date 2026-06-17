@@ -192,6 +192,7 @@ type ShopifyProductNode = {
   description: string;
   productType: string | null;
   tags: string[];
+  createdAt: string;
   priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
   images: { edges: Array<{ node: { url: string; altText: string | null } }> };
   variants: { edges: Array<{ node: ShopifyVariant }> };
