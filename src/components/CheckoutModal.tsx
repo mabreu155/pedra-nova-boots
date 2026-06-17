@@ -720,9 +720,8 @@ const paymentLabel = (
     case "mp_parcelado": return `Mercado Pago — ${installments}x`;
     case "apple_pay": return "Apple Pay";
     case "paypal": return "PayPal";
-    case "crypto_nowpayments": return "Crypto (NOWPayments)";
     case "pix": return "Pix";
-    case "crypto": return `Crypto Direto 🔗 — ${crypto}`;
+    case "crypto": return `Crypto 🔗 — ${crypto}`;
   }
 };
 
