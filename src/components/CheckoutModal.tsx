@@ -39,9 +39,8 @@ type PaymentMethod =
   | "mp_parcelado"
   | "apple_pay"
   | "paypal"
-  | "crypto_nowpayments"
-  | "pix_direto"
-  | "crypto_direto";
+  | "pix"
+  | "crypto";
 
 
 // Detecta Apple Pay sem disparar prompt (apenas verifica presença)
@@ -55,7 +54,6 @@ const SHOPIFY_METHODS: PaymentMethod[] = [
   "mp_parcelado",
   "apple_pay",
   "paypal",
-  "crypto_nowpayments",
 ];
 
 const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
