@@ -450,9 +450,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       <InfoBox>{t("co.info.paypal")}</InfoBox>
                     )}
 
-                    {method === "crypto_nowpayments" && (
-                      <InfoBox>{t("co.info.cryptoMp")}</InfoBox>
-                    )}
+
+
 
                     {method === "pix" && (
                       <div className="space-y-3 pt-2">
