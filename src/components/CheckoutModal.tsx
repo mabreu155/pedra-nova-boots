@@ -6,7 +6,7 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload } from "lucide-react";
+import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload, Zap, Link as LinkIcon } from "lucide-react";
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
@@ -404,7 +404,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       )}
                       <MethodTile active={method === "paypal"} onClick={() => setMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
                       <MethodTile active={method === "pix"} onClick={() => setMethod("pix")} icon={<span className="font-bold text-xs">PIX</span>} label="Pix" />
-                      <MethodTile active={method === "crypto"} onClick={() => setMethod("crypto")} icon={<span className="font-bold text-xs">🔗</span>} label="Crypto" />
+                      <MethodTile active={method === "crypto"} onClick={() => setMethod("crypto")} icon={<LinkIcon size={14} />} label="Crypto" />
 
                     </div>
 
@@ -456,7 +456,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     {method === "pix" && (
                       <div className="space-y-3 pt-2">
                         <div className="p-4 font-sans text-sm space-y-2" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
-                          <p className="font-semibold">{t("co.pix.title")}</p>
+                          <p className="font-semibold flex items-center gap-1.5"><Zap size={14} />{t("co.pix.title")}</p>
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-muted-foreground text-xs">{t("co.pix.key")}</span>
                             <button
@@ -481,7 +481,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     {method === "crypto" && (
                       <div className="space-y-3 pt-2">
                         <div className="p-4 font-sans text-sm space-y-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
-                          <p className="font-semibold">{t("co.crypto.title")}</p>
+                          <p className="font-semibold flex items-center gap-1.5"><LinkIcon size={14} />{t("co.crypto.title")}</p>
                           <div className="grid grid-cols-5 gap-1.5">
                             {(["BTC", "ETH", "USDT", "SOL", "LTC"] as CryptoSymbol[]).map((s) => (
                               <button
@@ -721,7 +721,7 @@ const paymentLabel = (
     case "apple_pay": return "Apple Pay";
     case "paypal": return "PayPal";
     case "pix": return "Pix";
-    case "crypto": return `Crypto 🔗 — ${crypto}`;
+    case "crypto": return `Crypto — ${crypto}`;
   }
 };
 
