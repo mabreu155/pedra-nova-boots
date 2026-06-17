@@ -721,7 +721,7 @@ const paymentLabel = (
     case "apple_pay": return "Apple Pay";
     case "paypal": return "PayPal";
     case "pix": return "Pix";
-    case "crypto": return `Crypto 🔗 — ${crypto}`;
+    case "crypto": return `Crypto — ${crypto}`;
   }
 };
 
