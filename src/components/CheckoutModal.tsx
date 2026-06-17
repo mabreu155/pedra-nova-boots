@@ -6,7 +6,7 @@
 // ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload } from "lucide-react";
+import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload, Zap, Link as LinkIcon } from "lucide-react";
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
