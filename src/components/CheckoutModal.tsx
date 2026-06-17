@@ -456,7 +456,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     {method === "pix" && (
                       <div className="space-y-3 pt-2">
                         <div className="p-4 font-sans text-sm space-y-2" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
-                          <p className="font-semibold">{t("co.pix.title")}</p>
+                          <p className="font-semibold flex items-center gap-1.5"><Zap size={14} />{t("co.pix.title")}</p>
                           <div className="flex items-center justify-between gap-2">
                             <span className="text-muted-foreground text-xs">{t("co.pix.key")}</span>
                             <button
