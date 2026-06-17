@@ -422,9 +422,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       </div>
                     )}
 
-                    {method === "pix_mp" && (
-                      <InfoBox>{t("co.info.pix")}</InfoBox>
-                    )}
 
                     {method === "mp_parcelado" && (
                       <div className="space-y-3 pt-2">
