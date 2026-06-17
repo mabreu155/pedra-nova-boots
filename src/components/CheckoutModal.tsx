@@ -481,7 +481,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     {method === "crypto" && (
                       <div className="space-y-3 pt-2">
                         <div className="p-4 font-sans text-sm space-y-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
-                          <p className="font-semibold">{t("co.crypto.title")}</p>
+                          <p className="font-semibold flex items-center gap-1.5"><LinkIcon size={14} />{t("co.crypto.title")}</p>
                           <div className="grid grid-cols-5 gap-1.5">
                             {(["BTC", "ETH", "USDT", "SOL", "LTC"] as CryptoSymbol[]).map((s) => (
                               <button
