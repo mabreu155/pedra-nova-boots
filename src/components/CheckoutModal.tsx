@@ -67,11 +67,11 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [method, setMethod] = useState<PaymentMethod>("card");
   const [installments, setInstallments] = useState(1);
 
-  // Pix Direto
+  // Pix
   const [pixEmail, setPixEmail] = useState("");
   const [pixReceipt, setPixReceipt] = useState<File | null>(null);
 
-  // Crypto Direto
+  // Crypto
   const [cryptoSymbol, setCryptoSymbol] = useState<CryptoSymbol>("BTC");
   const [cryptoEmail, setCryptoEmail] = useState("");
   const [cryptoTxid, setCryptoTxid] = useState("");
@@ -141,7 +141,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
 
   // Cota crypto (CoinGecko, sem chave)
   useEffect(() => {
-    if (method !== "crypto_direto") return;
+    if (method !== "crypto") return;
     let cancel = false;
     const id = COINGECKO_IDS[cryptoSymbol];
     fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=brl`)
@@ -182,8 +182,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const paymentValid = (() => {
     switch (method) {
       case "card": return !!(card.number && card.name && card.exp && card.cvv);
-      case "pix_direto": return !!(pixEmail && pixReceipt && addressValid);
-      case "crypto_direto": return !!(cryptoEmail && cryptoTxid && addressValid);
+      case "pix": return !!(pixEmail && pixReceipt && addressValid);
+      case "crypto": return !!(cryptoEmail && cryptoTxid && addressValid);
       default: return true;
     }
   })();
@@ -233,7 +233,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         .join(" | ");
       const firstItem = items[0];
 
-      if (method === "pix_direto") {
+      if (method === "pix") {
         const receiptBase64 = pixReceipt ? await fileToBase64(pixReceipt) : "";
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
@@ -262,7 +262,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         return;
       }
 
-      if (method === "crypto_direto") {
+      if (method === "crypto") {
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
             type: "crypto",
@@ -404,8 +404,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       )}
                       <MethodTile active={method === "paypal"} onClick={() => setMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
                       <MethodTile active={method === "crypto_nowpayments"} onClick={() => setMethod("crypto_nowpayments")} icon={<span className="font-bold text-xs">₿</span>} label={t("co.m.crypto")} />
-                      <MethodTile active={method === "pix_direto"} onClick={() => setMethod("pix_direto")} icon={<span className="font-bold text-xs">PIX</span>} label="Pix" />
-                      <MethodTile active={method === "crypto_direto"} onClick={() => setMethod("crypto_direto")} icon={<span className="font-bold text-xs">🔗</span>} label={t("co.m.cryptoDirect")} />
+                      <MethodTile active={method === "pix"} onClick={() => setMethod("pix")} icon={<span className="font-bold text-xs">PIX</span>} label="Pix" />
+                      <MethodTile active={method === "crypto"} onClick={() => setMethod("crypto")} icon={<span className="font-bold text-xs">🔗</span>} label={t("co.m.cryptoDirect")} />
                     </div>
 
                     {method === "card" && (
@@ -454,7 +454,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       <InfoBox>{t("co.info.cryptoMp")}</InfoBox>
                     )}
 
-                    {method === "pix_direto" && (
+                    {method === "pix" && (
                       <div className="space-y-3 pt-2">
                         <div className="p-4 font-sans text-sm space-y-2" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
                           <p className="font-semibold">{t("co.pix.title")}</p>
@@ -479,7 +479,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       </div>
                     )}
 
-                    {method === "crypto_direto" && (
+                    {method === "crypto" && (
                       <div className="space-y-3 pt-2">
                         <div className="p-4 font-sans text-sm space-y-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
                           <p className="font-semibold">{t("co.crypto.title")}</p>
@@ -545,7 +545,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   <div className="space-y-5">
                     <h2 className="font-sans font-bold text-xl">{t("co.step.review")}</h2>
 
-                    {(method === "pix_direto" || method === "crypto_direto") && (
+                    {(method === "pix" || method === "crypto") && (
                       <ReviewBlock title={t("co.review.deliverTo")} editLabel={t("co.review.edit")} onEdit={() => setStep("payment")}>
                         <p className="font-sans text-sm">{address.name}</p>
                         <p className="font-sans text-sm text-muted-foreground">
@@ -722,8 +722,8 @@ const paymentLabel = (
     case "apple_pay": return "Apple Pay";
     case "paypal": return "PayPal";
     case "crypto_nowpayments": return "Crypto (NOWPayments)";
-    case "pix_direto": return "Pix";
-    case "crypto_direto": return `Crypto Direto 🔗 — ${crypto}`;
+    case "pix": return "Pix";
+    case "crypto": return `Crypto Direto 🔗 — ${crypto}`;
   }
 };
 
