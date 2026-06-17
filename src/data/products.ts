@@ -17,7 +17,6 @@ export type Product = {
   images: string[];      // all image URLs
   inStock: boolean;
   variantIdBySize: Record<number, string>; // EU size -> Shopify GID
-  createdAt?: string;    // ISO timestamp from Shopify
 };
 
 export const formatPrice = (n: number) =>

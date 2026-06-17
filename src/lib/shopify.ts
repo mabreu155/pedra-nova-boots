@@ -152,7 +152,6 @@ const PRODUCTS_QUERY = `
           description
           productType
           tags
-          createdAt
           priceRange {
             minVariantPrice { amount currencyCode }
           }
@@ -192,7 +191,6 @@ type ShopifyProductNode = {
   description: string;
   productType: string | null;
   tags: string[];
-  createdAt: string;
   priceRange: { minVariantPrice: { amount: string; currencyCode: string } };
   images: { edges: Array<{ node: { url: string; altText: string | null } }> };
   variants: { edges: Array<{ node: ShopifyVariant }> };
@@ -277,7 +275,6 @@ function mapShopifyProduct(node: ShopifyProductNode): Product {
     images,
     inStock,
     variantIdBySize,
-    createdAt: node.createdAt,
   };
 }
 
