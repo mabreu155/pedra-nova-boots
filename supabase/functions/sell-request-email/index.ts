@@ -27,7 +27,7 @@ function html(p: SellPayload): string {
   ];
   return `
     <div style="font-family:system-ui,-apple-system,sans-serif;background:#fff;padding:24px;color:#0d0d0d">
-      <h2 style="margin:0 0 16px">👢 Nova proposta de venda — Pedra Nova BR</h2>
+      <h2 style="margin:0 0 16px">Nova proposta de venda — Pedra Nova BR</h2>
       <table style="border-collapse:collapse;width:100%;max-width:560px">
         ${rows
           .map(
@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: "Pedra Nova <onboarding@resend.dev>",
         to: [OWNER_EMAIL],
-        subject: `👢 Nova proposta de venda — ${payload.model}`,
+        subject: `Nova proposta de venda — ${payload.model}`,
         html: html(payload),
       }),
     });
