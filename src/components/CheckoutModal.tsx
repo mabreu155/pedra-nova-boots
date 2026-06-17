@@ -404,7 +404,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       )}
                       <MethodTile active={method === "paypal"} onClick={() => setMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
                       <MethodTile active={method === "pix"} onClick={() => setMethod("pix")} icon={<span className="font-bold text-xs">PIX</span>} label="Pix" />
-                      <MethodTile active={method === "crypto"} onClick={() => setMethod("crypto")} icon={<span className="font-bold text-xs">🔗</span>} label="Crypto" />
+                      <MethodTile active={method === "crypto"} onClick={() => setMethod("crypto")} icon={<LinkIcon size={14} />} label="Crypto" />
 
                     </div>
 
