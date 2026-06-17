@@ -35,9 +35,8 @@ export const COINGECKO_IDS: Record<CryptoSymbol, string> = {
 //
 // Preencher conforme os produtos forem criados/sincronizados no
 // Shopify Admin. Enquanto não estiver preenchido, o checkout via
-// Shopify (cartão, Pix MP, parcelado, Apple Pay, PayPal, Crypto
-// NOWPayments) vai mostrar um erro amigável pedindo para o cliente
-// usar Pix / Crypto.
+// Shopify (cartão, parcelado, Apple Pay, PayPal) vai mostrar um
+// erro amigável pedindo para o cliente usar Pix / Crypto.
 // ============================================================
 export const SHOPIFY_VARIANT_MAP: Record<string, Record<number, string>> = {
   // exemplo:
