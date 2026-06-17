@@ -152,6 +152,7 @@ const PRODUCTS_QUERY = `
           description
           productType
           tags
+          createdAt
           priceRange {
             minVariantPrice { amount currencyCode }
           }
