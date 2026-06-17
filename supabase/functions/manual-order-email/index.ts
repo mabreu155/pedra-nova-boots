@@ -1,5 +1,5 @@
 // Envia email para o dono da loja com os dados do pedido manual
-// (Pix Direto ou Crypto Direto). Para Pix Direto, anexa o comprovativo.
+// (Pix ou Crypto). Para Pix, anexa o comprovativo.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
@@ -49,7 +49,7 @@ function html(payload: ManualOrderPayload): string {
   }
   return `
     <div style="font-family:system-ui,-apple-system,sans-serif;background:#fff;padding:24px;color:#0d0d0d">
-      <h2 style="margin:0 0 16px">🔔 Novo pedido — ${payload.type === "pix" ? "Pix Direto" : "Crypto Direto"}</h2>
+      <h2 style="margin:0 0 16px">🔔 Novo pedido — ${payload.type === "pix" ? "Pix" : "Crypto"}</h2>
       <table style="border-collapse:collapse;width:100%;max-width:560px">
         ${rows
           .map(
@@ -88,8 +88,8 @@ Deno.serve(async (req) => {
 
     const subject =
       payload.type === "pix"
-        ? "🔔 Novo pedido — Pix Direto | Pedra Nova BR"
-        : "🔔 Novo pedido — Crypto Direto | Pedra Nova BR";
+        ? "🔔 Novo pedido — Pix | Pedra Nova BR"
+        : "🔔 Novo pedido — Crypto | Pedra Nova BR";
 
     const body: Record<string, unknown> = {
       from: "Pedra Nova <onboarding@resend.dev>",
