@@ -1,9 +1,16 @@
+// ============================================================
+// APPLE_PAY_GOOGLE_PAY_INTEGRATION
+// Express payment section (Apple Pay / Google Pay) lives at the top
+// of the payment step. Toggle via VITE_FEATURE_EXPRESS_PAYMENTS
+// and configure VITE_STRIPE_PUBLIC_KEY. See ExpressPayments.tsx.
+// ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload } from "lucide-react";
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
+import ExpressPayments from "./ExpressPayments";
 import { createShopifyCheckoutMulti, validateShopifyDiscount } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
@@ -29,7 +36,6 @@ type Step = "payment" | "review" | "done";
 
 type PaymentMethod =
   | "card"
-  | "pix_mp"
   | "mp_parcelado"
   | "apple_pay"
   | "paypal"
@@ -46,7 +52,6 @@ const isApplePayAvailable = () => {
 
 const SHOPIFY_METHODS: PaymentMethod[] = [
   "card",
-  "pix_mp",
   "mp_parcelado",
   "apple_pay",
   "paypal",
@@ -391,16 +396,17 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   <div className="space-y-4">
                     <h2 className="font-sans font-bold text-xl">{t("co.paymentTitle")}</h2>
 
+                    <ExpressPayments amountBRL={total} />
+
                     <div className="grid grid-cols-2 gap-2">
                       <MethodTile active={method === "card"} onClick={() => setMethod("card")} icon={<CreditCard size={16} />} label={t("co.m.card")} />
-                      <MethodTile active={method === "pix_mp"} onClick={() => setMethod("pix_mp")} icon={<span className="font-bold text-xs">PIX</span>} label={t("co.m.pix")} />
                       <MethodTile active={method === "mp_parcelado"} onClick={() => setMethod("mp_parcelado")} icon={<span className="font-bold text-xs">12x</span>} label={t("co.m.installments")} />
                       {isApplePayAvailable() && (
                         <MethodTile active={method === "apple_pay"} onClick={() => setMethod("apple_pay")} icon={<span className="font-bold text-xs"></span>} label={t("co.m.applePay")} />
                       )}
                       <MethodTile active={method === "paypal"} onClick={() => setMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
                       <MethodTile active={method === "crypto_nowpayments"} onClick={() => setMethod("crypto_nowpayments")} icon={<span className="font-bold text-xs">₿</span>} label={t("co.m.crypto")} />
-                      <MethodTile active={method === "pix_direto"} onClick={() => setMethod("pix_direto")} icon={<span className="font-bold text-xs">⚡</span>} label={t("co.m.pixDirect")} />
+                      <MethodTile active={method === "pix_direto"} onClick={() => setMethod("pix_direto")} icon={<span className="font-bold text-xs">PIX</span>} label="Pix" />
                       <MethodTile active={method === "crypto_direto"} onClick={() => setMethod("crypto_direto")} icon={<span className="font-bold text-xs">🔗</span>} label={t("co.m.cryptoDirect")} />
                     </div>
 
@@ -416,9 +422,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                       </div>
                     )}
 
-                    {method === "pix_mp" && (
-                      <InfoBox>{t("co.info.pix")}</InfoBox>
-                    )}
 
                     {method === "mp_parcelado" && (
                       <div className="space-y-3 pt-2">
@@ -717,12 +720,11 @@ const paymentLabel = (
 ): string => {
   switch (m) {
     case "card": return `Cartão final ${card.number.replace(/\s/g, "").slice(-4) || "••••"}`;
-    case "pix_mp": return "Pix (Mercado Pago)";
     case "mp_parcelado": return `Mercado Pago — ${installments}x`;
     case "apple_pay": return "Apple Pay";
     case "paypal": return "PayPal";
     case "crypto_nowpayments": return "Crypto (NOWPayments)";
-    case "pix_direto": return "Pix Direto ⚡";
+    case "pix_direto": return "Pix";
     case "crypto_direto": return `Crypto Direto 🔗 — ${crypto}`;
   }
 };
