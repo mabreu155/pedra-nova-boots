@@ -720,7 +720,6 @@ const paymentLabel = (
 ): string => {
   switch (m) {
     case "card": return `Cartão final ${card.number.replace(/\s/g, "").slice(-4) || "••••"}`;
-    case "pix_mp": return "Pix (Mercado Pago)";
     case "mp_parcelado": return `Mercado Pago — ${installments}x`;
     case "apple_pay": return "Apple Pay";
     case "paypal": return "PayPal";
