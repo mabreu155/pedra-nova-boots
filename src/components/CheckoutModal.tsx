@@ -396,16 +396,17 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   <div className="space-y-4">
                     <h2 className="font-sans font-bold text-xl">{t("co.paymentTitle")}</h2>
 
+                    <ExpressPayments amountBRL={total} />
+
                     <div className="grid grid-cols-2 gap-2">
                       <MethodTile active={method === "card"} onClick={() => setMethod("card")} icon={<CreditCard size={16} />} label={t("co.m.card")} />
-                      <MethodTile active={method === "pix_mp"} onClick={() => setMethod("pix_mp")} icon={<span className="font-bold text-xs">PIX</span>} label={t("co.m.pix")} />
                       <MethodTile active={method === "mp_parcelado"} onClick={() => setMethod("mp_parcelado")} icon={<span className="font-bold text-xs">12x</span>} label={t("co.m.installments")} />
                       {isApplePayAvailable() && (
                         <MethodTile active={method === "apple_pay"} onClick={() => setMethod("apple_pay")} icon={<span className="font-bold text-xs"></span>} label={t("co.m.applePay")} />
                       )}
                       <MethodTile active={method === "paypal"} onClick={() => setMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
                       <MethodTile active={method === "crypto_nowpayments"} onClick={() => setMethod("crypto_nowpayments")} icon={<span className="font-bold text-xs">₿</span>} label={t("co.m.crypto")} />
-                      <MethodTile active={method === "pix_direto"} onClick={() => setMethod("pix_direto")} icon={<span className="font-bold text-xs">⚡</span>} label={t("co.m.pixDirect")} />
+                      <MethodTile active={method === "pix_direto"} onClick={() => setMethod("pix_direto")} icon={<span className="font-bold text-xs">PIX</span>} label="Pix" />
                       <MethodTile active={method === "crypto_direto"} onClick={() => setMethod("crypto_direto")} icon={<span className="font-bold text-xs">🔗</span>} label={t("co.m.cryptoDirect")} />
                     </div>
 
