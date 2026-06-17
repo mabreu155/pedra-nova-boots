@@ -25,7 +25,6 @@ const LanguageToggle = () => {
               lineHeight: 1,
             }}
           >
-            <span style={{ fontSize: 14 }} aria-hidden>{l.flag}</span>
             <span>{l.label}</span>
           </button>
         );
