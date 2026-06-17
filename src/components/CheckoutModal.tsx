@@ -724,7 +724,7 @@ const paymentLabel = (
     case "apple_pay": return "Apple Pay";
     case "paypal": return "PayPal";
     case "crypto_nowpayments": return "Crypto (NOWPayments)";
-    case "pix_direto": return "Pix Direto ⚡";
+    case "pix_direto": return "Pix";
     case "crypto_direto": return `Crypto Direto 🔗 — ${crypto}`;
   }
 };
