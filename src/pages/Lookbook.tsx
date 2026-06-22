@@ -7,54 +7,29 @@ import look1 from "@/assets/lookbook-1.jpg";
 import look2 from "@/assets/lookbook-2.jpg";
 import look3 from "@/assets/lookbook-3.jpg";
 
-const productQuotes = [
-  "Construída para durar mais que tendências.",
-  "Estética militar. Atitude underground.",
-  "Distopia forjada em couro.",
-  "Slim por fora. Pesada por dentro.",
-  "O ícone que recusou virar nostalgia.",
-  "Cano alto. Última palavra.",
-];
-
 type Editorial = {
   src: string;
   index: string;
-  title: string;
-  italic: string;
-  body: string;
+  key: "ed1" | "ed2" | "ed3";
   productSlug: string;
-  productLabel: string;
 };
 
 const editorials: Editorial[] = [
-  {
-    src: look1,
-    index: "01",
-    title: "Underground.",
-    italic: "Concreto. Couro. Plataforma.",
-    body: "Estilo construído de baixo para cima. A bota define a silhueta — o resto do look obedece. Engenharia metálica, DNA rebelde.",
-    productSlug: "wall006",
-    productLabel: "Wall006",
-  },
-  {
-    src: look2,
-    index: "02",
-    title: "Postura.",
-    italic: "Sentar não é descansar. É dominar o espaço.",
-    body: "Cano alto, fivelas em sequência, jaqueta de couro. Brutalismo encontra alfaiataria — sem pedir licença.",
-    productSlug: "tower006",
-    productLabel: "Tower006",
-  },
-  {
-    src: look3,
-    index: "03",
-    title: "Madrugada.",
-    italic: "A cidade dorme. A caveira não.",
-    body: "Asfalto molhado, neon distante, passos pesados. O Skull em movimento — ícone que recusou virar nostalgia.",
-    productSlug: "skull001",
-    productLabel: "Skull001",
-  },
+  { src: look1, index: "01", key: "ed1", productSlug: "wall006" },
+  { src: look2, index: "02", key: "ed2", productSlug: "tower006" },
+  { src: look3, index: "03", key: "ed3", productSlug: "skull001" },
 ];
+
+type ProductOverrideKey = "archive" | "military" | "dystopian";
+
+const pickProductOverride = (name: string, code: string): ProductOverrideKey | null => {
+  const n = (name || "").toLowerCase();
+  const c = (code || "").toUpperCase();
+  if (n.includes("flames")) return "military";
+  if (n.includes("strapped")) return "dystopian";
+  if (c.includes("MR010") || n.includes("mr010")) return "archive";
+  return null;
+};
 
 const Lookbook = () => {
   const { t } = useI18n();
@@ -76,6 +51,12 @@ const Lookbook = () => {
             <br />
             <span className="italic">{t("lookbook.headline2")}</span>
           </h1>
+          <p
+            className="mx-auto mt-10 md:mt-14 text-center text-muted-foreground max-w-3xl"
+            style={{ fontSize: 17, lineHeight: 1.7 }}
+          >
+            {t("lookbook.intro")}
+          </p>
         </div>
       </section>
 
@@ -90,7 +71,7 @@ const Lookbook = () => {
                   <div style={{ paddingTop: "125%" }} />
                   <img
                     src={ed.src}
-                    alt={`Editorial ${ed.title}`}
+                    alt={`Editorial ${t(`lookbook.${ed.key}.title`)}`}
                     loading="lazy"
                     decoding="async"
                     width={1080}
@@ -109,22 +90,22 @@ const Lookbook = () => {
                   className="font-display font-bold mt-4 leading-none"
                   style={{ fontSize: "clamp(48px, 6vw, 96px)" }}
                 >
-                  {ed.title}
+                  {t(`lookbook.${ed.key}.title`)}
                 </h2>
                 <p
                   className="font-display italic text-muted-foreground mt-6"
                   style={{ fontSize: 22, lineHeight: 1.4 }}
                 >
-                  “{ed.italic}”
+                  “{t(`lookbook.${ed.key}.italic`)}”
                 </p>
                 <p className="mt-6 text-muted-foreground max-w-md" style={{ fontSize: 15, lineHeight: 1.7 }}>
-                  {ed.body}
+                  {t(`lookbook.${ed.key}.body`)}
                 </p>
                 <Link
                   to={`/produto/${ed.productSlug}`}
                   className="underline-link label inline-block mt-10 self-start"
                 >
-                  {t("lookbook.shop")} {ed.productLabel}
+                  {t(`lookbook.${ed.key}.cta`)}
                 </Link>
               </div>
             </div>
@@ -140,6 +121,13 @@ const Lookbook = () => {
 
       {products.map((p, i) => {
         const reverse = i % 2 === 1;
+        const overrideKey = pickProductOverride(p.name, p.code);
+        const kicker = overrideKey ? t(`lookbook.p.${overrideKey}.kicker`) : p.code;
+        const italicLine = overrideKey ? t(`lookbook.p.${overrideKey}.condition`) : null;
+        const bodyLine = overrideKey ? t(`lookbook.p.${overrideKey}.body`) : null;
+        const cta = overrideKey
+          ? t(`lookbook.p.${overrideKey}.cta`)
+          : `${t("lookbook.shop")} ${p.name}`;
         return (
           <section
             key={p.slug}
@@ -153,24 +141,31 @@ const Lookbook = () => {
                 <ProductImage src={p.image} name={p.name} ratio="4/5" />
               </div>
               <div className="lg:col-span-2" style={{ direction: "ltr" }}>
-                <span className="label text-muted-foreground">{p.code}</span>
+                <span className="label text-muted-foreground">{kicker}</span>
                 <h3
                   className="font-display font-bold mt-3 leading-none"
                   style={{ fontSize: "clamp(40px, 5vw, 72px)" }}
                 >
                   {p.name}
                 </h3>
-                <p
-                  className="font-display italic text-muted-foreground mt-6"
-                  style={{ fontSize: 20, lineHeight: 1.4 }}
-                >
-                  “{productQuotes[i]}”
-                </p>
+                {italicLine && (
+                  <p
+                    className="font-display italic text-muted-foreground mt-6"
+                    style={{ fontSize: 20, lineHeight: 1.4 }}
+                  >
+                    {italicLine}
+                  </p>
+                )}
+                {bodyLine && (
+                  <p className="mt-4 text-muted-foreground max-w-md" style={{ fontSize: 15, lineHeight: 1.7 }}>
+                    {bodyLine}
+                  </p>
+                )}
                 <Link
                   to={`/produto/${p.slug}`}
                   className="underline-link label inline-block mt-8"
                 >
-                  {t("lookbook.shop")} {p.name}
+                  {cta}
                 </Link>
               </div>
             </div>
