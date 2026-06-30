@@ -33,7 +33,7 @@ const pickProductOverride = (name: string, code: string): ProductOverrideKey | n
 
 const Lookbook = () => {
   const { t } = useI18n();
-  const { data: products = [] } = useProducts();
+  const { data: products = [] } = useCollectionProducts("lookbook");
   return (
     <Layout>
       {/* HERO */}
