@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import ProductImage from "@/components/ProductImage";
-import { useProducts } from "@/hooks/useShopifyProducts";
+import { useCollectionProducts } from "@/hooks/useShopifyProducts";
 import { useI18n } from "@/i18n/I18nContext";
 import look1 from "@/assets/lookbook-1.jpg";
 import look2 from "@/assets/lookbook-2.jpg";

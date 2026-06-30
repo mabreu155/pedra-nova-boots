@@ -285,3 +285,53 @@ export async function fetchShopifyProducts(first = 50): Promise<Product[]> {
   const edges = data?.data?.products?.edges ?? [];
   return edges.map((e) => mapShopifyProduct(e.node));
 }
+
+// ---------------- Collection Products ----------------
+
+const COLLECTION_PRODUCTS_QUERY = `
+  query GetCollectionProducts($handle: String!, $first: Int!) {
+    collection(handle: $handle) {
+      products(first: $first) {
+        edges {
+          node {
+            id
+            title
+            handle
+            description
+            productType
+            tags
+            priceRange {
+              minVariantPrice { amount currencyCode }
+            }
+            images(first: 20) {
+              edges { node { url altText } }
+            }
+            variants(first: 50) {
+              edges {
+                node {
+                  id
+                  title
+                  sku
+                  availableForSale
+                  selectedOptions { name value }
+                }
+              }
+            }
+            options { name values }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function fetchShopifyCollectionProducts(
+  handle: string,
+  first = 50
+): Promise<Product[]> {
+  const data = await storefrontApiRequest<{
+    data: { collection: { products: { edges: Array<{ node: ShopifyProductNode }> } } | null };
+  }>(COLLECTION_PRODUCTS_QUERY, { handle, first });
+  const edges = data?.data?.collection?.products?.edges ?? [];
+  return edges.map((e) => mapShopifyProduct(e.node));
+}
