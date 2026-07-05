@@ -309,8 +309,11 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   })();
 
   const onPrimary = () => {
-    if (step === "payment") setStep("review");
-    else if (step === "review") handlePay();
+    if (step === "payment") {
+      // Shopify-hosted methods skip the review step and go straight to redirect
+      if (SHOPIFY_METHODS.includes(method)) handlePay();
+      else setStep("review");
+    } else if (step === "review") handlePay();
   };
 
   // Lock body scroll while modal is open
