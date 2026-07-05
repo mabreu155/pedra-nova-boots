@@ -712,6 +712,22 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
           </motion.div>
         </>
       )}
+      {redirecting && (
+        <motion.div
+          key="pn-redirect-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+          style={{ background: "hsl(var(--background))" }}
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Logo size={72} />
+          <Loader2 size={22} className="animate-spin mt-8 text-muted-foreground" />
+        </motion.div>
+      )}
     </AnimatePresence>
   );
 };
