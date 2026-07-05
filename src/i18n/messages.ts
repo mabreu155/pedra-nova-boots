@@ -72,6 +72,7 @@ export const messages: Record<Locale, Dict> = {
     "index.loading": "Carregando coleção…",
     "index.error": "Não foi possível carregar a coleção.",
     "index.empty": "Nenhum produto disponível no momento.",
+    "index.checkoutReturn": "Obrigado — recebemos seu pedido.",
 
     // Lookbook
     "lookbook.tag": "Lookbook",
@@ -268,6 +269,7 @@ export const messages: Record<Locale, Dict> = {
     "index.loading": "Loading collection…",
     "index.error": "Could not load the collection.",
     "index.empty": "No products available right now.",
+    "index.checkoutReturn": "Thank you — your order has been received.",
 
     "lookbook.tag": "Lookbook",
     "lookbook.headline1": "The Weight of",
@@ -460,6 +462,7 @@ export const messages: Record<Locale, Dict> = {
     "index.loading": "Cargando colección…",
     "index.error": "No se pudo cargar la colección.",
     "index.empty": "No hay productos disponibles ahora mismo.",
+    "index.checkoutReturn": "Gracias — hemos recibido tu pedido.",
 
     "lookbook.tag": "Lookbook",
     "lookbook.headline1": "El Peso de la",

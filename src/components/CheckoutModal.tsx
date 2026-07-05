@@ -11,6 +11,7 @@ import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
 import ExpressPayments from "./ExpressPayments";
+import Logo from "./Logo";
 import { createShopifyCheckoutMulti, validateShopifyDiscount } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
@@ -80,6 +81,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [doneMessage, setDoneMessage] = useState<string>("");
+  const [redirecting, setRedirecting] = useState(false);
 
   // Cupom de desconto (validado pela Shopify Storefront API)
   const [couponInput, setCouponInput] = useState("");
@@ -217,13 +219,15 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
           }
           lines.push({ variantId, quantity: it.qty });
         }
+        setRedirecting(true);
         const checkoutUrl = await createShopifyCheckoutMulti(lines, coupon?.code);
-        if (!checkoutUrl) throw new Error(t("co.err.createCheckout"));
-
-        setDoneMessage(t("co.done.redirect"));
-        setStep("done");
+        if (!checkoutUrl) {
+          setRedirecting(false);
+          throw new Error(t("co.err.createCheckout"));
+        }
+        try { sessionStorage.setItem("pn_checkout_pending", "1"); } catch { /* ignore */ }
         onSuccess?.();
-        setTimeout(() => { window.location.href = checkoutUrl; }, 1200);
+        window.location.href = checkoutUrl;
         return;
       }
 
@@ -305,8 +309,11 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   })();
 
   const onPrimary = () => {
-    if (step === "payment") setStep("review");
-    else if (step === "review") handlePay();
+    if (step === "payment") {
+      // Shopify-hosted methods skip the review step and go straight to redirect
+      if (SHOPIFY_METHODS.includes(method)) handlePay();
+      else setStep("review");
+    } else if (step === "review") handlePay();
   };
 
   // Lock body scroll while modal is open
@@ -704,6 +711,22 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             </div>
           </motion.div>
         </>
+      )}
+      {redirecting && (
+        <motion.div
+          key="pn-redirect-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+          style={{ background: "hsl(var(--background))" }}
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Logo size={72} />
+          <Loader2 size={22} className="animate-spin mt-8 text-muted-foreground" />
+        </motion.div>
       )}
     </AnimatePresence>
   );

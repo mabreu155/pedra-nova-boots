@@ -16,6 +16,29 @@ const Index = () => {
   const { data: products = [], isLoading, error } = useProducts();
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [returnedFromCheckout, setReturnedFromCheckout] = useState(false);
+
+  useEffect(() => {
+    try {
+      const pending = sessionStorage.getItem("pn_checkout_pending");
+      if (!pending) return;
+      const ref = document.referrer || "";
+      const fromShopify = /shopify\.com|myshopify\.com/i.test(ref);
+      const url = new URL(window.location.href);
+      const qpFlag =
+        url.searchParams.get("checkout") === "success" ||
+        url.searchParams.get("order_confirmed") === "1";
+      if (fromShopify || qpFlag) {
+        setReturnedFromCheckout(true);
+        sessionStorage.removeItem("pn_checkout_pending");
+        if (qpFlag) {
+          url.searchParams.delete("checkout");
+          url.searchParams.delete("order_confirmed");
+          window.history.replaceState({}, "", url.pathname + (url.search || "") + url.hash);
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
 
 
   useEffect(() => {
@@ -36,6 +59,34 @@ const Index = () => {
 
   return (
     <Layout>
+      {returnedFromCheckout && (
+        <div
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-[80] px-5 py-3 font-sans text-sm shadow-lg flex items-center gap-3"
+          style={{
+            background: "hsl(var(--background))",
+            border: "1px solid hsl(var(--border))",
+            borderRadius: 10,
+            maxWidth: "calc(100vw - 24px)",
+          }}
+          role="status"
+        >
+          <span
+            className="inline-flex items-center justify-center w-6 h-6 rounded-full"
+            style={{ background: "hsl(var(--foreground))", color: "hsl(var(--background))" }}
+          >
+            ✓
+          </span>
+          <span className="font-semibold">{t("index.checkoutReturn")}</span>
+          <button
+            aria-label="Fechar"
+            onClick={() => setReturnedFromCheckout(false)}
+            className="ml-2 text-muted-foreground hover:text-foreground"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
 
       {/* HERO — store style */}
       <section
