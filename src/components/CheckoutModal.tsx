@@ -219,13 +219,15 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
           }
           lines.push({ variantId, quantity: it.qty });
         }
+        setRedirecting(true);
         const checkoutUrl = await createShopifyCheckoutMulti(lines, coupon?.code);
-        if (!checkoutUrl) throw new Error(t("co.err.createCheckout"));
-
-        setDoneMessage(t("co.done.redirect"));
-        setStep("done");
+        if (!checkoutUrl) {
+          setRedirecting(false);
+          throw new Error(t("co.err.createCheckout"));
+        }
+        try { sessionStorage.setItem("pn_checkout_pending", "1"); } catch { /* ignore */ }
         onSuccess?.();
-        setTimeout(() => { window.location.href = checkoutUrl; }, 1200);
+        window.location.href = checkoutUrl;
         return;
       }
 
