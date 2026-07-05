@@ -16,6 +16,29 @@ const Index = () => {
   const { data: products = [], isLoading, error } = useProducts();
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [returnedFromCheckout, setReturnedFromCheckout] = useState(false);
+
+  useEffect(() => {
+    try {
+      const pending = sessionStorage.getItem("pn_checkout_pending");
+      if (!pending) return;
+      const ref = document.referrer || "";
+      const fromShopify = /shopify\.com|myshopify\.com/i.test(ref);
+      const url = new URL(window.location.href);
+      const qpFlag =
+        url.searchParams.get("checkout") === "success" ||
+        url.searchParams.get("order_confirmed") === "1";
+      if (fromShopify || qpFlag) {
+        setReturnedFromCheckout(true);
+        sessionStorage.removeItem("pn_checkout_pending");
+        if (qpFlag) {
+          url.searchParams.delete("checkout");
+          url.searchParams.delete("order_confirmed");
+          window.history.replaceState({}, "", url.pathname + (url.search || "") + url.hash);
+        }
+      }
+    } catch { /* ignore */ }
+  }, []);
 
 
   useEffect(() => {
