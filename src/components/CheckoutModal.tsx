@@ -81,6 +81,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [doneMessage, setDoneMessage] = useState<string>("");
+  const [redirecting, setRedirecting] = useState(false);
 
   // Cupom de desconto (validado pela Shopify Storefront API)
   const [couponInput, setCouponInput] = useState("");
