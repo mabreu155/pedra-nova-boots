@@ -59,6 +59,34 @@ const Index = () => {
 
   return (
     <Layout>
+      {returnedFromCheckout && (
+        <div
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-[80] px-5 py-3 font-sans text-sm shadow-lg flex items-center gap-3"
+          style={{
+            background: "hsl(var(--background))",
+            border: "1px solid hsl(var(--border))",
+            borderRadius: 10,
+            maxWidth: "calc(100vw - 24px)",
+          }}
+          role="status"
+        >
+          <span
+            className="inline-flex items-center justify-center w-6 h-6 rounded-full"
+            style={{ background: "hsl(var(--foreground))", color: "hsl(var(--background))" }}
+          >
+            ✓
+          </span>
+          <span className="font-semibold">{t("index.checkoutReturn")}</span>
+          <button
+            aria-label="Fechar"
+            onClick={() => setReturnedFromCheckout(false)}
+            className="ml-2 text-muted-foreground hover:text-foreground"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
 
       {/* HERO — store style */}
       <section
