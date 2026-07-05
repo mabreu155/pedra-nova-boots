@@ -72,6 +72,7 @@ export const messages: Record<Locale, Dict> = {
     "index.loading": "Carregando coleção…",
     "index.error": "Não foi possível carregar a coleção.",
     "index.empty": "Nenhum produto disponível no momento.",
+    "index.checkoutReturn": "Obrigado — recebemos seu pedido.",
 
     // Lookbook
     "lookbook.tag": "Lookbook",
