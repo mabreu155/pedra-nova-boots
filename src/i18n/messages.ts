@@ -269,6 +269,7 @@ export const messages: Record<Locale, Dict> = {
     "index.loading": "Loading collection…",
     "index.error": "Could not load the collection.",
     "index.empty": "No products available right now.",
+    "index.checkoutReturn": "Thank you — your order has been received.",
 
     "lookbook.tag": "Lookbook",
     "lookbook.headline1": "The Weight of",
