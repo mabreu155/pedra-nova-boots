@@ -68,7 +68,7 @@ const ProductPage = () => {
             <span className="text-foreground">{product.name}</span>
           </nav>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_400px] gap-8 md:gap-10">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_400px] gap-5 md:gap-10">
             {/* IMAGES — swipeable carousel */}
             <div>
               <div className="relative">
