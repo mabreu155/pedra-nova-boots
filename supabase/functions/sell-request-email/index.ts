@@ -2,7 +2,7 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const OWNER_EMAIL = "pedranovabr@gmail.com";
+const OWNER_EMAIL = "pedranovabrasil@gmail.com";
 
 interface SellPayload {
   name: string;
