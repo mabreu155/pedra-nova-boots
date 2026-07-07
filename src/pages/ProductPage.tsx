@@ -276,12 +276,6 @@ const ProductPage = () => {
                 </p>
               </div>
 
-              {/* Code */}
-              <div className="pt-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
-                <p className="font-sans text-sm leading-relaxed">
-                  {t("product.code")} <span className="font-semibold">{product.code}</span>
-                </p>
-              </div>
 
               {/* Details */}
               <ul>
