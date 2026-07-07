@@ -202,7 +202,7 @@ const ProductPage = () => {
 
               {/* Meta line */}
               <p className="font-sans text-sm text-muted-foreground">
-                {size ? `${t("product.sizeEU")} ${size}` : t("product.selectSize")} · {t("product.condition")} · <span className="underline">{product.category}</span>
+                {size ? `${t("product.sizeEU")} ${size}` : t("product.selectSize")}
               </p>
 
               {/* SIZE SELECTOR */}
