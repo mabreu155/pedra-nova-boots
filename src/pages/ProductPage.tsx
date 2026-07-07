@@ -59,16 +59,8 @@ const ProductPage = () => {
     <Layout>
       <div className="px-4 md:px-6 pt-6 md:pt-10">
         <div className="mx-auto max-w-[1200px]">
-          {/* Breadcrumb */}
-          <nav className="label text-muted-foreground flex items-center gap-2 flex-wrap" style={{ fontSize: 11 }}>
-            <Link to="/" className="hover:text-foreground">Home</Link>
-            <span>›</span>
-            <Link to="/" className="hover:text-foreground">{product.category}</Link>
-            <span>›</span>
-            <span className="text-foreground">{product.name}</span>
-          </nav>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_400px] gap-5 md:gap-10">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_400px] gap-4 md:gap-10">
             {/* IMAGES — swipeable carousel */}
             <div>
               <div className="relative">
@@ -276,12 +268,6 @@ const ProductPage = () => {
                 </p>
               </div>
 
-              {/* Code */}
-              <div className="pt-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
-                <p className="font-sans text-sm leading-relaxed">
-                  {t("product.code")} <span className="font-semibold">{product.code}</span>
-                </p>
-              </div>
 
               {/* Details */}
               <ul>
