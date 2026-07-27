@@ -921,7 +921,7 @@ const AddressFields = ({
       <Field label={t("co.f.number")} value={address.number} onChange={(v) => setAddress({ ...address, number: v })} />
     </div>
     <Field label={t("co.f.complement")} value={address.complement} onChange={(v) => setAddress({ ...address, complement: v })} />
-    <div className="grid grid-cols-[1fr_120px_140px] gap-3">
+    <div className="grid grid-cols-[120px_1fr_140px] gap-3">
       <Field label={t("co.f.city")} value={address.city} onChange={(v) => setAddress({ ...address, city: v })} />
       <Field label={t("co.f.state")} value={address.state} onChange={(v) => setAddress({ ...address, state: v })} />
       <Field label={t("co.f.zip")} value={address.zip} onChange={(v) => setAddress({ ...address, zip: v })} />
