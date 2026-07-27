@@ -183,7 +183,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
 
   const paymentValid = (() => {
     switch (method) {
-      case "card": return !!(card.number && card.name && card.exp && card.cvv);
       case "pix": return !!(pixEmail && pixReceipt && addressValid);
       case "crypto": return !!(cryptoEmail && cryptoTxid && addressValid);
       default: return true;
@@ -202,12 +201,13 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
       r.readAsDataURL(file);
     });
 
-  const handlePay = async () => {
+  const handlePay = async (overrideMethod?: PaymentMethod) => {
+    const m = overrideMethod ?? method;
     setSubmitError(null);
     setSubmitting(true);
     try {
       // Métodos Shopify → cria cart e redireciona no mesmo tab
-      if (SHOPIFY_METHODS.includes(method)) {
+      if (SHOPIFY_METHODS.includes(m)) {
         if (items.length === 0) throw new Error(t("co.err.emptyCart"));
         const lines: Array<{ variantId: string; quantity: number }> = [];
         for (const it of items) {
@@ -302,6 +302,12 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     }
   };
 
+  // Selecionar um método Shopify redireciona imediatamente para o checkout nativo
+  const selectMethod = (m: PaymentMethod) => {
+    setMethod(m);
+    if (SHOPIFY_METHODS.includes(m)) handlePay(m);
+  };
+
   const ctaLabel = (() => {
     if (step === "payment") return t("co.cta.payment");
     if (step === "review") return submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
@@ -360,9 +366,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
               </div>
 
               {/* Single scroll on mobile; splits into two columns on desktop */}
-              <div className="flex-1 min-h-0 overflow-y-auto md:overflow-hidden md:flex md:flex-row">
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col md:overflow-hidden md:flex-row">
               {/* LEFT — form */}
-              <div className="md:flex-1 md:overflow-y-auto p-5 md:p-8">
+              <div className="md:flex-1 md:overflow-y-auto p-5 md:p-8 shrink-0 md:shrink">
                 {/* Stepper desktop */}
                 <div className="hidden md:flex items-center justify-between mb-6">
                   <button
@@ -404,28 +410,18 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     <ExpressPayments amountBRL={total} />
 
                     <div className="grid grid-cols-2 gap-2">
-                      <MethodTile active={method === "card"} onClick={() => setMethod("card")} icon={<CreditCard size={16} />} label={t("co.m.card")} />
-                      <MethodTile active={method === "mp_parcelado"} onClick={() => setMethod("mp_parcelado")} icon={<span className="font-bold text-xs">12x</span>} label={t("co.m.installments")} />
+                      <MethodTile active={method === "card"} onClick={() => selectMethod("card")} icon={<CreditCard size={16} />} label={t("co.m.card")} />
+                      <MethodTile active={method === "mp_parcelado"} onClick={() => selectMethod("mp_parcelado")} icon={<span className="font-bold text-xs">12x</span>} label={t("co.m.installments")} />
                       {isApplePayAvailable() && (
-                        <MethodTile active={method === "apple_pay"} onClick={() => setMethod("apple_pay")} icon={<span className="font-bold text-xs"></span>} label={t("co.m.applePay")} />
+                        <MethodTile active={method === "apple_pay"} onClick={() => selectMethod("apple_pay")} icon={<span className="font-bold text-xs"></span>} label={t("co.m.applePay")} />
                       )}
-                      <MethodTile active={method === "paypal"} onClick={() => setMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
+                      <MethodTile active={method === "paypal"} onClick={() => selectMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
                       <MethodTile active={method === "pix"} onClick={() => setMethod("pix")} icon={<span className="font-bold text-xs">PIX</span>} label="" />
                       <MethodTile active={method === "crypto"} onClick={() => setMethod("crypto")} icon={<LinkIcon size={14} />} label="Crypto" />
 
                     </div>
 
-                    {method === "card" && (
-                      <div className="space-y-4 pt-2">
-                        <Field label={t("co.f.cardNumber")} value={card.number} onChange={(v) => setCard({ ...card, number: v })} placeholder="0000 0000 0000 0000" />
-                        <Field label={t("co.f.cardName")} value={card.name} onChange={(v) => setCard({ ...card, name: v })} />
-                        <div className="grid grid-cols-2 gap-3">
-                          <Field label={t("co.f.cardExp")} value={card.exp} onChange={(v) => setCard({ ...card, exp: v })} placeholder="MM/AA" />
-                          <Field label={t("co.f.cardCvv")} value={card.cvv} onChange={(v) => setCard({ ...card, cvv: v })} placeholder="123" />
-                        </div>
-                        <InfoBox>{t("co.info.card")}</InfoBox>
-                      </div>
-                    )}
+
 
 
                     {method === "mp_parcelado" && (
@@ -604,7 +600,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
               {/* RIGHT — order summary */}
               {step !== "done" && (
                 <aside
-                  className="w-full md:w-[340px] md:overflow-y-auto p-5 md:p-6 flex flex-col"
+                  className="w-full md:w-[340px] md:overflow-y-auto p-5 md:p-6 flex flex-col order-first md:order-none"
                   style={{ background: "hsl(var(--secondary))", borderTop: "1px solid hsl(var(--border))" }}
                 >
                   <p className="label mb-4" style={{ fontSize: 11 }}>{t("co.summary")}</p>
