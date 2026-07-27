@@ -269,7 +269,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
             type: "pix",
-            ownerEmail: OWNER_EMAIL_PLACEHOLDER,
             customerEmail: pixEmail,
             customerName: address.name,
             address: fullAddress,
@@ -297,7 +296,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
             type: "crypto",
-            ownerEmail: OWNER_EMAIL_PLACEHOLDER,
             customerEmail: cryptoEmail,
             customerName: address.name,
             address: fullAddress,
