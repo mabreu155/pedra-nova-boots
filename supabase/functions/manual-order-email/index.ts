@@ -4,7 +4,8 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 // Destino fixo no servidor — nunca vem do cliente (evita relay aberto).
-const OWNER_EMAIL = "pedranovabrasil@gmail.com";
+// Em dev, o secret OWNER_EMAIL aponta para a caixa de testes; em produção usa-se o default.
+const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "pedranovabrasil@gmail.com";
 
 const MAX_FIELD = 500;
 const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024; // 5MB (base64 decoded approx)
