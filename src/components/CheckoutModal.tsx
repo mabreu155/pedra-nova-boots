@@ -617,8 +617,10 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     ))}
                   </ul>
 
-                  {/* Coupon */}
+                  {/* Coupon — apenas Pix/Crypto (métodos Shopify aplicam no checkout nativo) */}
+                  {isDirectMethod && (
                   <div className="py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
+
                     {coupon ? (
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between gap-2">
