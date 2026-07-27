@@ -156,7 +156,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     setCoupon(null);
     setCouponInput("");
     setCouponError(null);
-    setCouponOpen(false);
   };
 
 
