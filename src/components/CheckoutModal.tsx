@@ -15,7 +15,6 @@ import Logo from "./Logo";
 import { createShopifyCheckoutMulti, validateShopifyDiscount, createShopifyCartForLines } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
-  OWNER_EMAIL_PLACEHOLDER,
   CRYPTO_WALLETS,
   COINGECKO_IDS,
   type CryptoSymbol,
@@ -269,7 +268,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
             type: "pix",
-            ownerEmail: OWNER_EMAIL_PLACEHOLDER,
             customerEmail: pixEmail,
             customerName: address.name,
             address: fullAddress,
@@ -297,7 +295,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
             type: "crypto",
-            ownerEmail: OWNER_EMAIL_PLACEHOLDER,
             customerEmail: cryptoEmail,
             customerName: address.name,
             address: fullAddress,

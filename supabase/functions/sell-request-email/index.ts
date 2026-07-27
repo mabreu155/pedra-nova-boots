@@ -13,17 +13,30 @@ interface SellPayload {
   description?: string;
 }
 
+const MAX_FIELD = 2000;
+
+/** Escapa HTML para impedir injeção de markup nos emails. */
+function esc(value: unknown): string {
+  return String(value ?? "")
+    .slice(0, MAX_FIELD)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function html(p: SellPayload): string {
   const priceLine = p.price?.trim()
     ? `R$ ${p.price.trim()}`
     : "Em aberto — aceita oferta";
   const rows: [string, string][] = [
-    ["Nome", p.name],
-    ["Modelo", p.model],
-    ["Tamanho EU", p.size],
-    ["Condição", p.condition],
-    ["Valor pedido", priceLine],
-    ["Descrição", p.description?.trim() || "—"],
+    ["Nome", esc(p.name)],
+    ["Modelo", esc(p.model)],
+    ["Tamanho EU", esc(p.size)],
+    ["Condição", esc(p.condition)],
+    ["Valor pedido", esc(priceLine)],
+    ["Descrição", esc(p.description?.trim() || "—")],
   ];
   return `
     <div style="font-family:system-ui,-apple-system,sans-serif;background:#fff;padding:24px;color:#0d0d0d">
@@ -73,7 +86,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: "Pedra Nova <onboarding@resend.dev>",
         to: [OWNER_EMAIL],
-        subject: `Nova proposta de venda — ${payload.model}`,
+        subject: `Nova proposta de venda — ${String(payload.model).slice(0, 120).replace(/[\r\n]/g, " ")}`,
         html: html(payload),
       }),
     });
