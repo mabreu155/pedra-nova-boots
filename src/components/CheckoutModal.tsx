@@ -84,6 +84,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [redirecting, setRedirecting] = useState(false);
 
   // Cupom de desconto (validado pela Shopify Storefront API)
+  const [couponOpen, setCouponOpen] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
@@ -118,8 +119,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     setCoupon(null);
     const msg =
       res.reason === "not_applicable"
-        ? "Cupom inválido ou não aplicável a este carrinho"
-        : res.message || "Erro ao validar cupom";
+        ? "Cupão inválido ou expirado"
+        : res.message || "Cupão inválido ou expirado";
     setCouponError(msg);
   };
 
@@ -127,7 +128,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     setCoupon(null);
     setCouponInput("");
     setCouponError(null);
+    setCouponOpen(false);
   };
+
 
   // Re-valida quando items mudam (preço/tamanho diferente pode invalidar mínimos)
   useEffect(() => {
@@ -624,25 +627,34 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   {/* Coupon */}
                   <div className="py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     {coupon ? (
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="font-sans text-sm">
-                          <span className="font-semibold">Cupom:</span>{" "}
-                          <span className="font-mono text-xs px-2 py-1" style={{ background: "hsl(var(--background))", borderRadius: 4 }}>
-                            {coupon.code}
-                          </span>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="font-sans text-sm">
+                            <span className="font-semibold">Cupom:</span>{" "}
+                            <span className="font-mono text-xs px-2 py-1" style={{ background: "hsl(var(--background))", borderRadius: 4 }}>
+                              {coupon.code}
+                            </span>
+                          </div>
+                          <button
+                            onClick={removeCoupon}
+                            className="font-sans text-xs underline text-muted-foreground hover:text-foreground"
+                          >
+                            Remover
+                          </button>
                         </div>
-                        <button
-                          onClick={removeCoupon}
-                          className="font-sans text-xs underline text-muted-foreground hover:text-foreground"
-                        >
-                          Remover
-                        </button>
+                        {discountAmount > 0 && (
+                          <p className="font-sans text-xs text-muted-foreground">
+                            Cupão aplicado — desconto de {formatPrice(discountAmount)}
+                          </p>
+                        )}
                       </div>
-                    ) : (
+
+                    ) : couponOpen ? (
                       <div className="space-y-1.5">
                         <div className="flex gap-2">
                           <input
                             value={couponInput}
+                            autoFocus
                             onChange={(e) => { setCouponInput(e.target.value); setCouponError(null); }}
                             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
                             placeholder="Código de desconto"
@@ -663,7 +675,15 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                           <p className="font-sans text-xs" style={{ color: "hsl(var(--destructive))" }}>{couponError}</p>
                         )}
                       </div>
+                    ) : (
+                      <button
+                        onClick={() => setCouponOpen(true)}
+                        className="font-sans text-sm underline text-muted-foreground hover:text-foreground"
+                      >
+                        Tens um cupão?
+                      </button>
                     )}
+
                   </div>
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
