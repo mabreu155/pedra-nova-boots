@@ -15,7 +15,6 @@ import Logo from "./Logo";
 import { createShopifyCheckoutMulti, validateShopifyDiscount, createShopifyCartForLines } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
-  OWNER_EMAIL_PLACEHOLDER,
   CRYPTO_WALLETS,
   COINGECKO_IDS,
   type CryptoSymbol,
