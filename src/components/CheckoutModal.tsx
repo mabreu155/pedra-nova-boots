@@ -12,7 +12,7 @@ import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
 import ExpressPayments from "./ExpressPayments";
 import Logo from "./Logo";
-import { createShopifyCheckoutMulti, validateShopifyDiscount } from "@/lib/shopify";
+import { createShopifyCheckoutMulti, validateShopifyDiscount, createShopifyCartForLines } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
   OWNER_EMAIL_PLACEHOLDER,
@@ -89,6 +89,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [cartId, setCartId] = useState<string | null>(null);
 
   const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
   const discountAmount = coupon ? Math.min(coupon.discount, subtotal) : 0;
@@ -103,13 +104,33 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     return lines;
   };
 
+  // Cria silenciosamente um carrinho/checkout Shopify ao abrir o modal (ou quando
+  // os itens mudam) — o id é reutilizado para validar cupões.
+  useEffect(() => {
+    if (!open) return;
+    const lines = buildLines();
+    if (lines.length === 0) {
+      setCartId(null);
+      return;
+    }
+    let cancelled = false;
+    setCartId(null);
+    createShopifyCartForLines(lines).then((res) => {
+      if (!cancelled) setCartId(res?.cartId ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, items]);
+
   const applyCoupon = async () => {
     const code = couponInput.trim();
     if (!code) return;
     setCouponLoading(true);
     setCouponError(null);
     const lines = buildLines();
-    const res = await validateShopifyDiscount(lines, code);
+    const res = await validateShopifyDiscount(lines, code, cartId);
     setCouponLoading(false);
     if (res.ok === true) {
       setCoupon({ code: res.code, discount: res.discount });
@@ -137,12 +158,13 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     if (!coupon) return;
     const lines = buildLines();
     if (lines.length === 0) return;
-    validateShopifyDiscount(lines, coupon.code).then((res) => {
+    validateShopifyDiscount(lines, coupon.code, cartId).then((res) => {
       if (res.ok) setCoupon({ code: res.code, discount: res.discount });
       else setCoupon(null);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items]);
+  }, [items, cartId]);
+
 
   // Cota crypto (CoinGecko, sem chave)
   useEffect(() => {
