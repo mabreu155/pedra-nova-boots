@@ -638,11 +638,12 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                           Remover
                         </button>
                       </div>
-                    ) : (
+                    ) : couponOpen ? (
                       <div className="space-y-1.5">
                         <div className="flex gap-2">
                           <input
                             value={couponInput}
+                            autoFocus
                             onChange={(e) => { setCouponInput(e.target.value); setCouponError(null); }}
                             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
                             placeholder="Código de desconto"
@@ -663,7 +664,15 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                           <p className="font-sans text-xs" style={{ color: "hsl(var(--destructive))" }}>{couponError}</p>
                         )}
                       </div>
+                    ) : (
+                      <button
+                        onClick={() => setCouponOpen(true)}
+                        className="font-sans text-sm underline text-muted-foreground hover:text-foreground"
+                      >
+                        Tens um cupão?
+                      </button>
                     )}
+
                   </div>
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
