@@ -2,7 +2,8 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const OWNER_EMAIL = "pedranovabrasil@gmail.com";
+// Em dev, o secret OWNER_EMAIL aponta para a caixa de testes; em produção usa-se o default.
+const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "pedranovabrasil@gmail.com";
 
 interface SellPayload {
   name: string;
