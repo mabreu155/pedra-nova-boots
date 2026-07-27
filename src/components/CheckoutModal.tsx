@@ -311,19 +311,12 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     if (SHOPIFY_METHODS.includes(m)) handlePay(m);
   };
 
-  const ctaLabel = (() => {
-    if (step === "payment") return t("co.cta.payment");
-    if (step === "review") return submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
-    return "";
-  })();
+  const isDirectMethod = method === "pix" || method === "crypto";
 
-  const onPrimary = () => {
-    if (step === "payment") {
-      // Shopify-hosted methods skip the review step and go straight to redirect
-      if (SHOPIFY_METHODS.includes(method)) handlePay();
-      else setStep("review");
-    } else if (step === "review") handlePay();
-  };
+  const ctaLabel = submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
+
+  const onPrimary = () => handlePay();
+
 
   // Lock body scroll while modal is open
   useEffect(() => {
