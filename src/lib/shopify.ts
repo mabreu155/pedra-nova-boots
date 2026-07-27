@@ -1,8 +1,9 @@
 // Shopify Storefront API client
 import type { Product } from "@/data/products";
+import { isTrustedCheckoutUrl, sanitizeDiscountCode } from "@/lib/security";
 
 const SHOPIFY_API_VERSION = "2025-07";
-const SHOPIFY_STORE_PERMANENT_DOMAIN = "0ksify-g2.myshopify.com";
+export const SHOPIFY_STORE_PERMANENT_DOMAIN = "0ksify-g2.myshopify.com";
 const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
 const SHOPIFY_STOREFRONT_TOKEN = "5f90087a91c91191d6e26ee6fcbeb26c";
 
@@ -47,13 +48,22 @@ const CART_CREATE_MUTATION = `
   }
 `;
 
-function formatCheckoutUrl(url: string): string {
+/**
+ * Normaliza o URL de checkout e garante que apontamos apenas para domínios
+ * confiáveis da Shopify (proteção contra open redirect). Devolve null se o
+ * URL não for confiável.
+ */
+function formatCheckoutUrl(url: string): string | null {
+  if (!isTrustedCheckoutUrl(url, [SHOPIFY_STORE_PERMANENT_DOMAIN])) {
+    console.error("Blocked untrusted checkout redirect");
+    return null;
+  }
   try {
     const u = new URL(url);
     u.searchParams.set("channel", "online_store");
     return u.toString();
   } catch {
-    return url;
+    return null;
   }
 }
 
@@ -72,7 +82,8 @@ export async function createShopifyCheckoutMulti(
   const input: Record<string, unknown> = {
     lines: lines.map((l) => ({ quantity: l.quantity, merchandiseId: l.variantId })),
   };
-  if (discountCode) input.discountCodes = [discountCode];
+  const safeDiscount = discountCode ? sanitizeDiscountCode(discountCode) : "";
+  if (safeDiscount) input.discountCodes = [safeDiscount];
   const data = await storefrontApiRequest(CART_CREATE_MUTATION, { input });
   const result = data?.data?.cartCreate;
   if (!result) return null;
@@ -172,7 +183,7 @@ export async function validateShopifyDiscount(
   code: string,
   existingCartId?: string | null,
 ): Promise<DiscountValidation> {
-  const trimmed = code.trim();
+  const trimmed = sanitizeDiscountCode(code);
   if (!trimmed) return { ok: false, reason: "error", message: "Código vazio" };
 
   try {
