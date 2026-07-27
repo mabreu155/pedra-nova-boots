@@ -92,7 +92,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [redirecting, setRedirecting] = useState(false);
 
   // Cupom de desconto (validado pela Shopify Storefront API)
-  const [couponOpen, setCouponOpen] = useState(false);
   const [couponInput, setCouponInput] = useState("");
   const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
@@ -157,7 +156,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     setCoupon(null);
     setCouponInput("");
     setCouponError(null);
-    setCouponOpen(false);
   };
 
 
@@ -699,8 +697,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                         )}
                       </div>
 
-                    ) : couponOpen ? (
+                    ) : (
                       <div className="space-y-1.5">
+                        <p className="font-sans text-xs text-muted-foreground">{t("co.couponLabel")}</p>
                         <div className="flex gap-2">
                           <input
                             value={couponInput}
@@ -725,13 +724,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                           <p className="font-sans text-xs" style={{ color: "hsl(var(--destructive))" }}>{couponError}</p>
                         )}
                       </div>
-                    ) : (
-                      <button
-                        onClick={() => setCouponOpen(true)}
-                        className="font-sans text-sm underline text-muted-foreground hover:text-foreground"
-                      >
-                        Tens um cupão?
-                      </button>
                     )}
 
                   </div>
