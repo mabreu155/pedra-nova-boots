@@ -183,7 +183,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
 
   const paymentValid = (() => {
     switch (method) {
-      case "card": return !!(card.number && card.name && card.exp && card.cvv);
       case "pix": return !!(pixEmail && pixReceipt && addressValid);
       case "crypto": return !!(cryptoEmail && cryptoTxid && addressValid);
       default: return true;
