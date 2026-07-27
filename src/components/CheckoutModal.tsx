@@ -303,6 +303,12 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     }
   };
 
+  // Selecionar um método Shopify redireciona imediatamente para o checkout nativo
+  const selectMethod = (m: PaymentMethod) => {
+    setMethod(m);
+    if (SHOPIFY_METHODS.includes(m)) handlePay(m);
+  };
+
   const ctaLabel = (() => {
     if (step === "payment") return t("co.cta.payment");
     if (step === "review") return submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
