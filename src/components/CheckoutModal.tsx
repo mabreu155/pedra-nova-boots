@@ -119,8 +119,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     setCoupon(null);
     const msg =
       res.reason === "not_applicable"
-        ? "Cupom inválido ou não aplicável a este carrinho"
-        : res.message || "Erro ao validar cupom";
+        ? "Cupão inválido ou expirado"
+        : res.message || "Cupão inválido ou expirado";
     setCouponError(msg);
   };
 
@@ -128,7 +128,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     setCoupon(null);
     setCouponInput("");
     setCouponError(null);
+    setCouponOpen(false);
   };
+
 
   // Re-valida quando items mudam (preço/tamanho diferente pode invalidar mínimos)
   useEffect(() => {
