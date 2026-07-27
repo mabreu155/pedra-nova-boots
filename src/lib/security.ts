@@ -50,7 +50,7 @@ const ALLOWED_RECEIPT_MIME = [
   "application/pdf",
 ];
 
-export type FileCheck = { ok: true } | { ok: false; reason: "type" | "size" };
+export type FileCheck = { ok: boolean; reason?: "type" | "size" };
 
 /** Valida tipo MIME e tamanho do comprovativo antes de o converter em base64. */
 export function checkReceiptFile(file: File): FileCheck {
