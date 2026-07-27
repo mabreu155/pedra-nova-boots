@@ -698,18 +698,18 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     <span className="text-lg">{formatPrice(total)}</span>
                   </div>
 
-                  <button
-                    onClick={onPrimary}
-                    disabled={
-                      (step === "payment" && !paymentValid) ||
-                      (step === "review" && submitting)
-                    }
-                    className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 mt-5 disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                    style={{ borderRadius: 8 }}
-                  >
-                    {submitting && <Loader2 size={14} className="animate-spin" />}
-                    {ctaLabel}
-                  </button>
+                  {isDirectMethod && (
+                    <button
+                      onClick={onPrimary}
+                      disabled={!paymentValid || submitting}
+                      className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 mt-5 disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                      style={{ borderRadius: 8 }}
+                    >
+                      {submitting && <Loader2 size={14} className="animate-spin" />}
+                      {ctaLabel}
+                    </button>
+                  )}
+
 
                   <p className="font-sans text-xs text-muted-foreground text-center mt-3">
                     {t("co.terms")}
