@@ -680,6 +680,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     )}
 
                   </div>
+                  )}
+
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     <Row label={t("co.subtotal")} value={formatPrice(subtotal)} />
