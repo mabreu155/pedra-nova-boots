@@ -170,6 +170,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     onClose();
     setTimeout(() => {
       setStep("payment");
+      setMethod("pix");
+
       setSubmitError(null);
       setSubmitting(false);
     }, 300);
