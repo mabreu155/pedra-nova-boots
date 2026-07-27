@@ -5,7 +5,7 @@
 // que precisa ser substituído pelos valores reais do Kaique.
 // ============================================================
 
-export const PIX_KEY_PLACEHOLDER = "PIX_KEY_PLACEHOLDER";
+export const PIX_KEY_PLACEHOLDER = "9d380c29-8f68-4694-8b9d-caea4ecbd05a";
 export const OWNER_EMAIL_PLACEHOLDER = "pedranovabrasil@gmail.com";
 
 export const CRYPTO_WALLETS = {
