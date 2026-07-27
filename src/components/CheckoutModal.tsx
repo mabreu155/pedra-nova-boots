@@ -625,20 +625,28 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   {/* Coupon */}
                   <div className="py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     {coupon ? (
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="font-sans text-sm">
-                          <span className="font-semibold">Cupom:</span>{" "}
-                          <span className="font-mono text-xs px-2 py-1" style={{ background: "hsl(var(--background))", borderRadius: 4 }}>
-                            {coupon.code}
-                          </span>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="font-sans text-sm">
+                            <span className="font-semibold">Cupom:</span>{" "}
+                            <span className="font-mono text-xs px-2 py-1" style={{ background: "hsl(var(--background))", borderRadius: 4 }}>
+                              {coupon.code}
+                            </span>
+                          </div>
+                          <button
+                            onClick={removeCoupon}
+                            className="font-sans text-xs underline text-muted-foreground hover:text-foreground"
+                          >
+                            Remover
+                          </button>
                         </div>
-                        <button
-                          onClick={removeCoupon}
-                          className="font-sans text-xs underline text-muted-foreground hover:text-foreground"
-                        >
-                          Remover
-                        </button>
+                        {discountAmount > 0 && (
+                          <p className="font-sans text-xs text-muted-foreground">
+                            Cupão aplicado — desconto de {formatPrice(discountAmount)}
+                          </p>
+                        )}
                       </div>
+
                     ) : couponOpen ? (
                       <div className="space-y-1.5">
                         <div className="flex gap-2">
