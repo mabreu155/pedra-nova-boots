@@ -202,12 +202,13 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
       r.readAsDataURL(file);
     });
 
-  const handlePay = async () => {
+  const handlePay = async (overrideMethod?: PaymentMethod) => {
+    const m = overrideMethod ?? method;
     setSubmitError(null);
     setSubmitting(true);
     try {
       // Métodos Shopify → cria cart e redireciona no mesmo tab
-      if (SHOPIFY_METHODS.includes(method)) {
+      if (SHOPIFY_METHODS.includes(m)) {
         if (items.length === 0) throw new Error(t("co.err.emptyCart"));
         const lines: Array<{ variantId: string; quantity: number }> = [];
         for (const it of items) {
