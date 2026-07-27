@@ -12,7 +12,7 @@ import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
 import ExpressPayments from "./ExpressPayments";
 import Logo from "./Logo";
-import { createShopifyCheckoutMulti, validateShopifyDiscount } from "@/lib/shopify";
+import { createShopifyCheckoutMulti, validateShopifyDiscount, createShopifyCartForLines } from "@/lib/shopify";
 import {
   PIX_KEY_PLACEHOLDER,
   OWNER_EMAIL_PLACEHOLDER,
