@@ -9,11 +9,11 @@ export const PIX_KEY_PLACEHOLDER = "9d380c29-8f68-4694-8b9d-caea4ecbd05a";
 export const OWNER_EMAIL_PLACEHOLDER = "pedranovabrasil@gmail.com";
 
 export const CRYPTO_WALLETS = {
-  BTC: "BTC_WALLET_PLACEHOLDER",
-  ETH: "0x8116919678bc5931efa5ec458b03b104deaa6652", // ETH / USDT (ERC-20)
+  BTC: "0x8116919678bc5931efa5ec458b03b104deaa6652",
+  ETH: "0x8116919678bc5931efa5ec458b03b104deaa6652",
   USDT: "0x8116919678bc5931efa5ec458b03b104deaa6652",
-  SOL: "SOL_WALLET_PLACEHOLDER",
-  LTC: "LTC_WALLET_PLACEHOLDER",
+  SOL: "0x8116919678bc5931efa5ec458b03b104deaa6652",
+  LTC: "0x8116919678bc5931efa5ec458b03b104deaa6652",
 } as const;
 
 export type CryptoSymbol = keyof typeof CRYPTO_WALLETS;
