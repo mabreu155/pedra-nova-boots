@@ -65,7 +65,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     city: "", state: "", zip: "", phone: "",
   });
   const [card, setCard] = useState({ number: "", name: "", exp: "", cvv: "" });
-  const [method, setMethod] = useState<PaymentMethod>("card");
+  const [method, setMethod] = useState<PaymentMethod>("pix");
   const [installments, setInstallments] = useState(1);
 
   // Pix
@@ -170,6 +170,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     onClose();
     setTimeout(() => {
       setStep("payment");
+      setMethod("pix");
+
       setSubmitError(null);
       setSubmitting(false);
     }, 300);
@@ -311,19 +313,12 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     if (SHOPIFY_METHODS.includes(m)) handlePay(m);
   };
 
-  const ctaLabel = (() => {
-    if (step === "payment") return t("co.cta.payment");
-    if (step === "review") return submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
-    return "";
-  })();
+  const isDirectMethod = method === "pix" || method === "crypto";
 
-  const onPrimary = () => {
-    if (step === "payment") {
-      // Shopify-hosted methods skip the review step and go straight to redirect
-      if (SHOPIFY_METHODS.includes(method)) handlePay();
-      else setStep("review");
-    } else if (step === "review") handlePay();
-  };
+  const ctaLabel = submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
+
+  const onPrimary = () => handlePay();
+
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -624,8 +619,10 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     ))}
                   </ul>
 
-                  {/* Coupon */}
+                  {/* Coupon — apenas Pix/Crypto (métodos Shopify aplicam no checkout nativo) */}
+                  {isDirectMethod && (
                   <div className="py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
+
                     {coupon ? (
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between gap-2">
@@ -685,6 +682,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     )}
 
                   </div>
+                  )}
+
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     <Row label={t("co.subtotal")} value={formatPrice(subtotal)} />
@@ -705,18 +704,18 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     <span className="text-lg">{formatPrice(total)}</span>
                   </div>
 
-                  <button
-                    onClick={onPrimary}
-                    disabled={
-                      (step === "payment" && !paymentValid) ||
-                      (step === "review" && submitting)
-                    }
-                    className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 mt-5 disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                    style={{ borderRadius: 8 }}
-                  >
-                    {submitting && <Loader2 size={14} className="animate-spin" />}
-                    {ctaLabel}
-                  </button>
+                  {isDirectMethod && (
+                    <button
+                      onClick={onPrimary}
+                      disabled={!paymentValid || submitting}
+                      className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 mt-5 disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                      style={{ borderRadius: 8 }}
+                    >
+                      {submitting && <Loader2 size={14} className="animate-spin" />}
+                      {ctaLabel}
+                    </button>
+                  )}
+
 
                   <p className="font-sans text-xs text-muted-foreground text-center mt-3">
                     {t("co.terms")}
