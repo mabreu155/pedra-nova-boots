@@ -360,9 +360,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
               </div>
 
               {/* Single scroll on mobile; splits into two columns on desktop */}
-              <div className="flex-1 min-h-0 overflow-y-auto md:overflow-hidden md:flex md:flex-row">
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col md:overflow-hidden md:flex-row">
               {/* LEFT — form */}
-              <div className="md:flex-1 md:overflow-y-auto p-5 md:p-8">
+              <div className="md:flex-1 md:overflow-y-auto p-5 md:p-8 shrink-0 md:shrink">
                 {/* Stepper desktop */}
                 <div className="hidden md:flex items-center justify-between mb-6">
                   <button
