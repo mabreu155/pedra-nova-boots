@@ -9,6 +9,14 @@ const OWNER_EMAIL = "pedranovabrasil@gmail.com";
 const MAX_FIELD = 500;
 const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024; // 5MB (base64 decoded approx)
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const BASE64_RE = /^[A-Za-z0-9+/=\s]+$/;
+const ALLOWED_ATTACHMENT_MIME = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "application/pdf",
+];
 
 interface ManualOrderPayload {
   type: "pix" | "crypto";
@@ -135,6 +143,13 @@ Deno.serve(async (req) => {
       const base64 = String(payload.receipt.base64);
       if (base64.length * 0.75 > MAX_ATTACHMENT_BYTES) {
         return new Response(JSON.stringify({ error: "Attachment too large" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const mime = String(payload.receipt.mime ?? "");
+      if (!ALLOWED_ATTACHMENT_MIME.includes(mime) || !BASE64_RE.test(base64)) {
+        return new Response(JSON.stringify({ error: "Invalid attachment" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });

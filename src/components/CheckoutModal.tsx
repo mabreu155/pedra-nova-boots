@@ -20,6 +20,15 @@ import {
   type CryptoSymbol,
 } from "@/lib/checkoutConfig";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  checkReceiptFile,
+  isTrustedCheckoutUrl,
+  isValidEmail,
+  sanitizeDiscountCode,
+  sanitizeFilename,
+  sanitizeText,
+  sanitizeTxid,
+} from "@/lib/security";
 import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "sonner";
 
@@ -124,7 +133,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   }, [open, items]);
 
   const applyCoupon = async () => {
-    const code = couponInput.trim();
+    const code = sanitizeDiscountCode(couponInput);
     if (!code) return;
     setCouponLoading(true);
     setCouponError(null);
@@ -209,8 +218,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
 
   const paymentValid = (() => {
     switch (method) {
-      case "pix": return !!(pixEmail && pixReceipt && addressValid);
-      case "crypto": return !!(cryptoEmail && cryptoTxid && addressValid);
+      case "pix": return !!(isValidEmail(pixEmail) && pixReceipt && addressValid);
+      case "crypto": return !!(isValidEmail(cryptoEmail) && cryptoTxid.trim() && addressValid);
       default: return true;
     }
   })();
@@ -251,25 +260,49 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
           setRedirecting(false);
           throw new Error(t("co.err.createCheckout"));
         }
+        if (!isTrustedCheckoutUrl(checkoutUrl)) {
+          setRedirecting(false);
+          throw new Error(t("co.err.createCheckout"));
+        }
         try { sessionStorage.setItem("pn_checkout_pending", "1"); } catch { /* ignore */ }
         onSuccess?.();
         window.location.href = checkoutUrl;
         return;
       }
 
-      const fullAddress = `${address.street}, ${address.number}${address.complement ? " — " + address.complement : ""}, ${address.city}/${address.state} · ${address.zip} · ${address.phone}`;
+      const a = {
+        street: sanitizeText(address.street, 160),
+        number: sanitizeText(address.number, 20),
+        complement: sanitizeText(address.complement, 80),
+        city: sanitizeText(address.city, 80),
+        state: sanitizeText(address.state, 40),
+        zip: sanitizeText(address.zip, 20),
+        phone: sanitizeText(address.phone, 30),
+      };
+      const fullAddress = `${a.street}, ${a.number}${a.complement ? " — " + a.complement : ""}, ${a.city}/${a.state} · ${a.zip} · ${a.phone}`;
       const itemsSummary = items
         .map((i) => `${i.product.name} (${i.product.code}) — Tam ${i.size} × ${i.qty}`)
         .join(" | ");
       const firstItem = items[0];
 
       if (method === "pix") {
+        if (!isValidEmail(pixEmail)) throw new Error("Email inválido");
+        if (pixReceipt) {
+          const check = checkReceiptFile(pixReceipt);
+          if (!check.ok) {
+            throw new Error(
+              check.reason === "size"
+                ? "Comprovativo demasiado grande (máx. 5 MB)"
+                : "Formato de comprovativo não suportado (imagem ou PDF)"
+            );
+          }
+        }
         const receiptBase64 = pixReceipt ? await fileToBase64(pixReceipt) : "";
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
             type: "pix",
-            customerEmail: pixEmail,
-            customerName: address.name,
+            customerEmail: pixEmail.trim(),
+            customerName: sanitizeText(address.name, 120),
             address: fullAddress,
             productName: firstItem?.product.name,
             productCode: firstItem?.product.code,
@@ -280,7 +313,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             couponDiscountBRL: discountAmount || undefined,
             subtotalBRL: subtotal,
             receipt: pixReceipt
-              ? { filename: pixReceipt.name, base64: receiptBase64, mime: pixReceipt.type }
+              ? { filename: sanitizeFilename(pixReceipt.name), base64: receiptBase64, mime: pixReceipt.type }
               : undefined,
           },
         });
@@ -292,11 +325,12 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
       }
 
       if (method === "crypto") {
+        if (!isValidEmail(cryptoEmail)) throw new Error("Email inválido");
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
             type: "crypto",
-            customerEmail: cryptoEmail,
-            customerName: address.name,
+            customerEmail: cryptoEmail.trim(),
+            customerName: sanitizeText(address.name, 120),
             address: fullAddress,
             productName: firstItem?.product.name,
             productCode: firstItem?.product.code,
@@ -308,7 +342,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             subtotalBRL: subtotal,
             cryptoSymbol,
             cryptoAmount: cryptoAmount ?? "—",
-            txid: cryptoTxid,
+            txid: sanitizeTxid(cryptoTxid),
           },
         });
         if (error) throw new Error(error.message);
@@ -492,7 +526,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                           </div>
                           <p className="text-xs text-muted-foreground pt-2">{t("co.pix.note")}</p>
                         </div>
-                        <Field label={t("co.f.email")} value={pixEmail} onChange={setPixEmail} placeholder="voce@email.com" />
+                        <Field label={t("co.f.email")} value={pixEmail} onChange={(v) => setPixEmail(v.slice(0, 254))} maxLength={254} placeholder="voce@email.com" />
                         <FileField label={t("co.pix.receipt")} file={pixReceipt} onChange={setPixReceipt} />
                         <AddressFields t={t} address={address} setAddress={setAddress} />
                       </div>
@@ -547,8 +581,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             <span className="font-semibold">{formatPrice(total)}</span>
                           </div>
                         </div>
-                        <Field label={t("co.f.email")} value={cryptoEmail} onChange={setCryptoEmail} placeholder="voce@email.com" />
-                        <Field label={t("co.crypto.txid")} value={cryptoTxid} onChange={setCryptoTxid} placeholder="0x… / tx hash" />
+                        <Field label={t("co.f.email")} value={cryptoEmail} onChange={(v) => setCryptoEmail(v.slice(0, 254))} maxLength={254} placeholder="voce@email.com" />
+                        <Field label={t("co.crypto.txid")} value={cryptoTxid} onChange={(v) => setCryptoTxid(sanitizeTxid(v))} placeholder="0x… / tx hash" />
                         <AddressFields t={t} address={address} setAddress={setAddress} />
                       </div>
                     )}
@@ -671,7 +705,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                           <input
                             value={couponInput}
                             autoFocus
-                            onChange={(e) => { setCouponInput(e.target.value); setCouponError(null); }}
+                            onChange={(e) => { setCouponInput(sanitizeDiscountCode(e.target.value)); setCouponError(null); }}
                             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
                             placeholder="Código de desconto"
                             className="flex-1 font-sans text-sm bg-background uppercase"
@@ -782,12 +816,13 @@ const paymentLabel = (
   }
 };
 
-const Field = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) => (
+const Field = ({ label, value, onChange, placeholder, maxLength = 160 }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number }) => (
   <label className="block">
     <span className="label block mb-1.5" style={{ fontSize: 11 }}>{label}</span>
     <input
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e) => onChange(e.target.value.slice(0, maxLength))}
+      maxLength={maxLength}
       placeholder={placeholder}
       className="w-full font-sans text-sm bg-background"
       style={{ padding: "10px 12px", border: "1px solid hsl(var(--border))", borderRadius: 6, outline: "none" }}
@@ -808,7 +843,21 @@ const FileField = ({ label, file, onChange }: { label: string; file: File | null
         type="file"
         accept="image/*,application/pdf"
         className="hidden"
-        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+        onChange={(e) => {
+          const f = e.target.files?.[0] ?? null;
+          if (!f) return onChange(null);
+          const check = checkReceiptFile(f);
+          if (!check.ok) {
+            toast.error(
+              check.reason === "size"
+                ? "Comprovativo demasiado grande (máx. 5 MB)"
+                : "Formato não suportado — envie imagem ou PDF"
+            );
+            e.target.value = "";
+            return onChange(null);
+          }
+          onChange(f);
+        }}
       />
     </div>
   </label>

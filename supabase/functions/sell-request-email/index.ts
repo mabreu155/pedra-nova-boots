@@ -60,7 +60,17 @@ Deno.serve(async (req) => {
   try {
     const payload = (await req.json()) as SellPayload;
 
-    if (!payload?.name || !payload?.model || !payload?.size || !payload?.condition) {
+    const isShortString = (v: unknown, max: number) =>
+      typeof v === "string" && v.trim().length > 0 && v.length <= max;
+
+    if (
+      !isShortString(payload?.name, 200) ||
+      !isShortString(payload?.model, 200) ||
+      !isShortString(payload?.size, 20) ||
+      !isShortString(payload?.condition, 100) ||
+      (payload?.price != null && typeof payload.price !== "string") ||
+      (payload?.description != null && typeof payload.description !== "string")
+    ) {
       return new Response(JSON.stringify({ error: "Invalid payload" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -106,7 +116,7 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: String(e) }), {
+    return new Response(JSON.stringify({ error: "Unexpected error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

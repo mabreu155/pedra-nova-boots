@@ -12,6 +12,12 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  build: {
+    // Sem source maps em produção (não expor código original)
+    sourcemap: false,
+  },
+  // Remove console/debugger do bundle de produção (evita vazar dados sensíveis)
+  esbuild: mode === "production" ? { drop: ["console", "debugger"] } : undefined,
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
