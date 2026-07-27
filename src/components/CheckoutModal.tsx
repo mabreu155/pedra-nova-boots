@@ -65,7 +65,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     city: "", state: "", zip: "", phone: "",
   });
   const [card, setCard] = useState({ number: "", name: "", exp: "", cvv: "" });
-  const [method, setMethod] = useState<PaymentMethod>("card");
+  const [method, setMethod] = useState<PaymentMethod>("pix");
   const [installments, setInstallments] = useState(1);
 
   // Pix
