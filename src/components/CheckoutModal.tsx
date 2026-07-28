@@ -449,8 +449,6 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   <div className="space-y-4">
                     <h2 className="font-sans font-bold text-xl">{t("co.paymentTitle")}</h2>
 
-                    <ExpressPayments amountBRL={total} />
-
                     <div className="grid grid-cols-2 gap-2">
                       <MethodTile active={method === "card"} onClick={() => selectMethod("card")} icon={<CreditCard size={16} />} label={t("co.m.card")} />
                       <MethodTile active={method === "mp_parcelado"} onClick={() => selectMethod("mp_parcelado")} icon={<span className="font-bold text-xs">12x</span>} label={t("co.m.installments")} />
