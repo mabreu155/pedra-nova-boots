@@ -91,6 +91,23 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [cartId, setCartId] = useState<string | null>(null);
 
+  // bfcache: ao voltar do checkout Shopify com o botão "voltar" do navegador,
+  // a página pode ser restaurada do cache sem remontar — limpamos os estados
+  // de loading/redirecionamento para o modal voltar a ficar utilizável.
+  useEffect(() => {
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        setRedirecting(false);
+        setSubmitting(false);
+        try { sessionStorage.removeItem("pn_checkout_pending"); } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
+
+
   const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
   const discountAmount = coupon ? Math.min(coupon.discount, subtotal) : 0;
   const total = Math.max(0, subtotal - discountAmount);
