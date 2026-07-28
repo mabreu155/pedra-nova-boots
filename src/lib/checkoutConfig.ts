@@ -5,16 +5,16 @@
 // que precisa ser substituído pelos valores reais do Kaique.
 // ============================================================
 
-export const PIX_KEY_PLACEHOLDER = "9d380c29-8f68-4694-8b9d-caea4ecbd05a";
+export const PIX_KEY_PLACEHOLDER = import.meta.env.VITE_PIX_KEY as string;
 export const OWNER_EMAIL_PLACEHOLDER = "pedranovabrasil@gmail.com";
 
-export const CRYPTO_WALLETS = {
-  BTC: "0x8116919678bc5931efa5ec458b03b104deaa6652",
-  ETH: "0x8116919678bc5931efa5ec458b03b104deaa6652",
-  USDT: "0x8116919678bc5931efa5ec458b03b104deaa6652",
-  SOL: "0x8116919678bc5931efa5ec458b03b104deaa6652",
-  LTC: "0x8116919678bc5931efa5ec458b03b104deaa6652",
-} as const;
+export const CRYPTO_WALLETS: Record<"BTC" | "ETH" | "USDT" | "SOL" | "LTC", string> = {
+  BTC: import.meta.env.VITE_WALLET_BTC as string,
+  ETH: import.meta.env.VITE_WALLET_ETH as string,
+  USDT: (import.meta.env.VITE_WALLET_USDT ?? import.meta.env.VITE_WALLET_ETH) as string,
+  SOL: import.meta.env.VITE_WALLET_SOL as string,
+  LTC: import.meta.env.VITE_WALLET_LTC as string,
+};
 
 export type CryptoSymbol = keyof typeof CRYPTO_WALLETS;
 
