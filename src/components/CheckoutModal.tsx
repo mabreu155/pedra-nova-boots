@@ -75,7 +75,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [pixReceipt, setPixReceipt] = useState<File | null>(null);
 
   // Crypto
-  const [cryptoSymbol, setCryptoSymbol] = useState<CryptoSymbol>("BTC");
+  const [cryptoSymbol, setCryptoSymbol] = useState<CryptoSymbol>("ETH");
   const [cryptoEmail, setCryptoEmail] = useState("");
   const [cryptoTxid, setCryptoTxid] = useState("");
   const [cryptoRate, setCryptoRate] = useState<number | null>(null);
@@ -250,7 +250,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const cryptoAmount = useMemo(() => {
     if (!cryptoRate) return null;
     const amt = total / cryptoRate;
-    return amt.toFixed(cryptoSymbol === "BTC" ? 8 : 6);
+    return amt.toFixed(6);
   }, [cryptoRate, total, cryptoSymbol]);
 
   const close = () => {
@@ -592,7 +592,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                         <div className="p-4 font-sans text-sm space-y-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
                           <p className="font-semibold flex items-center gap-1.5"><LinkIcon size={14} />{t("co.crypto.title")}</p>
                           <div className="grid grid-cols-5 gap-1.5">
-                            {(["BTC", "ETH", "USDT", "SOL", "LTC"] as CryptoSymbol[]).map((s) => (
+                            {(["ETH", "USDT"] as CryptoSymbol[]).map((s) => (
                               <button
                                 key={s}
                                 onClick={() => setCryptoSymbol(s)}
