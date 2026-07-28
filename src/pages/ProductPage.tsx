@@ -28,6 +28,17 @@ const ProductPage = () => {
     window.scrollTo(0, 0);
   }, [slug]);
 
+  // Voltar do checkout Shopify (reload em vez de bfcache): reabre o resumo
+  // do pedido com o tamanho previamente escolhido.
+  useEffect(() => {
+    const snap = readCheckoutSnapshot();
+    if (!snap) return;
+    if (snap.path !== window.location.pathname) return;
+    if (typeof snap.size === "number") setSize(snap.size);
+    setCheckoutOpen(true);
+  }, []);
+
+
   if (!product) {
     return (
       <Layout>
