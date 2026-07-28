@@ -146,9 +146,11 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Ao fechar o modal, o snapshot deixa de ser necessário.
+  // Ao fechar o modal (depois de ter estado aberto), o snapshot deixa de ser necessário.
+  const wasOpenRef = useRef(false);
   useEffect(() => {
-    if (!open) clearCheckoutSnapshot();
+    if (open) wasOpenRef.current = true;
+    else if (wasOpenRef.current) clearCheckoutSnapshot();
   }, [open]);
 
 
