@@ -6,6 +6,7 @@ import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
 import Logo from "./Logo";
 import { createShopifyCheckoutMulti, validateShopifyDiscount, createShopifyCartForLines } from "@/lib/shopify";
+import { readCheckoutSnapshot, writeCheckoutSnapshot, clearCheckoutSnapshot } from "@/lib/checkoutSnapshot";
 import {
   PIX_KEY_PLACEHOLDER,
   CRYPTO_WALLETS,
