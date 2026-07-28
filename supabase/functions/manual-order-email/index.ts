@@ -6,6 +6,9 @@ const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 // Destino fixo no servidor — nunca vem do cliente (evita relay aberto).
 // Em dev, o secret OWNER_EMAIL aponta para a caixa de testes; em produção usa-se o default.
 const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "pedranovabrasil@gmail.com";
+// Remetente: precisa de um domínio verificado no Resend para entregar a
+// terceiros. Configurável por secret MAIL_FROM.
+const MAIL_FROM = Deno.env.get("MAIL_FROM") ?? "Pedra Nova <no-reply@pedranovabr.com>";
 
 const MAX_FIELD = 500;
 const MAX_ATTACHMENT_BYTES = 5 * 1024 * 1024; // 5MB (base64 decoded approx)
@@ -133,7 +136,7 @@ Deno.serve(async (req) => {
         : "Novo pedido — Crypto | Pedra Nova BR";
 
     const body: Record<string, unknown> = {
-      from: "Pedra Nova <onboarding@resend.dev>",
+      from: MAIL_FROM,
       to: [OWNER_EMAIL],
       reply_to: customerEmail,
       subject,
@@ -173,8 +176,8 @@ Deno.serve(async (req) => {
 
     const data = await resp.json();
     if (!resp.ok) {
-      console.error("Resend error", data);
-      return new Response(JSON.stringify({ error: "Failed to send" }), {
+      console.error("Resend error", resp.status, data);
+      return new Response(JSON.stringify({ error: "Failed to send", status: resp.status }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
