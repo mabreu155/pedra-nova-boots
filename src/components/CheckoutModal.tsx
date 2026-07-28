@@ -6,6 +6,7 @@ import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
 import Logo from "./Logo";
 import { createShopifyCheckoutMulti, validateShopifyDiscount, createShopifyCartForLines } from "@/lib/shopify";
+import { readCheckoutSnapshot, writeCheckoutSnapshot, clearCheckoutSnapshot } from "@/lib/checkoutSnapshot";
 import {
   PIX_KEY_PLACEHOLDER,
   CRYPTO_WALLETS,
@@ -92,29 +93,37 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [cartId, setCartId] = useState<string | null>(null);
 
   // Persistência mínima do estado do modal antes de sair para o Shopify.
-  // Guardamos em `pagehide` e restauramos em `pageshow` (bfcache / voltar).
-  const SNAPSHOT_KEY = "pn_checkout_snapshot";
+  // Guardamos em `pagehide` e restauramos em `pageshow` (bfcache) ou no mount
+  // (quando o navegador recarrega a página em vez de restaurar do bfcache).
+  const snapshotRef = useRef({ open, step, method, installments, coupon, couponInput, items });
+  snapshotRef.current = { open, step, method, installments, coupon, couponInput, items };
 
-  const snapshotRef = useRef({ open, step, method, installments, coupon, couponInput });
-  snapshotRef.current = { open, step, method, installments, coupon, couponInput };
+  const hydrateFromSnapshot = () => {
+    const snap = readCheckoutSnapshot();
+    if (!snap) return;
+    if (snap.step) setStep(snap.step as Step);
+    if (snap.method) setMethod(snap.method as PaymentMethod);
+    if (typeof snap.installments === "number") setInstallments(snap.installments);
+    if (snap.coupon && typeof snap.coupon.code === "string") setCoupon(snap.coupon);
+    if (typeof snap.couponInput === "string") setCouponInput(snap.couponInput);
+  };
 
   useEffect(() => {
+    // Reload após voltar do Shopify: restaura o passo/método/cupão.
+    hydrateFromSnapshot();
+
     const onPageHide = () => {
       const s = snapshotRef.current;
       if (!s.open) return;
-      try {
-        sessionStorage.setItem(
-          SNAPSHOT_KEY,
-          JSON.stringify({
-            step: s.step,
-            method: s.method,
-            installments: s.installments,
-            coupon: s.coupon,
-            couponInput: s.couponInput,
-            ts: Date.now(),
-          })
-        );
-      } catch { /* ignore */ }
+      writeCheckoutSnapshot({
+        path: window.location.pathname,
+        size: s.items[0]?.size,
+        step: s.step,
+        method: s.method,
+        installments: s.installments,
+        coupon: s.coupon,
+        couponInput: s.couponInput,
+      });
     };
 
     // bfcache: ao voltar do checkout Shopify com o botão "voltar" do navegador,
@@ -125,20 +134,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
       setRedirecting(false);
       setSubmitting(false);
       try { sessionStorage.removeItem("pn_checkout_pending"); } catch { /* ignore */ }
-      try {
-        const raw = sessionStorage.getItem(SNAPSHOT_KEY);
-        if (raw) {
-          const snap = JSON.parse(raw);
-          if (snap && typeof snap === "object") {
-            if (snap.step) setStep(snap.step);
-            if (snap.method) setMethod(snap.method);
-            if (typeof snap.installments === "number") setInstallments(snap.installments);
-            if (snap.coupon && typeof snap.coupon.code === "string") setCoupon(snap.coupon);
-            if (typeof snap.couponInput === "string") setCouponInput(snap.couponInput);
-          }
-          sessionStorage.removeItem(SNAPSHOT_KEY);
-        }
-      } catch { /* ignore */ }
+      hydrateFromSnapshot();
     };
 
     window.addEventListener("pagehide", onPageHide);
@@ -147,7 +143,16 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
       window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener("pageshow", onPageShow);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Ao fechar o modal (depois de ter estado aberto), o snapshot deixa de ser necessário.
+  const wasOpenRef = useRef(false);
+  useEffect(() => {
+    if (open) wasOpenRef.current = true;
+    else if (wasOpenRef.current) clearCheckoutSnapshot();
+  }, [open]);
+
 
 
 
