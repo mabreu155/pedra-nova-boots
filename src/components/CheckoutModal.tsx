@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload, Zap, Link as LinkIcon } from "lucide-react";
 import type { Product } from "@/data/products";
@@ -91,20 +91,64 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [couponError, setCouponError] = useState<string | null>(null);
   const [cartId, setCartId] = useState<string | null>(null);
 
-  // bfcache: ao voltar do checkout Shopify com o botão "voltar" do navegador,
-  // a página pode ser restaurada do cache sem remontar — limpamos os estados
-  // de loading/redirecionamento para o modal voltar a ficar utilizável.
+  // Persistência mínima do estado do modal antes de sair para o Shopify.
+  // Guardamos em `pagehide` e restauramos em `pageshow` (bfcache / voltar).
+  const SNAPSHOT_KEY = "pn_checkout_snapshot";
+
+  const snapshotRef = useRef({ open, step, method, installments, coupon, couponInput });
+  snapshotRef.current = { open, step, method, installments, coupon, couponInput };
+
   useEffect(() => {
-    const onPageShow = (e: PageTransitionEvent) => {
-      if (e.persisted) {
-        setRedirecting(false);
-        setSubmitting(false);
-        try { sessionStorage.removeItem("pn_checkout_pending"); } catch { /* ignore */ }
-      }
+    const onPageHide = () => {
+      const s = snapshotRef.current;
+      if (!s.open) return;
+      try {
+        sessionStorage.setItem(
+          SNAPSHOT_KEY,
+          JSON.stringify({
+            step: s.step,
+            method: s.method,
+            installments: s.installments,
+            coupon: s.coupon,
+            couponInput: s.couponInput,
+            ts: Date.now(),
+          })
+        );
+      } catch { /* ignore */ }
     };
+
+    // bfcache: ao voltar do checkout Shopify com o botão "voltar" do navegador,
+    // a página pode ser restaurada do cache sem remontar — limpamos os estados
+    // de loading/redirecionamento e restauramos o resumo/passo do pedido.
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      setRedirecting(false);
+      setSubmitting(false);
+      try { sessionStorage.removeItem("pn_checkout_pending"); } catch { /* ignore */ }
+      try {
+        const raw = sessionStorage.getItem(SNAPSHOT_KEY);
+        if (raw) {
+          const snap = JSON.parse(raw);
+          if (snap && typeof snap === "object") {
+            if (snap.step) setStep(snap.step);
+            if (snap.method) setMethod(snap.method);
+            if (typeof snap.installments === "number") setInstallments(snap.installments);
+            if (snap.coupon && typeof snap.coupon.code === "string") setCoupon(snap.coupon);
+            if (typeof snap.couponInput === "string") setCouponInput(snap.couponInput);
+          }
+          sessionStorage.removeItem(SNAPSHOT_KEY);
+        }
+      } catch { /* ignore */ }
+    };
+
+    window.addEventListener("pagehide", onPageHide);
     window.addEventListener("pageshow", onPageShow);
-    return () => window.removeEventListener("pageshow", onPageShow);
+    return () => {
+      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pageshow", onPageShow);
+    };
   }, []);
+
 
 
 
