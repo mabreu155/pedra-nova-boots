@@ -75,7 +75,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [pixReceipt, setPixReceipt] = useState<File | null>(null);
 
   // Crypto
-  const [cryptoSymbol, setCryptoSymbol] = useState<CryptoSymbol>("BTC");
+  const [cryptoSymbol, setCryptoSymbol] = useState<CryptoSymbol>("ETH");
   const [cryptoEmail, setCryptoEmail] = useState("");
   const [cryptoTxid, setCryptoTxid] = useState("");
   const [cryptoRate, setCryptoRate] = useState<number | null>(null);
@@ -200,14 +200,14 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     setCouponLoading(false);
     if (res.ok === true) {
       setCoupon({ code: res.code, discount: res.discount });
-      toast.success(`Cupom "${res.code}" aplicado`);
+      toast.success(`${t("co.couponSuccessPrefix")} "${res.code}" ${t("co.couponSuccessSuffix")}`);
       return;
     }
     setCoupon(null);
     const msg =
       res.reason === "not_applicable"
-        ? "Cupão inválido ou expirado"
-        : res.message || "Cupão inválido ou expirado";
+        ? t("co.couponInvalid")
+        : res.message || t("co.couponInvalid");
     setCouponError(msg);
   };
 
@@ -250,7 +250,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const cryptoAmount = useMemo(() => {
     if (!cryptoRate) return null;
     const amt = total / cryptoRate;
-    return amt.toFixed(cryptoSymbol === "BTC" ? 8 : 6);
+    return amt.toFixed(6);
   }, [cryptoRate, total, cryptoSymbol]);
 
   const close = () => {
@@ -592,7 +592,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                         <div className="p-4 font-sans text-sm space-y-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
                           <p className="font-semibold flex items-center gap-1.5"><LinkIcon size={14} />{t("co.crypto.title")}</p>
                           <div className="grid grid-cols-5 gap-1.5">
-                            {(["BTC", "ETH", "USDT", "SOL", "LTC"] as CryptoSymbol[]).map((s) => (
+                            {(["ETH", "USDT"] as CryptoSymbol[]).map((s) => (
                               <button
                                 key={s}
                                 onClick={() => setCryptoSymbol(s)}
@@ -744,12 +744,12 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             onClick={removeCoupon}
                             className="font-sans text-xs underline text-muted-foreground hover:text-foreground"
                           >
-                            Remover
+                            {t("co.couponRemove")}
                           </button>
                         </div>
                         {discountAmount > 0 && (
                           <p className="font-sans text-xs text-muted-foreground">
-                            Cupão aplicado — desconto de {formatPrice(discountAmount)}
+                            {t("co.couponApplied")} {formatPrice(discountAmount)}
                           </p>
                         )}
                       </div>
@@ -763,7 +763,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             autoFocus
                             onChange={(e) => { setCouponInput(sanitizeDiscountCode(e.target.value)); setCouponError(null); }}
                             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
-                            placeholder="Código de desconto"
+                            placeholder={t("co.couponPlaceholder")}
                             className="flex-1 font-sans text-sm bg-background uppercase"
                             style={{ padding: "8px 10px", border: "1px solid hsl(var(--border))", borderRadius: 6, outline: "none" }}
                           />
@@ -774,7 +774,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 6 }}
                           >
                             {couponLoading && <Loader2 size={12} className="animate-spin" />}
-                            Aplicar
+                            {t("co.couponApply")}
                           </button>
                         </div>
                         {couponError && (
