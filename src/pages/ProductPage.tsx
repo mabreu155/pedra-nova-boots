@@ -10,6 +10,7 @@ import { useProduct } from "@/hooks/useShopifyProducts";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { readCheckoutSnapshot } from "@/lib/checkoutSnapshot";
 
 const ProductPage = () => {
   const { t } = useI18n();
