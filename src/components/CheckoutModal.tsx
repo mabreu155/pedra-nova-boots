@@ -1,16 +1,9 @@
-// ============================================================
-// APPLE_PAY_GOOGLE_PAY_INTEGRATION
-// Express payment section (Apple Pay / Google Pay) lives at the top
-// of the payment step. Toggle via VITE_FEATURE_EXPRESS_PAYMENTS
-// and configure VITE_STRIPE_PUBLIC_KEY. See ExpressPayments.tsx.
-// ============================================================
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload, Zap, Link as LinkIcon } from "lucide-react";
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
-import ExpressPayments from "./ExpressPayments";
 import Logo from "./Logo";
 import { createShopifyCheckoutMulti, validateShopifyDiscount, createShopifyCartForLines } from "@/lib/shopify";
 import {
