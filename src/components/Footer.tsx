@@ -36,7 +36,7 @@ const Footer = () => {
       </div>
       <div className="mx-auto max-w-[1480px] mt-10 text-center text-muted-foreground" style={{ fontSize: 13 }}>
         {t("footer.support")}{" "}
-        <a href="mailto:pedranovabr@gmail.com" className="hover:underline">pedranovabr@gmail.com</a>
+        <a href="mailto:pedranovabrasil@gmail.com" className="hover:underline">pedranovabrasil@gmail.com</a>
       </div>
     </footer>
   );

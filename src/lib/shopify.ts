@@ -1,10 +1,11 @@
 // Shopify Storefront API client
 import type { Product } from "@/data/products";
+import { isTrustedCheckoutUrl, sanitizeDiscountCode } from "@/lib/security";
 
 const SHOPIFY_API_VERSION = "2025-07";
-const SHOPIFY_STORE_PERMANENT_DOMAIN = "0ksify-g2.myshopify.com";
+export const SHOPIFY_STORE_PERMANENT_DOMAIN = import.meta.env.VITE_SHOPIFY_DOMAIN as string;
 const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
-const SHOPIFY_STOREFRONT_TOKEN = "5f90087a91c91191d6e26ee6fcbeb26c";
+const SHOPIFY_STOREFRONT_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN as string;
 
 export async function storefrontApiRequest<T = any>(
   query: string,
@@ -47,13 +48,22 @@ const CART_CREATE_MUTATION = `
   }
 `;
 
-function formatCheckoutUrl(url: string): string {
+/**
+ * Normaliza o URL de checkout e garante que apontamos apenas para domínios
+ * confiáveis da Shopify (proteção contra open redirect). Devolve null se o
+ * URL não for confiável.
+ */
+function formatCheckoutUrl(url: string): string | null {
+  if (!isTrustedCheckoutUrl(url, [SHOPIFY_STORE_PERMANENT_DOMAIN])) {
+    console.error("Blocked untrusted checkout redirect");
+    return null;
+  }
   try {
     const u = new URL(url);
     u.searchParams.set("channel", "online_store");
     return u.toString();
   } catch {
-    return url;
+    return null;
   }
 }
 
@@ -72,7 +82,8 @@ export async function createShopifyCheckoutMulti(
   const input: Record<string, unknown> = {
     lines: lines.map((l) => ({ quantity: l.quantity, merchandiseId: l.variantId })),
   };
-  if (discountCode) input.discountCodes = [discountCode];
+  const safeDiscount = discountCode ? sanitizeDiscountCode(discountCode) : "";
+  if (safeDiscount) input.discountCodes = [safeDiscount];
   const data = await storefrontApiRequest(CART_CREATE_MUTATION, { input });
   const result = data?.data?.cartCreate;
   if (!result) return null;
@@ -97,47 +108,146 @@ export type DiscountValidation =
     }
   | { ok: false; reason: "not_applicable" | "error"; message?: string };
 
+const CART_CREATE_BASIC_MUTATION = `
+  mutation cartCreate($input: CartInput!) {
+    cartCreate(input: $input) {
+      cart {
+        id
+        cost {
+          subtotalAmount { amount currencyCode }
+          totalAmount { amount currencyCode }
+        }
+      }
+      userErrors { field message }
+    }
+  }
+`;
+
+const CART_DISCOUNT_UPDATE_MUTATION = `
+  mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!) {
+    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+      cart {
+        id
+        discountCodes { code applicable }
+        discountAllocations { discountedAmount { amount currencyCode } }
+        cost {
+          subtotalAmount { amount currencyCode }
+          totalAmount { amount currencyCode }
+        }
+        lines(first: 50) {
+          edges {
+            node { discountAllocations { discountedAmount { amount currencyCode } } }
+          }
+        }
+      }
+      userErrors { field message }
+    }
+  }
+`;
+
 /**
- * Validates a discount code against a throwaway Shopify cart with the given lines.
- * Returns Shopify-calculated subtotal/total so we know the exact discount amount
- * (handles both percentage and fixed-amount codes correctly).
+ * Creates a Shopify cart (checkout) for the given lines and returns its id +
+ * baseline subtotal. Called silently when the checkout modal opens so a coupon
+ * can later be applied against a real Shopify cart.
+ */
+export async function createShopifyCartForLines(
+  lines: Array<{ variantId: string; quantity: number }>,
+): Promise<{ cartId: string; subtotal: number; currencyCode: string } | null> {
+  if (lines.length === 0) return null;
+  try {
+    const data = await storefrontApiRequest(CART_CREATE_BASIC_MUTATION, {
+      input: { lines: lines.map((l) => ({ quantity: l.quantity, merchandiseId: l.variantId })) },
+    });
+    const result = data?.data?.cartCreate;
+    if (!result?.cart?.id || result.userErrors?.length) {
+      if (result?.userErrors?.length) console.error("Shopify cart create errors", result.userErrors);
+      return null;
+    }
+    return {
+      cartId: result.cart.id,
+      subtotal: parseFloat(result.cart.cost.subtotalAmount.amount),
+      currencyCode: result.cart.cost.subtotalAmount.currencyCode,
+    };
+  } catch (e) {
+    console.error("Shopify cart create failed", e);
+    return null;
+  }
+}
+
+/**
+ * Validates a discount code against an existing Shopify cart. If no cart id is
+ * supplied one is created on the fly from the given lines.
  */
 export async function validateShopifyDiscount(
   lines: Array<{ variantId: string; quantity: number }>,
   code: string,
+  existingCartId?: string | null,
 ): Promise<DiscountValidation> {
-  const trimmed = code.trim();
+  const trimmed = sanitizeDiscountCode(code);
   if (!trimmed) return { ok: false, reason: "error", message: "Código vazio" };
-  if (lines.length === 0) return { ok: false, reason: "error", message: "Carrinho vazio" };
+
   try {
-    const data = await storefrontApiRequest(CART_CREATE_MUTATION, {
-      input: {
-        lines: lines.map((l) => ({ quantity: l.quantity, merchandiseId: l.variantId })),
-        discountCodes: [trimmed],
-      },
+    let cartId = existingCartId ?? null;
+    let baseSubtotal: number | null = null;
+    let currency = "EUR";
+
+    if (!cartId) {
+      if (lines.length === 0) return { ok: false, reason: "error", message: "Carrinho vazio" };
+      const created = await createShopifyCartForLines(lines);
+      if (!created) return { ok: false, reason: "error", message: "Não foi possível validar o cupão" };
+      cartId = created.cartId;
+      baseSubtotal = created.subtotal;
+      currency = created.currencyCode;
+    }
+
+    const data = await storefrontApiRequest(CART_DISCOUNT_UPDATE_MUTATION, {
+      cartId,
+      discountCodes: [trimmed],
     });
-    const result = data?.data?.cartCreate;
-    if (!result || result.userErrors?.length) {
+    const result = data?.data?.cartDiscountCodesUpdate;
+    if (!result?.cart) {
       return { ok: false, reason: "error", message: result?.userErrors?.[0]?.message };
     }
+    if (result.userErrors?.length) {
+      return { ok: false, reason: "error", message: result.userErrors[0].message };
+    }
+
     const cart = result.cart;
-    const applied = cart?.discountCodes?.find((d: any) => d.applicable);
+    const applied = cart.discountCodes?.find((d: any) => d.applicable);
     if (!applied) return { ok: false, reason: "not_applicable" };
+
     const subtotal = parseFloat(cart.cost.subtotalAmount.amount);
     const total = parseFloat(cart.cost.totalAmount.amount);
-    const discount = Math.max(0, subtotal - total);
+    currency = cart.cost.totalAmount.currencyCode ?? currency;
+
+    // Shopify may report the discount either as an allocation (order/line level)
+    // or already deducted from the cart subtotal.
+    const sum = (arr: any[] | undefined) =>
+      (arr ?? []).reduce((s, a) => s + parseFloat(a?.discountedAmount?.amount ?? "0"), 0);
+    const allocated =
+      sum(cart.discountAllocations) +
+      (cart.lines?.edges ?? []).reduce(
+        (s: number, e: any) => s + sum(e?.node?.discountAllocations),
+        0,
+      );
+
+    const bySubtotal = baseSubtotal != null ? Math.max(0, baseSubtotal - subtotal) : 0;
+    const byTotal = Math.max(0, subtotal - total);
+    const discount = Math.max(allocated, bySubtotal, byTotal);
+
     return {
       ok: true,
       code: applied.code,
-      subtotal,
+      subtotal: baseSubtotal ?? subtotal,
       total,
       discount,
-      currencyCode: cart.cost.totalAmount.currencyCode,
+      currencyCode: currency,
     };
   } catch (e: any) {
     return { ok: false, reason: "error", message: e?.message };
   }
 }
+
 
 // ---------------- Products ----------------
 
@@ -283,5 +393,55 @@ export async function fetchShopifyProducts(first = 50): Promise<Product[]> {
     data: { products: { edges: Array<{ node: ShopifyProductNode }> } };
   }>(PRODUCTS_QUERY, { first });
   const edges = data?.data?.products?.edges ?? [];
+  return edges.map((e) => mapShopifyProduct(e.node));
+}
+
+// ---------------- Collection Products ----------------
+
+const COLLECTION_PRODUCTS_QUERY = `
+  query GetCollectionProducts($handle: String!, $first: Int!) {
+    collection(handle: $handle) {
+      products(first: $first) {
+        edges {
+          node {
+            id
+            title
+            handle
+            description
+            productType
+            tags
+            priceRange {
+              minVariantPrice { amount currencyCode }
+            }
+            images(first: 20) {
+              edges { node { url altText } }
+            }
+            variants(first: 50) {
+              edges {
+                node {
+                  id
+                  title
+                  sku
+                  availableForSale
+                  selectedOptions { name value }
+                }
+              }
+            }
+            options { name values }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function fetchShopifyCollectionProducts(
+  handle: string,
+  first = 50
+): Promise<Product[]> {
+  const data = await storefrontApiRequest<{
+    data: { collection: { products: { edges: Array<{ node: ShopifyProductNode }> } } | null };
+  }>(COLLECTION_PRODUCTS_QUERY, { handle, first });
+  const edges = data?.data?.collection?.products?.edges ?? [];
   return edges.map((e) => mapShopifyProduct(e.node));
 }

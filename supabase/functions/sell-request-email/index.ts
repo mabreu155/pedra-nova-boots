@@ -2,7 +2,11 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const OWNER_EMAIL = "pedranovabr@gmail.com";
+// Em dev, o secret OWNER_EMAIL aponta para a caixa de testes; em produção usa-se o default.
+const OWNER_EMAIL = Deno.env.get("OWNER_EMAIL") ?? "pedranovabrasil@gmail.com";
+// Remetente: precisa de um domínio verificado no Resend para entregar a
+// terceiros. Configurável por secret MAIL_FROM.
+const MAIL_FROM = Deno.env.get("MAIL_FROM") ?? "Pedra Nova <no-reply@pedranovabr.com>";
 
 interface SellPayload {
   name: string;
@@ -13,17 +17,30 @@ interface SellPayload {
   description?: string;
 }
 
+const MAX_FIELD = 2000;
+
+/** Escapa HTML para impedir injeção de markup nos emails. */
+function esc(value: unknown): string {
+  return String(value ?? "")
+    .slice(0, MAX_FIELD)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function html(p: SellPayload): string {
   const priceLine = p.price?.trim()
     ? `R$ ${p.price.trim()}`
     : "Em aberto — aceita oferta";
   const rows: [string, string][] = [
-    ["Nome", p.name],
-    ["Modelo", p.model],
-    ["Tamanho EU", p.size],
-    ["Condição", p.condition],
-    ["Valor pedido", priceLine],
-    ["Descrição", p.description?.trim() || "—"],
+    ["Nome", esc(p.name)],
+    ["Modelo", esc(p.model)],
+    ["Tamanho EU", esc(p.size)],
+    ["Condição", esc(p.condition)],
+    ["Valor pedido", esc(priceLine)],
+    ["Descrição", esc(p.description?.trim() || "—")],
   ];
   return `
     <div style="font-family:system-ui,-apple-system,sans-serif;background:#fff;padding:24px;color:#0d0d0d">
@@ -47,7 +64,17 @@ Deno.serve(async (req) => {
   try {
     const payload = (await req.json()) as SellPayload;
 
-    if (!payload?.name || !payload?.model || !payload?.size || !payload?.condition) {
+    const isShortString = (v: unknown, max: number) =>
+      typeof v === "string" && v.trim().length > 0 && v.length <= max;
+
+    if (
+      !isShortString(payload?.name, 200) ||
+      !isShortString(payload?.model, 200) ||
+      !isShortString(payload?.size, 20) ||
+      !isShortString(payload?.condition, 100) ||
+      (payload?.price != null && typeof payload.price !== "string") ||
+      (payload?.description != null && typeof payload.description !== "string")
+    ) {
       return new Response(JSON.stringify({ error: "Invalid payload" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -71,17 +98,17 @@ Deno.serve(async (req) => {
         "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
-        from: "Pedra Nova <onboarding@resend.dev>",
+        from: MAIL_FROM,
         to: [OWNER_EMAIL],
-        subject: `Nova proposta de venda — ${payload.model}`,
+        subject: `Nova proposta de venda — ${String(payload.model).slice(0, 120).replace(/[\r\n]/g, " ")}`,
         html: html(payload),
       }),
     });
 
     const data = await resp.json();
     if (!resp.ok) {
-      console.error("Resend error", data);
-      return new Response(JSON.stringify({ error: "Failed to send", detail: data }), {
+      console.error("Resend error", resp.status, data);
+      return new Response(JSON.stringify({ error: "Failed to send" }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -93,7 +120,7 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: String(e) }), {
+    return new Response(JSON.stringify({ error: "Unexpected error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

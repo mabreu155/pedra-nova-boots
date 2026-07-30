@@ -1,25 +1,28 @@
-// ============================================================
-// APPLE_PAY_GOOGLE_PAY_INTEGRATION
-// Express payment section (Apple Pay / Google Pay) lives at the top
-// of the payment step. Toggle via VITE_FEATURE_EXPRESS_PAYMENTS
-// and configure VITE_STRIPE_PUBLIC_KEY. See ExpressPayments.tsx.
-// ============================================================
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, ShieldCheck, ChevronLeft, CreditCard, Lock, Copy, Loader2, Upload, Zap, Link as LinkIcon } from "lucide-react";
 import type { Product } from "@/data/products";
 import { formatPrice } from "@/data/products";
 import ProductImage from "./ProductImage";
-import ExpressPayments from "./ExpressPayments";
-import { createShopifyCheckoutMulti, validateShopifyDiscount } from "@/lib/shopify";
+import Logo from "./Logo";
+import { createShopifyCheckoutMulti, validateShopifyDiscount, createShopifyCartForLines } from "@/lib/shopify";
+import { readCheckoutSnapshot, writeCheckoutSnapshot, clearCheckoutSnapshot } from "@/lib/checkoutSnapshot";
 import {
   PIX_KEY_PLACEHOLDER,
-  OWNER_EMAIL_PLACEHOLDER,
   CRYPTO_WALLETS,
   COINGECKO_IDS,
   type CryptoSymbol,
 } from "@/lib/checkoutConfig";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  checkReceiptFile,
+  isTrustedCheckoutUrl,
+  isValidEmail,
+  sanitizeDiscountCode,
+  sanitizeFilename,
+  sanitizeText,
+  sanitizeTxid,
+} from "@/lib/security";
 import { useI18n } from "@/i18n/I18nContext";
 import { toast } from "sonner";
 
@@ -64,7 +67,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     city: "", state: "", zip: "", phone: "",
   });
   const [card, setCard] = useState({ number: "", name: "", exp: "", cvv: "" });
-  const [method, setMethod] = useState<PaymentMethod>("card");
+  const [method, setMethod] = useState<PaymentMethod>("pix");
   const [installments, setInstallments] = useState(1);
 
   // Pix
@@ -72,7 +75,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [pixReceipt, setPixReceipt] = useState<File | null>(null);
 
   // Crypto
-  const [cryptoSymbol, setCryptoSymbol] = useState<CryptoSymbol>("BTC");
+  const [cryptoSymbol, setCryptoSymbol] = useState<CryptoSymbol>("ETH");
   const [cryptoEmail, setCryptoEmail] = useState("");
   const [cryptoTxid, setCryptoTxid] = useState("");
   const [cryptoRate, setCryptoRate] = useState<number | null>(null);
@@ -80,12 +83,79 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [doneMessage, setDoneMessage] = useState<string>("");
+  const [redirecting, setRedirecting] = useState(false);
 
   // Cupom de desconto (validado pela Shopify Storefront API)
   const [couponInput, setCouponInput] = useState("");
   const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
+  const [cartId, setCartId] = useState<string | null>(null);
+
+  // Persistência mínima do estado do modal antes de sair para o Shopify.
+  // Guardamos em `pagehide` e restauramos em `pageshow` (bfcache) ou no mount
+  // (quando o navegador recarrega a página em vez de restaurar do bfcache).
+  const snapshotRef = useRef({ open, step, method, installments, coupon, couponInput, items });
+  snapshotRef.current = { open, step, method, installments, coupon, couponInput, items };
+
+  const hydrateFromSnapshot = () => {
+    const snap = readCheckoutSnapshot();
+    if (!snap) return;
+    if (snap.step) setStep(snap.step as Step);
+    if (snap.method) setMethod(snap.method as PaymentMethod);
+    if (typeof snap.installments === "number") setInstallments(snap.installments);
+    if (snap.coupon && typeof snap.coupon.code === "string") setCoupon(snap.coupon);
+    if (typeof snap.couponInput === "string") setCouponInput(snap.couponInput);
+  };
+
+  useEffect(() => {
+    // Reload após voltar do Shopify: restaura o passo/método/cupão.
+    hydrateFromSnapshot();
+
+    const onPageHide = () => {
+      const s = snapshotRef.current;
+      if (!s.open) return;
+      writeCheckoutSnapshot({
+        path: window.location.pathname,
+        size: s.items[0]?.size,
+        step: s.step,
+        method: s.method,
+        installments: s.installments,
+        coupon: s.coupon,
+        couponInput: s.couponInput,
+      });
+    };
+
+    // bfcache: ao voltar do checkout Shopify com o botão "voltar" do navegador,
+    // a página pode ser restaurada do cache sem remontar — limpamos os estados
+    // de loading/redirecionamento e restauramos o resumo/passo do pedido.
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (!e.persisted) return;
+      setRedirecting(false);
+      setSubmitting(false);
+      try { sessionStorage.removeItem("pn_checkout_pending"); } catch { /* ignore */ }
+      hydrateFromSnapshot();
+    };
+
+    window.addEventListener("pagehide", onPageHide);
+    window.addEventListener("pageshow", onPageShow);
+    return () => {
+      window.removeEventListener("pagehide", onPageHide);
+      window.removeEventListener("pageshow", onPageShow);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Ao fechar o modal (depois de ter estado aberto), o snapshot deixa de ser necessário.
+  const wasOpenRef = useRef(false);
+  useEffect(() => {
+    if (open) wasOpenRef.current = true;
+    else if (wasOpenRef.current) clearCheckoutSnapshot();
+  }, [open]);
+
+
+
+
 
   const subtotal = items.reduce((s, i) => s + i.product.price * i.qty, 0);
   const discountAmount = coupon ? Math.min(coupon.discount, subtotal) : 0;
@@ -100,24 +170,44 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     return lines;
   };
 
+  // Cria silenciosamente um carrinho/checkout Shopify ao abrir o modal (ou quando
+  // os itens mudam) — o id é reutilizado para validar cupões.
+  useEffect(() => {
+    if (!open) return;
+    const lines = buildLines();
+    if (lines.length === 0) {
+      setCartId(null);
+      return;
+    }
+    let cancelled = false;
+    setCartId(null);
+    createShopifyCartForLines(lines).then((res) => {
+      if (!cancelled) setCartId(res?.cartId ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, items]);
+
   const applyCoupon = async () => {
-    const code = couponInput.trim();
+    const code = sanitizeDiscountCode(couponInput);
     if (!code) return;
     setCouponLoading(true);
     setCouponError(null);
     const lines = buildLines();
-    const res = await validateShopifyDiscount(lines, code);
+    const res = await validateShopifyDiscount(lines, code, cartId);
     setCouponLoading(false);
     if (res.ok === true) {
       setCoupon({ code: res.code, discount: res.discount });
-      toast.success(`Cupom "${res.code}" aplicado`);
+      toast.success(`${t("co.couponSuccessPrefix")} "${res.code}" ${t("co.couponSuccessSuffix")}`);
       return;
     }
     setCoupon(null);
     const msg =
       res.reason === "not_applicable"
-        ? "Cupom inválido ou não aplicável a este carrinho"
-        : res.message || "Erro ao validar cupom";
+        ? t("co.couponInvalid")
+        : res.message || t("co.couponInvalid");
     setCouponError(msg);
   };
 
@@ -127,17 +217,19 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     setCouponError(null);
   };
 
+
   // Re-valida quando items mudam (preço/tamanho diferente pode invalidar mínimos)
   useEffect(() => {
     if (!coupon) return;
     const lines = buildLines();
     if (lines.length === 0) return;
-    validateShopifyDiscount(lines, coupon.code).then((res) => {
+    validateShopifyDiscount(lines, coupon.code, cartId).then((res) => {
       if (res.ok) setCoupon({ code: res.code, discount: res.discount });
       else setCoupon(null);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items]);
+  }, [items, cartId]);
+
 
   // Cota crypto (CoinGecko, sem chave)
   useEffect(() => {
@@ -158,13 +250,15 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
   const cryptoAmount = useMemo(() => {
     if (!cryptoRate) return null;
     const amt = total / cryptoRate;
-    return amt.toFixed(cryptoSymbol === "BTC" ? 8 : 6);
+    return amt.toFixed(6);
   }, [cryptoRate, total, cryptoSymbol]);
 
   const close = () => {
     onClose();
     setTimeout(() => {
       setStep("payment");
+      setMethod("pix");
+
       setSubmitError(null);
       setSubmitting(false);
     }, 300);
@@ -181,9 +275,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
 
   const paymentValid = (() => {
     switch (method) {
-      case "card": return !!(card.number && card.name && card.exp && card.cvv);
-      case "pix": return !!(pixEmail && pixReceipt && addressValid);
-      case "crypto": return !!(cryptoEmail && cryptoTxid && addressValid);
+      case "pix": return !!(isValidEmail(pixEmail) && pixReceipt && addressValid);
+      case "crypto": return !!(isValidEmail(cryptoEmail) && cryptoTxid.trim() && addressValid);
       default: return true;
     }
   })();
@@ -200,12 +293,13 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
       r.readAsDataURL(file);
     });
 
-  const handlePay = async () => {
+  const handlePay = async (overrideMethod?: PaymentMethod) => {
+    const m = overrideMethod ?? method;
     setSubmitError(null);
     setSubmitting(true);
     try {
       // Métodos Shopify → cria cart e redireciona no mesmo tab
-      if (SHOPIFY_METHODS.includes(method)) {
+      if (SHOPIFY_METHODS.includes(m)) {
         if (items.length === 0) throw new Error(t("co.err.emptyCart"));
         const lines: Array<{ variantId: string; quantity: number }> = [];
         for (const it of items) {
@@ -217,30 +311,55 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
           }
           lines.push({ variantId, quantity: it.qty });
         }
+        setRedirecting(true);
         const checkoutUrl = await createShopifyCheckoutMulti(lines, coupon?.code);
-        if (!checkoutUrl) throw new Error(t("co.err.createCheckout"));
-
-        setDoneMessage(t("co.done.redirect"));
-        setStep("done");
+        if (!checkoutUrl) {
+          setRedirecting(false);
+          throw new Error(t("co.err.createCheckout"));
+        }
+        if (!isTrustedCheckoutUrl(checkoutUrl)) {
+          setRedirecting(false);
+          throw new Error(t("co.err.createCheckout"));
+        }
+        try { sessionStorage.setItem("pn_checkout_pending", "1"); } catch { /* ignore */ }
         onSuccess?.();
-        setTimeout(() => { window.location.href = checkoutUrl; }, 1200);
+        window.location.href = checkoutUrl;
         return;
       }
 
-      const fullAddress = `${address.street}, ${address.number}${address.complement ? " — " + address.complement : ""}, ${address.city}/${address.state} · ${address.zip} · ${address.phone}`;
+      const a = {
+        street: sanitizeText(address.street, 160),
+        number: sanitizeText(address.number, 20),
+        complement: sanitizeText(address.complement, 80),
+        city: sanitizeText(address.city, 80),
+        state: sanitizeText(address.state, 40),
+        zip: sanitizeText(address.zip, 20),
+        phone: sanitizeText(address.phone, 30),
+      };
+      const fullAddress = `${a.street}, ${a.number}${a.complement ? " — " + a.complement : ""}, ${a.city}/${a.state} · ${a.zip} · ${a.phone}`;
       const itemsSummary = items
         .map((i) => `${i.product.name} (${i.product.code}) — Tam ${i.size} × ${i.qty}`)
         .join(" | ");
       const firstItem = items[0];
 
       if (method === "pix") {
+        if (!isValidEmail(pixEmail)) throw new Error("Email inválido");
+        if (pixReceipt) {
+          const check = checkReceiptFile(pixReceipt);
+          if (!check.ok) {
+            throw new Error(
+              check.reason === "size"
+                ? "Comprovativo demasiado grande (máx. 5 MB)"
+                : "Formato de comprovativo não suportado (imagem ou PDF)"
+            );
+          }
+        }
         const receiptBase64 = pixReceipt ? await fileToBase64(pixReceipt) : "";
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
             type: "pix",
-            ownerEmail: OWNER_EMAIL_PLACEHOLDER,
-            customerEmail: pixEmail,
-            customerName: address.name,
+            customerEmail: pixEmail.trim(),
+            customerName: sanitizeText(address.name, 120),
             address: fullAddress,
             productName: firstItem?.product.name,
             productCode: firstItem?.product.code,
@@ -251,7 +370,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             couponDiscountBRL: discountAmount || undefined,
             subtotalBRL: subtotal,
             receipt: pixReceipt
-              ? { filename: pixReceipt.name, base64: receiptBase64, mime: pixReceipt.type }
+              ? { filename: sanitizeFilename(pixReceipt.name), base64: receiptBase64, mime: pixReceipt.type }
               : undefined,
           },
         });
@@ -263,12 +382,12 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
       }
 
       if (method === "crypto") {
+        if (!isValidEmail(cryptoEmail)) throw new Error("Email inválido");
         const { error } = await supabase.functions.invoke("manual-order-email", {
           body: {
             type: "crypto",
-            ownerEmail: OWNER_EMAIL_PLACEHOLDER,
-            customerEmail: cryptoEmail,
-            customerName: address.name,
+            customerEmail: cryptoEmail.trim(),
+            customerName: sanitizeText(address.name, 120),
             address: fullAddress,
             productName: firstItem?.product.name,
             productCode: firstItem?.product.code,
@@ -280,7 +399,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             subtotalBRL: subtotal,
             cryptoSymbol,
             cryptoAmount: cryptoAmount ?? "—",
-            txid: cryptoTxid,
+            txid: sanitizeTxid(cryptoTxid),
           },
         });
         if (error) throw new Error(error.message);
@@ -298,16 +417,18 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
     }
   };
 
-  const ctaLabel = (() => {
-    if (step === "payment") return t("co.cta.payment");
-    if (step === "review") return submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
-    return "";
-  })();
-
-  const onPrimary = () => {
-    if (step === "payment") setStep("review");
-    else if (step === "review") handlePay();
+  // Selecionar um método Shopify redireciona imediatamente para o checkout nativo
+  const selectMethod = (m: PaymentMethod) => {
+    setMethod(m);
+    if (SHOPIFY_METHODS.includes(m)) handlePay(m);
   };
+
+  const isDirectMethod = method === "pix" || method === "crypto";
+
+  const ctaLabel = submitting ? t("co.cta.processing") : `${t("co.cta.pay")} ${formatPrice(total)}`;
+
+  const onPrimary = () => handlePay();
+
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -353,9 +474,9 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
               </div>
 
               {/* Single scroll on mobile; splits into two columns on desktop */}
-              <div className="flex-1 min-h-0 overflow-y-auto md:overflow-hidden md:flex md:flex-row">
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col md:overflow-hidden md:flex-row">
               {/* LEFT — form */}
-              <div className="md:flex-1 md:overflow-y-auto p-5 md:p-8">
+              <div className="md:flex-1 md:overflow-y-auto p-5 md:p-8 shrink-0 md:shrink">
                 {/* Stepper desktop */}
                 <div className="hidden md:flex items-center justify-between mb-6">
                   <button
@@ -394,31 +515,19 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                   <div className="space-y-4">
                     <h2 className="font-sans font-bold text-xl">{t("co.paymentTitle")}</h2>
 
-                    <ExpressPayments amountBRL={total} />
-
                     <div className="grid grid-cols-2 gap-2">
-                      <MethodTile active={method === "card"} onClick={() => setMethod("card")} icon={<CreditCard size={16} />} label={t("co.m.card")} />
-                      <MethodTile active={method === "mp_parcelado"} onClick={() => setMethod("mp_parcelado")} icon={<span className="font-bold text-xs">12x</span>} label={t("co.m.installments")} />
+                      <MethodTile active={method === "card"} onClick={() => selectMethod("card")} icon={<CreditCard size={16} />} label={t("co.m.card")} />
+                      <MethodTile active={method === "mp_parcelado"} onClick={() => selectMethod("mp_parcelado")} icon={<span className="font-bold text-xs">12x</span>} label={t("co.m.installments")} />
                       {isApplePayAvailable() && (
-                        <MethodTile active={method === "apple_pay"} onClick={() => setMethod("apple_pay")} icon={<span className="font-bold text-xs"></span>} label={t("co.m.applePay")} />
+                        <MethodTile active={method === "apple_pay"} onClick={() => selectMethod("apple_pay")} icon={<span className="font-bold text-xs"></span>} label={t("co.m.applePay")} />
                       )}
-                      <MethodTile active={method === "paypal"} onClick={() => setMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
+                      <MethodTile active={method === "paypal"} onClick={() => selectMethod("paypal")} icon={<span className="font-bold text-xs">P</span>} label={t("co.m.paypal")} />
                       <MethodTile active={method === "pix"} onClick={() => setMethod("pix")} icon={<span className="font-bold text-xs">PIX</span>} label="" />
                       <MethodTile active={method === "crypto"} onClick={() => setMethod("crypto")} icon={<LinkIcon size={14} />} label="Crypto" />
 
                     </div>
 
-                    {method === "card" && (
-                      <div className="space-y-4 pt-2">
-                        <Field label={t("co.f.cardNumber")} value={card.number} onChange={(v) => setCard({ ...card, number: v })} placeholder="0000 0000 0000 0000" />
-                        <Field label={t("co.f.cardName")} value={card.name} onChange={(v) => setCard({ ...card, name: v })} />
-                        <div className="grid grid-cols-2 gap-3">
-                          <Field label={t("co.f.cardExp")} value={card.exp} onChange={(v) => setCard({ ...card, exp: v })} placeholder="MM/AA" />
-                          <Field label={t("co.f.cardCvv")} value={card.cvv} onChange={(v) => setCard({ ...card, cvv: v })} placeholder="123" />
-                        </div>
-                        <InfoBox>{t("co.info.card")}</InfoBox>
-                      </div>
-                    )}
+
 
 
                     {method === "mp_parcelado" && (
@@ -472,7 +581,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                           </div>
                           <p className="text-xs text-muted-foreground pt-2">{t("co.pix.note")}</p>
                         </div>
-                        <Field label={t("co.f.email")} value={pixEmail} onChange={setPixEmail} placeholder="voce@email.com" />
+                        <Field label={t("co.f.email")} value={pixEmail} onChange={(v) => setPixEmail(v.slice(0, 254))} maxLength={254} placeholder="voce@email.com" />
                         <FileField label={t("co.pix.receipt")} file={pixReceipt} onChange={setPixReceipt} />
                         <AddressFields t={t} address={address} setAddress={setAddress} />
                       </div>
@@ -483,7 +592,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                         <div className="p-4 font-sans text-sm space-y-3" style={{ background: "hsl(var(--secondary))", borderRadius: 8 }}>
                           <p className="font-semibold flex items-center gap-1.5"><LinkIcon size={14} />{t("co.crypto.title")}</p>
                           <div className="grid grid-cols-5 gap-1.5">
-                            {(["BTC", "ETH", "USDT", "SOL", "LTC"] as CryptoSymbol[]).map((s) => (
+                            {(["ETH", "USDT"] as CryptoSymbol[]).map((s) => (
                               <button
                                 key={s}
                                 onClick={() => setCryptoSymbol(s)}
@@ -527,8 +636,8 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             <span className="font-semibold">{formatPrice(total)}</span>
                           </div>
                         </div>
-                        <Field label={t("co.f.email")} value={cryptoEmail} onChange={setCryptoEmail} placeholder="voce@email.com" />
-                        <Field label={t("co.crypto.txid")} value={cryptoTxid} onChange={setCryptoTxid} placeholder="0x… / tx hash" />
+                        <Field label={t("co.f.email")} value={cryptoEmail} onChange={(v) => setCryptoEmail(v.slice(0, 254))} maxLength={254} placeholder="voce@email.com" />
+                        <Field label={t("co.crypto.txid")} value={cryptoTxid} onChange={(v) => setCryptoTxid(sanitizeTxid(v))} placeholder="0x… / tx hash" />
                         <AddressFields t={t} address={address} setAddress={setAddress} />
                       </div>
                     )}
@@ -597,7 +706,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
               {/* RIGHT — order summary */}
               {step !== "done" && (
                 <aside
-                  className="w-full md:w-[340px] md:overflow-y-auto p-5 md:p-6 flex flex-col"
+                  className="w-full md:w-[340px] md:overflow-y-auto p-5 md:p-6 flex flex-col order-first md:order-none"
                   style={{ background: "hsl(var(--secondary))", borderTop: "1px solid hsl(var(--border))" }}
                 >
                   <p className="label mb-4" style={{ fontSize: 11 }}>{t("co.summary")}</p>
@@ -618,31 +727,43 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     ))}
                   </ul>
 
-                  {/* Coupon */}
+                  {/* Coupon — apenas Pix/Crypto (métodos Shopify aplicam no checkout nativo) */}
+                  {isDirectMethod && (
                   <div className="py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
+
                     {coupon ? (
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="font-sans text-sm">
-                          <span className="font-semibold">Cupom:</span>{" "}
-                          <span className="font-mono text-xs px-2 py-1" style={{ background: "hsl(var(--background))", borderRadius: 4 }}>
-                            {coupon.code}
-                          </span>
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="font-sans text-sm">
+                            <span className="font-semibold">Cupom:</span>{" "}
+                            <span className="font-mono text-xs px-2 py-1" style={{ background: "hsl(var(--background))", borderRadius: 4 }}>
+                              {coupon.code}
+                            </span>
+                          </div>
+                          <button
+                            onClick={removeCoupon}
+                            className="font-sans text-xs underline text-muted-foreground hover:text-foreground"
+                          >
+                            {t("co.couponRemove")}
+                          </button>
                         </div>
-                        <button
-                          onClick={removeCoupon}
-                          className="font-sans text-xs underline text-muted-foreground hover:text-foreground"
-                        >
-                          Remover
-                        </button>
+                        {discountAmount > 0 && (
+                          <p className="font-sans text-xs text-muted-foreground">
+                            {t("co.couponApplied")} {formatPrice(discountAmount)}
+                          </p>
+                        )}
                       </div>
+
                     ) : (
                       <div className="space-y-1.5">
+                        <p className="font-sans text-xs text-muted-foreground">{t("co.couponLabel")}</p>
                         <div className="flex gap-2">
                           <input
                             value={couponInput}
-                            onChange={(e) => { setCouponInput(e.target.value); setCouponError(null); }}
+                            autoFocus
+                            onChange={(e) => { setCouponInput(sanitizeDiscountCode(e.target.value)); setCouponError(null); }}
                             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); applyCoupon(); } }}
-                            placeholder="Código de desconto"
+                            placeholder={t("co.couponPlaceholder")}
                             className="flex-1 font-sans text-sm bg-background uppercase"
                             style={{ padding: "8px 10px", border: "1px solid hsl(var(--border))", borderRadius: 6, outline: "none" }}
                           />
@@ -653,7 +774,7 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                             style={{ border: "1px solid hsl(var(--foreground))", borderRadius: 6 }}
                           >
                             {couponLoading && <Loader2 size={12} className="animate-spin" />}
-                            Aplicar
+                            {t("co.couponApply")}
                           </button>
                         </div>
                         {couponError && (
@@ -661,7 +782,10 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                         )}
                       </div>
                     )}
+
                   </div>
+                  )}
+
 
                   <div className="space-y-2 font-sans text-sm py-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
                     <Row label={t("co.subtotal")} value={formatPrice(subtotal)} />
@@ -682,18 +806,18 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
                     <span className="text-lg">{formatPrice(total)}</span>
                   </div>
 
-                  <button
-                    onClick={onPrimary}
-                    disabled={
-                      (step === "payment" && !paymentValid) ||
-                      (step === "review" && submitting)
-                    }
-                    className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 mt-5 disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                    style={{ borderRadius: 8 }}
-                  >
-                    {submitting && <Loader2 size={14} className="animate-spin" />}
-                    {ctaLabel}
-                  </button>
+                  {isDirectMethod && (
+                    <button
+                      onClick={onPrimary}
+                      disabled={!paymentValid || submitting}
+                      className="w-full bg-foreground text-background font-sans font-semibold text-sm py-3.5 mt-5 disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                      style={{ borderRadius: 8 }}
+                    >
+                      {submitting && <Loader2 size={14} className="animate-spin" />}
+                      {ctaLabel}
+                    </button>
+                  )}
+
 
                   <p className="font-sans text-xs text-muted-foreground text-center mt-3">
                     {t("co.terms")}
@@ -704,6 +828,22 @@ const CheckoutModal = ({ open, onClose, items, onSuccess }: Props) => {
             </div>
           </motion.div>
         </>
+      )}
+      {redirecting && (
+        <motion.div
+          key="pn-redirect-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center"
+          style={{ background: "hsl(var(--background))" }}
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Logo size={72} />
+          <Loader2 size={22} className="animate-spin mt-8 text-muted-foreground" />
+        </motion.div>
       )}
     </AnimatePresence>
   );
@@ -725,12 +865,13 @@ const paymentLabel = (
   }
 };
 
-const Field = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) => (
+const Field = ({ label, value, onChange, placeholder, maxLength = 160 }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; maxLength?: number }) => (
   <label className="block">
     <span className="label block mb-1.5" style={{ fontSize: 11 }}>{label}</span>
     <input
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e) => onChange(e.target.value.slice(0, maxLength))}
+      maxLength={maxLength}
       placeholder={placeholder}
       className="w-full font-sans text-sm bg-background"
       style={{ padding: "10px 12px", border: "1px solid hsl(var(--border))", borderRadius: 6, outline: "none" }}
@@ -751,7 +892,21 @@ const FileField = ({ label, file, onChange }: { label: string; file: File | null
         type="file"
         accept="image/*,application/pdf"
         className="hidden"
-        onChange={(e) => onChange(e.target.files?.[0] ?? null)}
+        onChange={(e) => {
+          const f = e.target.files?.[0] ?? null;
+          if (!f) return onChange(null);
+          const check = checkReceiptFile(f);
+          if (!check.ok) {
+            toast.error(
+              check.reason === "size"
+                ? "Comprovativo demasiado grande (máx. 5 MB)"
+                : "Formato não suportado — envie imagem ou PDF"
+            );
+            e.target.value = "";
+            return onChange(null);
+          }
+          onChange(f);
+        }}
       />
     </div>
   </label>
@@ -815,7 +970,7 @@ const AddressFields = ({
       <Field label={t("co.f.number")} value={address.number} onChange={(v) => setAddress({ ...address, number: v })} />
     </div>
     <Field label={t("co.f.complement")} value={address.complement} onChange={(v) => setAddress({ ...address, complement: v })} />
-    <div className="grid grid-cols-[1fr_120px_140px] gap-3">
+    <div className="grid grid-cols-[120px_1fr_140px] gap-3">
       <Field label={t("co.f.city")} value={address.city} onChange={(v) => setAddress({ ...address, city: v })} />
       <Field label={t("co.f.state")} value={address.state} onChange={(v) => setAddress({ ...address, state: v })} />
       <Field label={t("co.f.zip")} value={address.zip} onChange={(v) => setAddress({ ...address, zip: v })} />

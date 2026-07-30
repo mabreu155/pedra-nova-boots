@@ -10,6 +10,7 @@ import { useProduct } from "@/hooks/useShopifyProducts";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useI18n } from "@/i18n/I18nContext";
+import { readCheckoutSnapshot } from "@/lib/checkoutSnapshot";
 
 const ProductPage = () => {
   const { t } = useI18n();
@@ -27,6 +28,17 @@ const ProductPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [slug]);
+
+  // Voltar do checkout Shopify (reload em vez de bfcache): reabre o resumo
+  // do pedido com o tamanho previamente escolhido.
+  useEffect(() => {
+    const snap = readCheckoutSnapshot();
+    if (!snap) return;
+    if (snap.path !== window.location.pathname) return;
+    if (typeof snap.size === "number") setSize(snap.size);
+    setCheckoutOpen(true);
+  }, []);
+
 
   if (!product) {
     return (
@@ -59,16 +71,8 @@ const ProductPage = () => {
     <Layout>
       <div className="px-4 md:px-6 pt-6 md:pt-10">
         <div className="mx-auto max-w-[1200px]">
-          {/* Breadcrumb */}
-          <nav className="label text-muted-foreground flex items-center gap-2 flex-wrap" style={{ fontSize: 11 }}>
-            <Link to="/" className="hover:text-foreground">Home</Link>
-            <span>›</span>
-            <Link to="/" className="hover:text-foreground">{product.category}</Link>
-            <span>›</span>
-            <span className="text-foreground">{product.name}</span>
-          </nav>
 
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_400px] gap-8 md:gap-10">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-[1fr_400px] gap-4 md:gap-10">
             {/* IMAGES — swipeable carousel */}
             <div>
               <div className="relative">
@@ -210,7 +214,7 @@ const ProductPage = () => {
 
               {/* Meta line */}
               <p className="font-sans text-sm text-muted-foreground">
-                {size ? `${t("product.sizeEU")} ${size}` : t("product.selectSize")} · {t("product.condition")} · <span className="underline">{product.category}</span>
+                {size ? `${t("product.sizeEU")} ${size}` : t("product.selectSize")}
               </p>
 
               {/* SIZE SELECTOR */}
@@ -276,12 +280,6 @@ const ProductPage = () => {
                 </p>
               </div>
 
-              {/* Code */}
-              <div className="pt-4" style={{ borderTop: "1px solid hsl(var(--border))" }}>
-                <p className="font-sans text-sm leading-relaxed">
-                  {t("product.code")} <span className="font-semibold">{product.code}</span>
-                </p>
-              </div>
 
               {/* Details */}
               <ul>
